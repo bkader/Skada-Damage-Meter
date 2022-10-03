@@ -7,8 +7,8 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 	local get_sunder_sources = nil
 	local get_sunder_targets = nil
 
-	local pairs, format, GetTime, pformat = pairs, string.format, GetTime, Skada.pformat
-	local new, del, clear = Skada.newTable, Skada.delTable, Skada.clearTable
+	local pairs, format, GetTime, uformat = pairs, string.format, GetTime, private.uformat
+	local new, del, clear = private.newTable, private.delTable, private.clearTable
 	local GetSpellInfo = private.spell_info or GetSpellInfo
 	local GetSpellLink = private.spell_link or GetSpellLink
 	local T = Skada.Table
@@ -53,7 +53,7 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 			if not M.sunderannounce then
 				return
 			elseif not M.sunderbossonly or (M.sunderbossonly and Skada:IsBoss(dstGUID, true)) then
-				mod:Announce(pformat(L["%s dropped from %s!"], sunder_link or spell_sunder, dstName))
+				mod:Announce(uformat(L["%s dropped from %s!"], sunder_link or spell_sunder, dstName))
 			end
 		end
 	end
@@ -78,10 +78,7 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 		data.playerid = last_srcGUID
 		data.playername = last_srcName
 		data.playerflags = last_srcFlags
-
-		data.dstGUID = dstGUID
 		data.dstName = dstName
-		data.dstFlags = dstFlags
 
 		Skada:DispatchSets(log_sunder)
 
@@ -143,7 +140,7 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 	end
 
 	function sourcemod:Update(win, set)
-		win.title = pformat(L["%s's <%s> sources"], win.targetname, spell_sunder)
+		win.title = uformat(L["%s's <%s> sources"], win.targetname, spell_sunder)
 		if not win.targetname then return end
 
 		local sources, total = get_sunder_sources(set, win.targetname)
@@ -170,7 +167,7 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 
 	function targetmod:Update(win, set)
 		double_check_sunder()
-		win.title = pformat(L["%s's <%s> targets"], win.actorname, spell_sunder)
+		win.title = uformat(L["%s's <%s> targets"], win.actorname, spell_sunder)
 		if not set or not win.actorname then return end
 
 		local actor, enemy = set:GetActor(win.actorname, win.actorid)
@@ -318,7 +315,7 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 				sunderannounce = {
 					type = "toggle",
 					name = format(L["Announce %s"], spell_sunder),
-					desc = pformat(L["Announces how long it took to apply %d stacks of %s and announces when it drops."], 5, spell_sunder),
+					desc = uformat(L["Announces how long it took to apply %d stacks of %s and announces when it drops."], 5, spell_sunder),
 					descStyle = "inline",
 					order = 10,
 					width = "double"

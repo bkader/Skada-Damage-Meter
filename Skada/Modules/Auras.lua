@@ -1,13 +1,14 @@
 local folder, Skada = ...
+local private = Skada.private
 local L = LibStub("AceLocale-3.0"):GetLocale(folder)
 
 -- frequently used global (sort of...)
-local pairs, format, pformat = pairs, string.format, Skada.pformat
+local pairs, format, uformat = pairs, string.format, private.uformat
 local time, min, floor = time, math.min, math.floor
 local _
 
 -- common functions and locals
-local new, del, clear = Skada.newTable, Skada.delTable, Skada.clearTable
+local new, del, clear = private.newTable, private.delTable, private.clearTable
 local ignored_buffs = Skada.dummyTable -- Edit Skada\Core\Tables.lua
 local ignored_debuffs = Skada.dummyTable -- Edit Skada\Core\Tables.lua
 local aura, spellschools
@@ -91,7 +92,7 @@ do
 		clear(aura) -- empty aura table first
 		if not set then return end
 
-		local maxtime = set and set:GetTime(set)
+		local maxtime = set and set:GetTime()
 		curtime = curtime or set.last_action or time()
 
 		local actors = (band(main_flag, player_flag) ~= 0) and set.players -- players
@@ -119,12 +120,12 @@ local spelltarget_update_func, targetspell_update_func
 local spell_tooltip, spelltarget_tooltip
 
 -- list of spells that don't trigger SPELL_AURA_x events
-local spell_aura_list = {
+local special_buffs = {
 	[57669] = true -- Replenishment
 }
 
 do
-	local PercentToRGB = Skada.PercentToRGB
+	local PercentToRGB = private.PercentToRGB
 
 	-- formats value texts
 	function format_valuetext(d, cols, count, maxtime, metadata, subview, no_order)
@@ -139,24 +140,24 @@ do
 		end
 	end
 
-	local function find_or_create_actor(set, actorid, actorname, actorflags, is_enemy)
+	local function find_or_create_actor(set, info, is_enemy)
 		-- 1. make sure we can record to the segment.
 		if not set or (set == Skada.total and not Skada.db.profile.totalidc) then return end
 
 		-- 2. make sure we have valid data.
-		if not aura or not aura.spellid then return end
+		if not info or not info.spellid then return end
 
 		-- 3. retrieve the actor.
 		if is_enemy then -- enemy?
-			return Skada:GetEnemy(set, actorname, actorid, actorflags, true)
+			return Skada:GetEnemy(set, info.playername, info.playerid, info.playerflags, true)
 		end
 
-		return Skada:GetPlayer(set, actorid, actorname, actorflags) -- player?
+		return Skada:GetPlayer(set, info.playerid, info.playername, info.playerflags) -- player?
 	end
 
 	-- handles SPELL_AURA_APPLIED event
 	function log_auraapplied(set, is_enemy)
-		local actor = find_or_create_actor(set, aura.srcGUID, aura.srcName, aura.srcFlags, is_enemy)
+		local actor = find_or_create_actor(set, aura, is_enemy)
 		if not actor then return end
 
 		local curtime = set.last_action or time()
@@ -192,7 +193,7 @@ do
 
 	-- handles SPELL_AURA_REFRESH and SPELL_AURA_APPLIED_DOSE events
 	function log_aurarefresh(set, is_enemy)
-		local actor = find_or_create_actor(set, aura.srcGUID, aura.srcName, aura.srcFlags, is_enemy)
+		local actor = find_or_create_actor(set, aura, is_enemy)
 		if not actor then return end
 
 		-- spell
@@ -208,7 +209,7 @@ do
 
 	-- handles SPELL_AURA_REMOVED event
 	function log_auraremove(set, is_enemy)
-		local actor = find_or_create_actor(set, aura.srcGUID, aura.srcName, aura.srcFlags, is_enemy)
+		local actor = find_or_create_actor(set, aura, is_enemy)
 		if not actor then return end
 
 		-- spell
@@ -234,7 +235,7 @@ do
 	end
 
 	function log_specialaura(set, is_enemy)
-		local actor = find_or_create_actor(set, aura.srcGUID, aura.srcName, aura.srcFlags, is_enemy)
+		local actor = find_or_create_actor(set, aura, is_enemy)
 		if not actor then return end
 
 		-- spell
@@ -543,18 +544,12 @@ Skada:RegisterModule("Buffs", function(_, P, _, C)
 	local UnitName, UnitGUID, UnitBuff = UnitName, UnitGUID, UnitBuff
 	local UnitIsDeadOrGhost, GroupIterator = UnitIsDeadOrGhost, Skada.GroupIterator
 
-	-- list of spells used to queue units.
-	local queued_spells = {[49005] = 50424}
-
 	local function handle_buff(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid, _, school, auratype)
-		if spellid and not ignored_buffs[spellid] and (auratype == "BUFF" or spell_aura_list[spellid]) then
-			aura.srcGUID = dstGUID
-			aura.srcName = dstName
-			aura.srcFlags = dstFlags
-
-			aura.dstGUID = nil
+		if spellid and not ignored_buffs[spellid] and (auratype == "BUFF" or special_buffs[spellid]) then
+			aura.playerid = dstGUID
+			aura.playername = dstName
+			aura.playerflags = dstFlags
 			aura.dstName = nil
-			aura.dstFlags = nil
 
 			aura.spellid = spellid
 			aura.school = school
@@ -563,14 +558,8 @@ Skada:RegisterModule("Buffs", function(_, P, _, C)
 				Skada:DispatchSets(log_specialaura)
 			elseif event == "SPELL_AURA_APPLIED" then
 				Skada:DispatchSets(log_auraapplied)
-				if queued_spells[spellid] then
-					Skada:QueueUnit(queued_spells[spellid], srcGUID, srcName, srcFlags, dstGUID)
-				end
 			elseif event == "SPELL_AURA_REMOVED" then
 				Skada:DispatchSets(log_auraremove)
-				if queued_spells[spellid] then
-					Skada:UnqueueUnit(queued_spells[spellid], dstGUID)
-				end
 			else
 				Skada:DispatchSets(log_aurarefresh)
 			end
@@ -579,7 +568,7 @@ Skada:RegisterModule("Buffs", function(_, P, _, C)
 
 	function spelltargetmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's targets"], label)
+		win.title = uformat(L["%s's targets"], label)
 	end
 
 	do
@@ -612,7 +601,7 @@ Skada:RegisterModule("Buffs", function(_, P, _, C)
 		end
 
 		function spelltargetmod:Update(win, set)
-			win.title = pformat(L["%s's targets"], win.spellname)
+			win.title = uformat(L["%s's targets"], win.spellname)
 
 			local targets = get_aura_targets(set, win.spellid)
 			if not targets then
@@ -634,11 +623,11 @@ Skada:RegisterModule("Buffs", function(_, P, _, C)
 
 	function spellmod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
-		win.title = pformat(L["%s's buffs"], label)
+		win.title = uformat(L["%s's buffs"], label)
 	end
 
 	function spellmod:Update(win, set)
-		win.title = pformat(L["%s's buffs"], win.actorname)
+		win.title = uformat(L["%s's buffs"], win.actorname)
 		spell_update_func(self, "BUFF", win, set, mod_cols)
 	end
 
@@ -722,21 +711,13 @@ Skada:RegisterModule("Debuffs", function(_, _, _, C)
 	local targetspellmod = targetmod:NewModule("Debuff spell list")
 	local mod_cols = nil
 
-	local function handle_debuff(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, _, spellid, _, school, auratype)
+	local function handle_debuff(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid, _, school, auratype)
 		if not spellid or ignored_debuffs[spellid] or auratype ~= "DEBUFF" then return end
 
-		aura.srcGUID = srcGUID
-		aura.srcName = srcName
-		aura.srcFlags = srcFlags
-
-		aura.dstGUID = nil
-		aura.dstName = dstName
-		aura.dstFlags = nil
-
+		aura.playerid, aura.playername, aura.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+		aura.dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
 		aura.spellid = -spellid
 		aura.school = school
-
-		Skada:FixPets(aura)
 
 		if event == "SPELL_AURA_APPLIED" then
 			Skada:DispatchSets(log_auraapplied)
@@ -759,21 +740,21 @@ Skada:RegisterModule("Debuffs", function(_, _, _, C)
 
 	function spelltargetmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's <%s> targets"], win.actorname, label)
+		win.title = uformat(L["%s's <%s> targets"], win.actorname, label)
 	end
 
 	function spelltargetmod:Update(win, set)
-		win.title = pformat(L["%s's <%s> targets"], win.actorname, win.spellname)
+		win.title = uformat(L["%s's <%s> targets"], win.actorname, win.spellname)
 		spelltarget_update_func(self, "DEBUFF", win, set, mod_cols, C)
 	end
 
 	function spellsourcemod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's sources"], label)
+		win.title = uformat(L["%s's sources"], label)
 	end
 
 	function spellsourcemod:Update(win, set)
-		win.title = pformat(L["%s's sources"], win.spellname)
+		win.title = uformat(L["%s's sources"], win.spellname)
 		if win.class then
 			win.title = format("%s (%s)", win.title, L[win.class])
 		end
@@ -797,11 +778,11 @@ Skada:RegisterModule("Debuffs", function(_, _, _, C)
 
 	function targetmod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
-		win.title = pformat(L["%s's targets"], label)
+		win.title = uformat(L["%s's targets"], label)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's targets"], win.actorname)
+		win.title = uformat(L["%s's targets"], win.actorname)
 		target_update_func(self, "DEBUFF", win, set, mod_cols, C)
 	end
 
@@ -888,14 +869,11 @@ Skada:RegisterModule("Enemy Buffs", function(_, P, _, C)
 	local mod_cols = nil
 
 	local function handle_buff(_, event, _, _, _, dstGUID, dstName, dstFlags, spellid, _, school, auratype)
-		if spellid and not ignored_buffs[spellid] and (auratype == "BUFF" or spell_aura_list[spellid]) then
-			aura.srcGUID = dstGUID
-			aura.srcName = dstName
-			aura.srcFlags = dstFlags
-
-			aura.dstGUID = nil
+		if spellid and not ignored_buffs[spellid] and (auratype == "BUFF" or special_buffs[spellid]) then
+			aura.playerid = dstGUID
+			aura.playername = dstName
+			aura.playerflags = dstFlags
 			aura.dstName = nil
-			aura.dstFlags = nil
 
 			aura.spellid = spellid
 			aura.school = school
@@ -914,11 +892,11 @@ Skada:RegisterModule("Enemy Buffs", function(_, P, _, C)
 
 	function spellmod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
-		win.title = pformat(L["%s's buffs"], label)
+		win.title = uformat(L["%s's buffs"], label)
 	end
 
 	function spellmod:Update(win, set)
-		win.title = pformat(L["%s's buffs"], win.actorname)
+		win.title = uformat(L["%s's buffs"], win.actorname)
 		spell_update_func(self, "BUFF", win, set, mod_cols)
 	end
 
@@ -971,16 +949,13 @@ Skada:RegisterModule("Enemy Debuffs", function(_, _, _, C)
 	local targetspellmod = targetmod:NewModule("Debuff spell list")
 	local mod_cols = nil
 
-	local function handle_debuff(_, event, srcGUID, srcName, srcFlags, _, dstName, _, spellid, _, school, auratype)
+	local function handle_debuff(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid, _, school, auratype)
 		if not spellid or ignored_debuffs[spellid] or auratype ~= "DEBUFF" then return end
 
-		aura.srcGUID = srcGUID
-		aura.srcName = srcName
-		aura.srcFlags = srcFlags
-
-		aura.dstGUID = nil
-		aura.dstName = dstName
-		aura.dstFlags = nil
+		aura.playerid = srcGUID
+		aura.playername = srcName
+		aura.playerflags = srcFlags
+		aura.dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
 
 		aura.spellid = -spellid
 		aura.school = school
@@ -1006,21 +981,21 @@ Skada:RegisterModule("Enemy Debuffs", function(_, _, _, C)
 
 	function spelltargetmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's <%s> targets"], win.actorname, label)
+		win.title = uformat(L["%s's <%s> targets"], win.actorname, label)
 	end
 
 	function spelltargetmod:Update(win, set)
-		win.title = pformat(L["%s's <%s> targets"], win.actorname, win.spellname)
+		win.title = uformat(L["%s's <%s> targets"], win.actorname, win.spellname)
 		spelltarget_update_func(self, "DEBUFF", win, set, mod_cols, C, true)
 	end
 
 	function targetmod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
-		win.title = pformat(L["%s's targets"], label)
+		win.title = uformat(L["%s's targets"], label)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's targets"], win.actorname)
+		win.title = uformat(L["%s's targets"], win.actorname)
 		target_update_func(self, "DEBUFF", win, set, mod_cols, C, true)
 	end
 
@@ -1064,7 +1039,7 @@ Skada:RegisterModule("Enemy Debuffs", function(_, _, _, C)
 			"SPELL_AURA_REFRESH",
 			"SPELL_AURA_REMOVED",
 			"SPELL_AURA_APPLIED_DOSE",
-			{src_is_not_interesting = true, dst_is_interesting_nopets = true}
+			{src_is_not_interesting = true, dst_is_interesting = true}
 		)
 
 		Skada:AddMode(self, L["Enemies"])

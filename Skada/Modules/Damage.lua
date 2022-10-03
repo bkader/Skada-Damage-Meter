@@ -2,8 +2,8 @@ local _, Skada = ...
 local private = Skada.private
 
 local pairs, max = pairs, math.max
-local format, pformat = string.format, Skada.pformat
-local new, del, clear = Skada.newTable, Skada.delTable, Skada.clearTable
+local format, uformat = string.format, private.uformat
+local new, del, clear = private.newTable, private.delTable, private.clearTable
 
 local function format_valuetext(d, columns, total, dps, metadata, subview)
 	d.valuetext = Skada:FormatValueCols(
@@ -31,7 +31,7 @@ Skada:RegisterModule("Damage", function(L, P)
 
 	local UnitGUID, GetTime = UnitGUID, GetTime
 	local GetSpellInfo = private.spell_info or GetSpellInfo
-	local PercentToRGB = Skada.PercentToRGB
+	local PercentToRGB = private.PercentToRGB
 	local spellschools = Skada.spellschools
 	local ignoredSpells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
 	local passiveSpells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
@@ -215,107 +215,97 @@ Skada:RegisterModule("Damage", function(L, P)
 	end
 
 	local extraATT = nil
-	local function spell_damage(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		if srcGUID ~= dstGUID then
-			-- handle extra attacks
-			if eventtype == "SPELL_EXTRA_ATTACKS" then
-				local spellid, spellname, _, amount = ...
+	local function spell_damage(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, _, ...)
+		if srcGUID == dstGUID then return end
 
-				if spellid and spellname and not ignoredSpells[spellid] then
-					extraATT = extraATT or T.get("Damage_ExtraAttacks")
-					if not extraATT[srcName] then
-						extraATT[srcName] = new()
-						extraATT[srcName].proc = spellname
-						extraATT[srcName].count = amount
-						extraATT[srcName].time = Skada.current.last_time or GetTime()
-					end
+		-- handle extra attacks
+		if eventtype == "SPELL_EXTRA_ATTACKS" then
+			local spellid, spellname, _, amount = ...
+
+			if spellid and spellname and not ignoredSpells[spellid] then
+				extraATT = extraATT or T.get("Damage_ExtraAttacks")
+				if not extraATT[srcName] then
+					extraATT[srcName] = new()
+					extraATT[srcName].proc = spellname
+					extraATT[srcName].count = amount
+					extraATT[srcName].time = Skada.current.last_time or GetTime()
 				end
-
-				return
 			end
 
-			if eventtype == "SWING_DAMAGE" then
-				dmg.spellid, dmg.spellname, dmg.school = 6603, L["Melee"], 0x01
-				dmg.amount, dmg.overkill, _, dmg.resisted, dmg.blocked, dmg.absorbed, dmg.critical, dmg.glancing = ...
+			return
+		end
 
-				-- an extra attack?
-				if extraATT and extraATT[srcName] then
-					local curtime = Skada.current.last_time or GetTime()
-					if not extraATT[srcName].spellname then -- queue spell
-						extraATT[srcName].spellname = dmg.spellname
-					elseif dmg.spellname == L["Melee"] and extraATT[srcName].time < (curtime - 5) then -- expired proc
+		if eventtype == "SWING_DAMAGE" then
+			dmg.spellid, dmg.spellname, dmg.school = 6603, L["Melee"], 0x01
+			dmg.amount, dmg.overkill, _, dmg.resisted, dmg.blocked, dmg.absorbed, dmg.critical, dmg.glancing = ...
+
+			-- an extra attack?
+			if extraATT and extraATT[srcName] then
+				local curtime = Skada.current.last_time or GetTime()
+				if not extraATT[srcName].spellname then -- queue spell
+					extraATT[srcName].spellname = dmg.spellname
+				elseif dmg.spellname == L["Melee"] and extraATT[srcName].time < (curtime - 5) then -- expired proc
+					extraATT[srcName] = del(extraATT[srcName])
+				elseif dmg.spellname == L["Melee"] then -- valid damage contribution
+					dmg.spellname = extraATT[srcName].spellname .. " (" .. extraATT[srcName].proc .. ")"
+					extraATT[srcName].count = max(0, extraATT[srcName].count - 1)
+					if extraATT[srcName].count == 0 then -- no procs left
 						extraATT[srcName] = del(extraATT[srcName])
-					elseif dmg.spellname == L["Melee"] then -- valid damage contribution
-						dmg.spellname = extraATT[srcName].spellname .. " (" .. extraATT[srcName].proc .. ")"
-						extraATT[srcName].count = max(0, extraATT[srcName].count - 1)
-						if extraATT[srcName].count == 0 then -- no procs left
-							extraATT[srcName] = del(extraATT[srcName])
-						end
 					end
 				end
-			else
-				dmg.spellid, dmg.spellname, dmg.school, dmg.amount, dmg.overkill, _, dmg.resisted, dmg.blocked, dmg.absorbed, dmg.critical, dmg.glancing = ...
 			end
+		else
+			dmg.spellid, dmg.spellname, dmg.school, dmg.amount, dmg.overkill, _, dmg.resisted, dmg.blocked, dmg.absorbed, dmg.critical, dmg.glancing = ...
+		end
 
-			if dmg.spellid and dmg.spellname and not ignoredSpells[dmg.spellid] then
-				dmg.playerid = srcGUID
-				dmg.playername = srcName
-				dmg.playerflags = srcFlags
+		if dmg.spellid and dmg.spellname and not ignoredSpells[dmg.spellid] then
+			dmg.playerid = srcGUID
+			dmg.playername = srcName
+			dmg.playerflags = srcFlags
+			dmg.dstName = dstName
+			dmg.misstype = nil
 
-				dmg.dstGUID = dstGUID
-				dmg.dstName = dstName
-				dmg.dstFlags = dstFlags
-
-				dmg.misstype = nil
-				dmg.petname = nil
-				Skada:FixPets(dmg)
-
-				Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_DAMAGE")
-			end
+			Skada:FixPets(dmg)
+			Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_DAMAGE")
 		end
 	end
 
-	local function spell_missed(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		if srcGUID ~= dstGUID then
-			local amount
+	local function spell_missed(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, _, ...)
+		if srcGUID == dstGUID then return end
 
-			if eventtype == "SWING_MISSED" then
-				dmg.spellid, dmg.spellname, dmg.school = 6603, L["Melee"], 0x01
-				dmg.misstype, amount = ...
-			else
-				dmg.spellid, dmg.spellname, dmg.school, dmg.misstype, amount = ...
+		local amount
+
+		if eventtype == "SWING_MISSED" then
+			dmg.spellid, dmg.spellname, dmg.school = 6603, L["Melee"], 0x01
+			dmg.misstype, amount = ...
+		else
+			dmg.spellid, dmg.spellname, dmg.school, dmg.misstype, amount = ...
+		end
+
+		if dmg.spellid and dmg.spellname and not ignoredSpells[dmg.spellid] then
+			dmg.playerid = srcGUID
+			dmg.playername = srcName
+			dmg.playerflags = srcFlags
+			dmg.dstName = dstName
+
+			dmg.amount = 0
+			dmg.overkill = 0
+			dmg.resisted = nil
+			dmg.blocked = nil
+			dmg.absorbed = nil
+			dmg.critical = nil
+			dmg.glancing = nil
+
+			if dmg.misstype == "ABSORB" and amount then
+				dmg.absorbed = amount
+			elseif dmg.misstype == "BLOCK" and amount then
+				dmg.blocked = amount
+			elseif dmg.misstype == "RESIST" and amount then
+				dmg.resisted = amount
 			end
 
-			if dmg.spellid and dmg.spellname and not ignoredSpells[dmg.spellid] then
-				dmg.playerid = srcGUID
-				dmg.playername = srcName
-				dmg.playerflags = srcFlags
-
-				dmg.dstGUID = dstGUID
-				dmg.dstName = dstName
-				dmg.dstFlags = dstFlags
-
-				dmg.amount = 0
-				dmg.overkill = 0
-				dmg.resisted = nil
-				dmg.blocked = nil
-				dmg.absorbed = nil
-				dmg.critical = nil
-				dmg.glancing = nil
-
-				if dmg.misstype == "ABSORB" and amount then
-					dmg.absorbed = amount
-				elseif dmg.misstype == "BLOCK" and amount then
-					dmg.blocked = amount
-				elseif dmg.misstype == "RESIST" and amount then
-					dmg.resisted = amount
-				end
-
-				dmg.petname = nil
-				Skada:FixPets(dmg)
-
-				Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_MISSED")
-			end
+			Skada:FixPets(dmg)
+			Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_MISSED")
 		end
 	end
 
@@ -457,7 +447,7 @@ Skada:RegisterModule("Damage", function(L, P)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's targets"], win.actorname)
+		win.title = uformat(L["%s's targets"], win.actorname)
 
 		local actor = set and set:GetActor(win.actorname, win.actorid)
 		if not actor then return end
@@ -498,11 +488,11 @@ Skada:RegisterModule("Damage", function(L, P)
 
 	function spellmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat("%s: %s", win.actorname, format(L["%s's damage breakdown"], label))
+		win.title = uformat("%s: %s", win.actorname, format(L["%s's damage breakdown"], label))
 	end
 
 	function spellmod:Update(win, set)
-		win.title = pformat("%s: %s", win.actorname, pformat(L["%s's damage breakdown"], win.spellname))
+		win.title = uformat("%s: %s", win.actorname, uformat(L["%s's damage breakdown"], win.spellname))
 		if not set or not win.spellname then return end
 
 		-- details only available for players
@@ -553,11 +543,11 @@ Skada:RegisterModule("Damage", function(L, P)
 
 	function sdetailmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's <%s> damage"], win.actorname, label)
+		win.title = uformat(L["%s's <%s> damage"], win.actorname, label)
 	end
 
 	function sdetailmod:Update(win, set)
-		win.title = pformat(L["%s's <%s> damage"], win.actorname, win.spellname)
+		win.title = uformat(L["%s's <%s> damage"], win.actorname, win.spellname)
 		if not win.spellname then return end
 
 		-- only available for players
@@ -1011,7 +1001,7 @@ Skada:RegisterModule("Damage Done By Spell", function(L, P, _, C)
 	end
 
 	function sourcemod:Update(win, set)
-		win.title = pformat(L["%s's sources"], win.spellname)
+		win.title = uformat(L["%s's sources"], win.spellname)
 		if not win.spellname then return end
 
 		local total = 0
@@ -1169,7 +1159,7 @@ Skada:RegisterModule("Useful Damage", function(L, P)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's targets"], win.actorname)
+		win.title = uformat(L["%s's targets"], win.actorname)
 		if not set or not win.actorname then return end
 
 		local actor = set:GetActor(win.actorname, win.actorid)
@@ -1204,7 +1194,7 @@ Skada:RegisterModule("Useful Damage", function(L, P)
 	end
 
 	function detailmod:Update(win, set)
-		win.title = pformat(L["Useful damage on %s"], win.targetname)
+		win.title = uformat(L["Useful damage on %s"], win.targetname)
 		if not set or not win.targetname then return end
 
 		local actor, enemy = set:GetActor(win.targetname, win.targetid)
@@ -1341,7 +1331,7 @@ Skada:RegisterModule("Overkill", function(L, _, _, C)
 	end
 
 	function spellmod:Update(win, set)
-		win.title = pformat(L["%s's overkill spells"], win.actorname)
+		win.title = uformat(L["%s's overkill spells"], win.actorname)
 		if not set or not win.actorname then return end
 
 		local actor = set:GetActor(win.actorname, win.actorid)
@@ -1375,7 +1365,7 @@ Skada:RegisterModule("Overkill", function(L, _, _, C)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's overkill targets"], win.actorname)
+		win.title = uformat(L["%s's overkill targets"], win.actorname)
 		if not set or not win.actorname then return end
 
 		local actor = set:GetActor(win.actorname, win.actorid)
@@ -1405,11 +1395,11 @@ Skada:RegisterModule("Overkill", function(L, _, _, C)
 
 	function spelltargetmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's overkill targets"], win.actorname)
+		win.title = uformat(L["%s's overkill targets"], win.actorname)
 	end
 
 	function spelltargetmod:Update(win, set)
-		win.title = pformat(L["%s's overkill targets"], win.actorname)
+		win.title = uformat(L["%s's overkill targets"], win.actorname)
 		if not win.spellname or not win.actorname then return end
 
 		local actor = set:GetActor(win.actorname, win.actorid)
@@ -1438,11 +1428,11 @@ Skada:RegisterModule("Overkill", function(L, _, _, C)
 
 	function targetspellmod:Enter(win, id, label)
 		win.targetid, win.targetname = id, label
-		win.title = pformat(L["%s's overkill spells"], win.actorname)
+		win.title = uformat(L["%s's overkill spells"], win.actorname)
 	end
 
 	function targetspellmod:Update(win, set)
-		win.title = pformat(L["%s's overkill spells"], win.actorname)
+		win.title = uformat(L["%s's overkill spells"], win.actorname)
 		if not set or not win.targetname then return end
 
 		local actor = set:GetActor(win.actorname, win.actorid)

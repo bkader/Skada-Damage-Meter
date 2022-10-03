@@ -3,7 +3,7 @@ local private = Skada.private
 
 local pairs, max, select = pairs, math.max, select
 local getmetatable, setmetatable = getmetatable, setmetatable
-local new, clear = Skada.newTable, Skada.clearTable
+local new, clear = private.newTable, private.clearTable
 
 -- a dummy table used as fallback
 local dummyTable = {}
@@ -31,10 +31,8 @@ Skada.enemyPrototype = enemyPrototype
 -------------------------------------------------------------------------------
 -- segment/set prototype & functions
 
-local BITMASK_FRIENDLY = private.BITMASK_FRIENDLY or COMBATLOG_OBJECT_REACTION_FRIENDLY or 0x00000010
-private.BITMASK_FRIENDLY = BITMASK_FRIENDLY
-
 local band, tremove = bit.band, tremove or table.remove
+local BITMASK_FRIENDLY = private.BITMASK_FRIENDLY or 0x00000010
 
 -- binds a set table to set prototype
 function setPrototype:Bind(obj)

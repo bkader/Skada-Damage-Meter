@@ -1,9 +1,10 @@
 local _, Skada = ...
+local private = Skada.private
 
 -- frequently used globals --
 local pairs, type, max, format = pairs, type, math.max, string.format
-local pformat, T = Skada.pformat, Skada.Table
-local new, clear = Skada.newTable, Skada.clearTable
+local uformat, T = private.uformat, Skada.Table
+local new, clear = private.newTable, private.clearTable
 local setPrototype, enemyPrototype = Skada.setPrototype, Skada.enemyPrototype
 
 ---------------------------------------------------------------------------
@@ -24,7 +25,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	local UnitHealthInfo, UnitPowerInfo = Skada.UnitHealthInfo, Skada.UnitPowerInfo
 	local UnitExists, UnitGUID = UnitExists, UnitGUID
 	local UnitHealthMax, UnitPowerMax = UnitHealthMax, UnitPowerMax
-	local tContains, del = tContains, Skada.delTable
+	local tContains, del = tContains, private.delTable
 
 	-- this table holds the units to which the damage done is
 	-- collected into a new fake unit.
@@ -340,59 +341,51 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	end
 
 	local function spell_damage(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		if srcName and dstName then
-			srcGUID, srcName = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+		if not srcName or not dstName then return end
 
-			if eventtype == "SWING_DAMAGE" then
-				dmg.spellid, dmg.spellschool = 6603, 0x01
-				dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
-			else
-				dmg.spellid, _, dmg.spellschool, dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
-			end
+		if eventtype == "SWING_DAMAGE" then
+			dmg.spellid, dmg.spellschool = 6603, 0x01
+			dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
+		else
+			dmg.spellid, _, dmg.spellschool, dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
+		end
 
-			if dmg.spellid and not ignoredSpells[dmg.spellid] then
-				dmg.enemyid = dstGUID
-				dmg.enemyname = dstName
-				dmg.enemyflags = dstFlags
+		if dmg.spellid and not ignoredSpells[dmg.spellid] then
+			dmg.enemyid = dstGUID
+			dmg.enemyname = dstName
+			dmg.enemyflags = dstFlags
+			dmg.dstGUID = nil
 
-				dmg.srcGUID = srcGUID
-				dmg.srcName = srcName
-				dmg.srcFlags = srcFlags
-
-				Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_DAMAGE")
-			end
+			_, dmg.srcName = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+			Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_DAMAGE")
 		end
 	end
 
 	local function spell_missed(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		if srcName and dstName then
-			local spellid, spellschool, misstype, amount
+		if not srcName or not dstName then return end
 
-			if eventtype == "SWING_MISSED" then
-				spellid, spellschool = 6603, 0x01
-				misstype, amount = ...
-			else
-				spellid, _, spellschool, misstype, amount = ...
-			end
+		local spellid, spellschool, misstype, amount
 
-			if misstype == "ABSORB" and spellid and not ignoredSpells[spellid] then
-				srcGUID, srcName = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+		if eventtype == "SWING_MISSED" then
+			spellid, spellschool = 6603, 0x01
+			misstype, amount = ...
+		else
+			spellid, _, spellschool, misstype, amount = ...
+		end
 
-				dmg.enemyid = dstGUID
-				dmg.enemyname = dstName
-				dmg.enemyflags = dstFlags
+		if misstype == "ABSORB" and spellid and not ignoredSpells[spellid] then
+			dmg.enemyid = dstGUID
+			dmg.enemyname = dstName
+			dmg.enemyflags = dstFlags
+			dmg.dstGUID = nil
 
-				dmg.srcGUID = srcGUID
-				dmg.srcName = srcName
-				dmg.srcFlags = srcFlags
+			dmg.spellid = spellid
+			dmg.spellschool = spellschool
+			dmg.amount = 0
+			dmg.absorbed = amount
 
-				dmg.spellid = spellid
-				dmg.spellschool = spellschool
-				dmg.amount = 0
-				dmg.absorbed = amount
-
-				Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_MISSED")
-			end
+			_, dmg.srcName = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+			Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_MISSED")
 		end
 	end
 
@@ -431,11 +424,11 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 
 	function spellsourcemod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's <%s> sources"], win.targetname, label)
+		win.title = uformat(L["%s's <%s> sources"], win.targetname, label)
 	end
 
 	function spellsourcemod:Update(win, set)
-		win.title = pformat(L["%s's <%s> sources"], win.targetname, win.spellname)
+		win.title = uformat(L["%s's <%s> sources"], win.targetname, win.spellname)
 		if win.class then
 			win.title = format("%s (%s)", win.title, L[win.class])
 		end
@@ -472,7 +465,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	end
 
 	function sourcemod:Update(win, set)
-		win.title = pformat(L["%s's damage sources"], win.targetname)
+		win.title = uformat(L["%s's damage sources"], win.targetname)
 		if win.class then
 			win.title = format("%s (%s)", win.title, L[win.class])
 		end
@@ -544,7 +537,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	end
 
 	function spellmod:Update(win, set)
-		win.title = pformat(L["Damage taken by %s"], win.targetname)
+		win.title = uformat(L["Damage taken by %s"], win.targetname)
 
 		local actor = set and set:GetEnemy(win.targetname, win.targetid)
 		local total = actor and actor:GetDamageTaken()
@@ -574,7 +567,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	end
 
 	function usefulmod:Update(win, set)
-		win.title = pformat(L["Useful damage on %s"], win.targetname)
+		win.title = uformat(L["Useful damage on %s"], win.targetname)
 		if win.class then
 			win.title = format("%s (%s)", win.title, L[win.class])
 		end
@@ -972,55 +965,51 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 	end
 
 	local function spell_damage(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		if srcName and dstName then
-			if eventtype == "SWING_DAMAGE" then
-				dmg.spellid, dmg.spellschool = 6603, 0x01
-				dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
-			else
-				dmg.spellid, _, dmg.spellschool, dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
-			end
+		if not srcName or not dstName then return end
 
-			if dmg.spellid and not ignoredSpells[dmg.spellid] then
-				dmg.enemyid = srcGUID
-				dmg.enemyname = srcName
-				dmg.enemyflags = srcFlags
+		if eventtype == "SWING_DAMAGE" then
+			dmg.spellid, dmg.spellschool = 6603, 0x01
+			dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
+		else
+			dmg.spellid, _, dmg.spellschool, dmg.amount, dmg.overkill, _, _, _, dmg.absorbed = ...
+		end
 
-				dmg.dstGUID = dstGUID
-				dmg.dstName = dstName
-				dmg.dstFlags = dstFlags
+		if dmg.spellid and not ignoredSpells[dmg.spellid] then
+			dmg.enemyid = srcGUID
+			dmg.enemyname = srcName
+			dmg.enemyflags = srcFlags
+			dmg.srcName = nil
 
-				Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_DAMAGE")
-			end
+			dmg.dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
+			Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_DAMAGE")
 		end
 	end
 
 	local function spell_missed(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		if srcName and dstName then
-			local spellid, spellschool, misstype, amount
+		if not srcName or not dstName then return end
 
-			if eventtype == "SWING_MISSED" then
-				spellid, spellschool = 6603, 0x01
-				misstype, amount = ...
-			else
-				spellid, _, spellschool, misstype, amount = ...
-			end
+		local spellid, spellschool, misstype, amount
 
-			if misstype == "ABSORB" and spellid and not ignoredSpells[spellid] then
-				dmg.enemyid = srcGUID
-				dmg.enemyname = srcName
-				dmg.enemyflags = srcFlags
+		if eventtype == "SWING_MISSED" then
+			spellid, spellschool = 6603, 0x01
+			misstype, amount = ...
+		else
+			spellid, _, spellschool, misstype, amount = ...
+		end
 
-				dmg.dstGUID = dstGUID
-				dmg.dstName = dstName
-				dmg.dstFlags = dstFlags
+		if misstype == "ABSORB" and spellid and not ignoredSpells[spellid] then
+			dmg.enemyid = srcGUID
+			dmg.enemyname = srcName
+			dmg.enemyflags = srcFlags
+			dmg.srcName = nil
 
-				dmg.spellid = spellid
-				dmg.spellschool = spellschool
-				dmg.amount = 0
-				dmg.absorbed = amount
+			dmg.spellid = spellid
+			dmg.spellschool = spellschool
+			dmg.amount = 0
+			dmg.absorbed = amount
 
-				Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_MISSED")
-			end
+			dmg.dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
+			Skada:DispatchSets(log_damage, eventtype == "SPELL_PERIODIC_MISSED")
 		end
 	end
 
@@ -1057,11 +1046,11 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 
 	function spelltargetmod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
-		win.title = pformat(L["%s's <%s> targets"], win.targetname, label)
+		win.title = uformat(L["%s's <%s> targets"], win.targetname, label)
 	end
 
 	function spelltargetmod:Update(win, set)
-		win.title = pformat(L["%s's <%s> targets"], win.targetname, win.spellname)
+		win.title = uformat(L["%s's <%s> targets"], win.targetname, win.spellname)
 		if win.class then
 			win.title = format("%s (%s)", win.title, L[win.class])
 		end
@@ -1098,7 +1087,7 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's targets"], win.targetname)
+		win.title = uformat(L["%s's targets"], win.targetname)
 		if win.class then
 			win.title = format("%s (%s)", win.title, L[win.class])
 		end
@@ -1211,7 +1200,7 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 		targetmod.nototal = true
 		spellmod.nototal = true
 
-		local flags_dst_src = {dst_is_interesting_nopets = true, src_is_not_interesting = true}
+		local flags_dst_src = {dst_is_interesting = true, src_is_not_interesting = true}
 
 		Skada:RegisterForCL(
 			spell_damage,
@@ -1401,16 +1390,13 @@ Skada:RegisterModule("Enemy Healing Done", function(L, P)
 		end
 	end
 
-	local function spell_heal(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+	local function spell_heal(_, eventtype, srcGUID, srcName, srcFlags, _, dstName, _, ...)
 		local spellid, _, spellschool, amount, overheal = ...
 		if spellid and not ignoredSpells[spellid] then
 			heal.enemyid = srcGUID
 			heal.enemyname = srcName
 			heal.enemyflags = srcFlags
-
-			heal.dstGUID = dstGUID
 			heal.dstName = dstName
-			heal.dstFlags = dstFlags
 
 			heal.spellid = spellid
 			heal.spellschool = spellschool
@@ -1426,7 +1412,7 @@ Skada:RegisterModule("Enemy Healing Done", function(L, P)
 	end
 
 	function targetmod:Update(win, set)
-		win.title = pformat(L["%s's healed targets"], win.targetname)
+		win.title = uformat(L["%s's healed targets"], win.targetname)
 
 		local actor = set and set:GetEnemy(win.targetname, win.targetid)
 		local total = actor and actor.heal
@@ -1586,7 +1572,7 @@ Skada:RegisterModule("Enemy Healing Done", function(L, P)
 		local hps, amount = 0, self:GetEnemyHeal(absorb)
 
 		if amount > 0 then
-			hps = amount / max(1, self:GetTime(active))
+			hps = amount / self:GetTime(active)
 		end
 
 		return hps, amount

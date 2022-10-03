@@ -1,10 +1,11 @@
 local _, Skada = ...
+local private = Skada.private
 Skada:RegisterModule("Resources", function(L, P)
 	local mod = Skada:NewModule("Resources")
 	mod.icon = [[Interface\Icons\spell_holy_rapture]]
 
 	local setmetatable, pairs = setmetatable, pairs
-	local format, pformat = string.format, Skada.pformat
+	local format, uformat = string.format, private.uformat
 	local mod_cols = nil
 
 	local SPELL_POWER_MANA = SPELL_POWER_MANA or 0
@@ -74,15 +75,10 @@ Skada:RegisterModule("Resources", function(L, P)
 
 	local function spell_energize(_, _, srcGUID, srcName, srcFlags, _, _, _, spellid, _, _, amount, gain_type)
 		if spellid and not ignoredSpells[spellid] then
-			gain.playerid = srcGUID
-			gain.playername = srcName
-			gain.playerflags = srcFlags
-
+			gain.playerid, gain.playername, gain.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
 			gain.spellid = spellid
 			gain.amount = amount
 			gain.type = gain_type
-
-			Skada:FixPets(gain)
 
 			Skada:DispatchSets(log_gain)
 		end
@@ -166,12 +162,12 @@ Skada:RegisterModule("Resources", function(L, P)
 	-- player mods common Enter function.
 	function playermod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
-		win.title = pformat(L["%s's gained %s"], label, namesTable[self.powerid])
+		win.title = uformat(L["%s's gained %s"], label, namesTable[self.powerid])
 	end
 
 	-- player mods main update function
 	function playermod:Update(win, set)
-		win.title = pformat(L["%s's gained %s"], win.actorname, L[self.powername])
+		win.title = uformat(L["%s's gained %s"], win.actorname, L[self.powername])
 		if not set or not win.actorname then return end
 
 		local actor, enemy = set:GetActor(win.actorname, win.actorid)
