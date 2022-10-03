@@ -8,6 +8,8 @@ _This version is a total **Rewrite** of Skada `r301` for `3.3.5` and not a **Bac
 
 Skada is a modular damage meter with various viewing modes, segmented fights and customizable windows. It aims to be highly efficient with memory and CPU.
 
+<p align="center"><img src="https://user-images.githubusercontent.com/4732702/193599485-4a72ad9b-8de0-417b-a274-15d0681487ae.png" alt="Skada WotlK"></p>
+
 _**ALSO AVAILABLE FOR**_:
 
 * _[Cataclysm](https://github.com/bkader/Skada/tree/cataclysm)_
