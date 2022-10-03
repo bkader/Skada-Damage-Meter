@@ -32,7 +32,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	local absorbspells = {
 		[48707] = {dur = 5}, -- Anti-Magic Shell (rank 1)
 		[51052] = {dur = 10}, -- Anti-Magic Zone( (rank 1)
-		[50150] = {dur = 86400, school = 0x01}, -- Will of the Necropolis
+		[52286] = {dur = 86400, school = 0x01}, -- Will of the Necropolis
 		[49497] = {dur = 86400, school = 0x01}, -- Spell Deflection
 		[62606] = {dur = 10, avg = 1600, cap = 2500}, -- Savage Defense
 		[11426] = {dur = 60}, -- Ice Barrier (rank 1)
@@ -238,7 +238,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	local passiveShields = {
 		[31230] = true, -- Cheat Death
 		[49497] = true, -- Spell Deflection
-		[50150] = true, -- Will of the Necropolis
+		[52286] = true, -- Will of the Necropolis
 		[66233] = true, -- Ardent Defender
 	}
 
@@ -423,10 +423,10 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 
 		-- Will of the Necropolis
-		if a_spellid == 50150 then
+		if a_spellid == 52286 then
 			return false
 		end
-		if b_spellid == 50150 then
+		if b_spellid == 52286 then
 			return true
 		end
 
@@ -621,7 +621,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 			local s = shieldspopped[i]
 			if s and s.full and shieldamounts and shieldamounts[s.srcName] and shieldamounts[s.srcName][s.spellid] then
 				s.amount = shieldamounts[s.srcName][s.spellid]
-			elseif s and s.spellid == 50150 and s.points then -- Will of the Necropolis
+			elseif s and s.spellid == 52286 and s.points then -- Will of the Necropolis
 				local hppercent = UnitHealthInfo(dstName, dstGUID)
 				s.amount = (hppercent and hppercent <= 36) and floor((damage + absorbed) * 0.05 * s.points) or 0
 			elseif s and s.spellid == 49497 and s.points then -- Spell Deflection
@@ -992,7 +992,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		-- see: http://wotlk.cavernoftime.com/spell=<spellid>
 		local _passive = {
 			DEATHKNIGHT = {
-				[50150] = true, -- Will of the Necropolis
+				[52286] = true, -- Will of the Necropolis
 				[49497] = true -- Spell Deflection
 			},
 			PALADIN = {
