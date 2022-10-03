@@ -306,13 +306,8 @@ do
 	end
 
 	function dismiss_pet(guid, delay)
-		if not guid or not pets[guid] then
-			return
-		elseif delay then
-			Skada:ScheduleTimer(dismiss_handler, delay or 0.6, guid)
-		else
-			dismiss_handler(guid)
-		end
+		if not guid or not pets[guid] then return end
+		Skada:ScheduleTimer(dismiss_handler, delay or 0.1, guid)
 	end
 end
 
