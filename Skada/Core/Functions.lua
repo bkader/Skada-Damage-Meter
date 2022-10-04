@@ -65,53 +65,59 @@ end
 -------------------------------------------------------------------------------
 -- class, role and spec functions
 
-function private.unit_class(guid, flag, set, db, name)
-	set = set or Skada.current
-	if set then
-		-- an existing player?
-		local actors = set.players
-		if actors then
-			for i = 1, #actors do
-				local p = actors[i]
-				if p and p.id == guid then
-					return p.class, p.role, p.spec
-				elseif p and name and p.name == name and p.class and Skada.validclass[p.class] then
-					return p.class, p.role, p.spec
+do
+	local is_player = private.is_player
+	local is_pet = private.is_pet
+	local is_creature = private.is_creature
+
+	function private.unit_class(guid, flag, set, db, name)
+		set = set or Skada.current
+		if set then
+			-- an existing player?
+			local actors = set.players
+			if actors then
+				for i = 1, #actors do
+					local p = actors[i]
+					if p and p.id == guid then
+						return p.class, p.role, p.spec
+					elseif p and name and p.name == name and p.class and Skada.validclass[p.class] then
+						return p.class, p.role, p.spec
+					end
+				end
+			end
+			-- an existing enemy?
+			actors = set.enemies
+			if actors then
+				for i = 1, #actors do
+					local e = actors[i]
+					if e and ((e.id == guid or e.name == guid)) and e.class then
+						return e.class
+					end
 				end
 			end
 		end
-		-- an existing enemy?
-		actors = set.enemies
-		if actors then
-			for i = 1, #actors do
-				local e = actors[i]
-				if e and ((e.id == guid or e.name == guid)) and e.class then
-					return e.class
-				end
+
+		local class = "UNKNOWN"
+		if is_player(guid, flag, name) then
+			class = name and select(2, UnitClass(name))
+			if not class and tonumber(guid) then
+				class = GetClassFromGUID(guid, "group")
+				class = class or select(2, GetPlayerInfoByGUID(guid))
 			end
+		elseif is_pet(guid, flag) then
+			class = "PET"
+		elseif Skada:IsBoss(guid, true) then
+			class = "BOSS"
+		elseif is_creature(guid, flag) then
+			class = "MONSTER"
 		end
-	end
 
-	local class = "UNKNOWN"
-	if Skada:IsPlayer(guid, flag, name) then
-		class = name and select(2, UnitClass(name))
-		if not class and tonumber(guid) then
-			class = GetClassFromGUID(guid, "group")
-			class = class or select(2, GetPlayerInfoByGUID(guid))
+		if class and db and db.class == nil then
+			db.class = class
 		end
-	elseif Skada:IsPet(guid, flag) then
-		class = "PET"
-	elseif Skada:IsBoss(guid, true) then
-		class = "BOSS"
-	elseif private.is_creature(guid, flag) then
-		class = "MONSTER"
-	end
 
-	if class and db and db.class == nil then
-		db.class = class
+		return class
 	end
-
-	return class
 end
 
 -------------------------------------------------------------------------------
