@@ -34,7 +34,13 @@ Skada.creatureToBoss = creatureToBoss
 -- [spellid] = true
 
 -- [[ absorbs modules ]] --
--- ignoredSpells.absorbs = {}
+ignoredSpells.absorbs = {
+	[20711] = true, -- Spirit of Redemption (Priest)
+	[114556] = true, -- Purgatory (Death Knight)
+	[115069] = true, -- Stagger (Monk)
+	[142862] = true, -- Ancient Barrier (Malkorok)
+	[184553]  = true -- Spirit Shift
+}
 
 -- [[ buffs module ]] --
 ignoredSpells.buffs = {
