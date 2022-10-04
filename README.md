@@ -10,21 +10,21 @@ Skada is a modular damage meter with various viewing modes, segmented fights and
 
 <p align="center"><img src="https://user-images.githubusercontent.com/4732702/193599485-4a72ad9b-8de0-417b-a274-15d0681487ae.png" alt="Skada WotlK"></p>
 
-_**ALSO AVAILABLE FOR**_:
+_**FOR PRIVATE SERVERS**_:
 
 * _[Wrath of the Lich King](https://github.com/bkader/Skada/tree/main)_
 * _[Cataclysm](https://github.com/bkader/Skada/tree/cataclysm)_
 * _[Mists of Pandaria](https://github.com/bkader/Skada/tree/pandaria)_
 
-_**SOON AVAILABLE FOR**_:
+_**FOR OFFICIAL SERVERS**_:
 
 * _[Classic](https://github.com/bkader/Skada/tree/classic)_
 
 ## IMPORTANT: How to install
 
 1. If you used the default on **Skada** before, please make sure to delete all its files from `Interface\AddOns` folder as well as all its _SavedVariables_ from `WTF` folder (_just delete all `Skada.lua` and `Skada.lua.bak` for this folder. Use the search box for quick delete_). If you are new, skip this step.
-2. [Download the package](https://github.com/bkader/Skada/archive/refs/heads/main.zip).
-3. Open the Zip package inside which you will find a single folder named `Skada-main`.
+2. [Download the package](https://github.com/bkader/Skada/archive/refs/heads/retail.zip).
+3. Open the Zip package inside which you will find a single folder named `Skada-retail`.
 4. Extract or drag and drop the unique folder `Skada` into your `Interface\AddOns` folder.
 5. If you want to use `SkadaImprovement` and/or `SkadaStorage` modules, drop them there as well.
 
