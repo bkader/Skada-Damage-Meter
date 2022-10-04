@@ -75,8 +75,8 @@ local next = next
 local strlen = string.len
 local GetFramerate = GetFramerate
 local strlower = string.lower
-local unpack,type,pairs,wipe = unpack,type,pairs,wipe
-local UnitInRaid,GetNumPartyMembers = UnitInRaid,GetNumPartyMembers
+local unpack,type,pairs,wipe = unpack,type,pairs,table.wipe
+local UnitInRaid,UnitInParty = UnitInRaid,UnitInParty
 
 
 -----------------------------------------------------------------------
@@ -213,9 +213,15 @@ function ChatThrottleLib:Init()
 			return ChatThrottleLib.Hook_SendChatMessage(...)
 		end)
 		--SendAddonMessage
-		hooksecurefunc("SendAddonMessage", function(...)
-			return ChatThrottleLib.Hook_SendAddonMessage(...)
-		end)
+		if _G.C_ChatInfo then
+			hooksecurefunc(_G.C_ChatInfo, "SendAddonMessage", function(...)
+				return ChatThrottleLib.Hook_SendAddonMessage(...)
+			end)
+		else
+			hooksecurefunc("SendAddonMessage", function(...)
+				return ChatThrottleLib.Hook_SendAddonMessage(...)
+			end)
+		end
 	end
 	self.nBypass = 0
 end
@@ -262,7 +268,7 @@ function ChatThrottleLib:UpdateAvail()
 		-- First 5 seconds after startup/zoning: VERY hard clamping to avoid irritating the server rate limiter, it seems very cranky then
 		avail = math_min(avail + (newavail*0.1), MAX_CPS*0.5)
 		self.bChoking = true
-	elseif GetFramerate() < self.MIN_FPS then		-- GetFramerate call takes ~0.002 secs
+	elseif GetFramerate() < self.MIN_FPS then		-- GetFrameRate call takes ~0.002 secs
 		avail = math_min(MAX_CPS, avail + newavail*0.5)
 		self.bChoking = true		-- just a statistic
 	else
@@ -302,7 +308,7 @@ function ChatThrottleLib:Despool(Prio)
 		local lowerDest = strlower(msg[3] or "")
 		if lowerDest == "raid" and not UnitInRaid("player") then
 			-- do nothing
-		elseif lowerDest == "party" and GetNumPartyMembers() == 0 then
+		elseif lowerDest == "party" and not UnitInParty("player") then
 			-- do nothing
 		else
 			Prio.avail = Prio.avail - msg.nSize
@@ -459,10 +465,17 @@ function ChatThrottleLib:SendAddonMessage(prio, prefix, text, chattype, target, 
 		error('ChatThrottleLib:SendAddonMessage(): callbackFn: expected function, got '..type(callbackFn), 2)
 	end
 
-	local nSize = prefix:len() + 1 + text:len();
+	local nSize = text:len();
 
-	if nSize>255 then
-		error("ChatThrottleLib:SendAddonMessage(): prefix + message length cannot exceed 254 bytes", 2)
+	if C_ChatInfo or RegisterAddonMessagePrefix then
+		if nSize>255 then
+			error("ChatThrottleLib:SendAddonMessage(): message length cannot exceed 255 bytes", 2)
+		end
+	else
+		nSize = nSize + prefix:len() + 1
+		if nSize>255 then
+			error("ChatThrottleLib:SendAddonMessage(): prefix + message length cannot exceed 254 bytes", 2)
+		end
 	end
 
 	nSize = nSize + self.MSG_OVERHEAD;
@@ -471,7 +484,11 @@ function ChatThrottleLib:SendAddonMessage(prio, prefix, text, chattype, target, 
 	if not self.bQueueing and nSize < self:UpdateAvail() then
 		self.avail = self.avail - nSize
 		bMyTraffic = true
-		_G.SendAddonMessage(prefix, text, chattype, target)
+		if _G.C_ChatInfo then
+			_G.C_ChatInfo.SendAddonMessage(prefix, text, chattype, target)
+		else
+			_G.SendAddonMessage(prefix, text, chattype, target)
+		end
 		bMyTraffic = false
 		self.Prio[prio].nTotalSent = self.Prio[prio].nTotalSent + nSize
 		if callbackFn then
@@ -483,7 +500,7 @@ function ChatThrottleLib:SendAddonMessage(prio, prefix, text, chattype, target, 
 
 	-- Message needs to be queued
 	local msg = NewMsg()
-	msg.f = _G.SendAddonMessage
+	msg.f = _G.C_ChatInfo and _G.C_ChatInfo.SendAddonMessage or _G.SendAddonMessage
 	msg[1] = prefix
 	msg[2] = text
 	msg[3] = chattype
@@ -513,3 +530,5 @@ if(WOWB_VER) then
 	ChatThrottleLib.Frame:RegisterEvent("CHAT_MSG_SAY")
 end
 ]]
+
+

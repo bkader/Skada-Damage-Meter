@@ -328,6 +328,21 @@ Skada:RegisterModule("Potions", function(L, P, _, C)
 		potion_ids[67489] = 41166 -- Runic Healing Injector
 		potion_ids[67490] = 42545 -- Runic Mana Injector
 
+		--[[ Cataclysm ]]--
+		potion_ids[78992] = 57193 -- Mighty Rejuvenation Potion
+		potion_ids[78993] = 57194 -- Potion of Concentration
+		potion_ids[79475] = 58090 -- Earthen Potion
+		potion_ids[79476] = 58091 -- Volcanic Potion
+		potion_ids[79633] = 58145 -- Potion of the Tol'vir
+		potion_ids[79634] = 58146 -- Golemblood Potion
+
+		--[[ Mists of Pandaria ]]--
+		potion_ids[105706] = 76095 -- Potion of Mogu Power
+		potion_ids[105702] = 76093 -- Potion of the Jade Serpent
+		potion_ids[105697] = 76089 -- Virmen's Bite
+		potion_ids[105698] = 76090 -- Potion of the Mountains
+		potion_ids[105701] = 76092 -- Potion of Focus
+
 		-- don't edit below unless you know what you're doing.
 		if P.prepotion == nil then
 			P.prepotion = true

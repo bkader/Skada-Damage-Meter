@@ -368,9 +368,9 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 
 		if eventtype == "SWING_MISSED" then
 			spellid, spellschool = 6603, 0x01
-			misstype, amount = ...
+			misstype, _, amount = ...
 		else
-			spellid, _, spellschool, misstype, amount = ...
+			spellid, _, spellschool, misstype, _, amount = ...
 		end
 
 		if misstype == "ABSORB" and spellid and not ignoredSpells[spellid] then
@@ -742,41 +742,11 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		-- Custom Units
 		-- ----------------------------
 
-		-- ICC: Lady Deathwhisper
-		customUnits[36855] = {
-			start = 0, power = 0, text = L["%s - Phase 2"],
-			values = {["10n"] = 3264800, ["10h"] = 3264800, ["25n"] = 11193600, ["25h"] = 13992000}
-		}
-
-		-- ICC: Professor Putricide
-		customUnits[36678] = {
-			start = 0.35, text = L["%s - Phase 3"],
-			values = {["10n"] = 9761500, ["10h"] = 13666100, ["25n"] = 41835000, ["25h"] = 50202000}
-		}
-
-		-- ICC: Sindragosa
-		customUnits[36853] = {
-			start = 0.35, text = L["%s - Phase 2"],
-			values = {["10n"] = 11156000, ["10h"] = 13945000, ["25n"] = 38348750, ["25h"] = 46018500}
-		}
-
-		-- ICC: The Lich King
-		customUnits[36597] = {
-			start = 0.4, stop = 0.1, text = L["%s - Phase 3"],
-			values = {["10n"] = 17431250, ["10h"] = 29458813, ["25n"] = 61009375, ["25h"] = 103151165}
-		}
-
 		-- ICC: Valkyrs overkilling
 		customUnits[36609] = {
 			name = L["Valkyrs overkilling"],
 			diff = {"10h", "25h"}, start = 0.5, useful = true,
 			values = {["10h"] = 1417500, ["25h"] = 2992000}
-		}
-
-		-- ToC: Anub'arak
-		customUnits[34564] = {
-			start = 0.3, text = L["%s - Phase 2"],
-			values = {["10n"] = 4183500, ["10h"] = 5438550, ["25n"] = 20917500, ["25h"] = 27192750}
 		}
 	end
 
@@ -992,9 +962,9 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 
 		if eventtype == "SWING_MISSED" then
 			spellid, spellschool = 6603, 0x01
-			misstype, amount = ...
+			misstype, _, amount = ...
 		else
-			spellid, _, spellschool, misstype, amount = ...
+			spellid, _, spellschool, misstype, _, amount = ...
 		end
 
 		if misstype == "ABSORB" and spellid and not ignoredSpells[spellid] then

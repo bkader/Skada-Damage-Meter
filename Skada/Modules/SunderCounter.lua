@@ -124,13 +124,13 @@ Skada:RegisterModule("Sunder Counter", function(L, P, _, C, M)
 
 	local function double_check_sunder()
 		if not spell_sunder then
-			spell_sunder = GetSpellInfo(47467)
+			spell_sunder = GetSpellInfo(7386)
 		end
 		if not spell_devastate then
-			spell_devastate = GetSpellInfo(47498)
+			spell_devastate = GetSpellInfo(20243)
 		end
 		if not sunder_link then
-			sunder_link = GetSpellLink(47467)
+			sunder_link = GetSpellLink(7386)
 		end
 	end
 

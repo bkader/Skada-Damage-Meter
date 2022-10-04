@@ -63,7 +63,7 @@ ignoredSpells.buffs = {
 -- [[ debuffs module ]] --
 ignoredSpells.debuffs = {
 	[57723] = true, -- Exhaustion (Heroism)
-	[57724] = true -- Sated (Bloodlust)
+	[57724] = true, -- Sated (Bloodlust)
 }
 
 -- [[ damage / enemy damage taken modules ]] --
@@ -92,50 +92,17 @@ ignoredSpells.debuffs = {
 
 -- [[ first hit ignored spells ]] --
 ignoredSpells.firsthit = {
-	[1130] = true, -- Hunter's Mark (rank 1)
-	[14323] = true, -- Hunter's Mark (rank 2)
-	[14324] = true, -- Hunter's Mark (rank 3)
-	[14325] = true, -- Hunter's Mark (rank 4)
-	[53338] = true, -- Hunter's Mark (rank 5)
+	[1130] = true, -- Hunter's Mark
 	[56190] = true, -- Shadow Jade Focusing Lens
 	[56191] = true, -- Shadow Jade Focusing Lens
-	[60122] = true -- Baby Spice
+	[60122] = true, -- Baby Spice
 }
 
 -- [[ no active time spells ]] --
 ignoredSpells.activeTime = {
-	-- Retribution Aura
-	[7294] = true, -- Rank 1
-	[7294] = true, -- Rank 1
-	[10298] = true, -- Rank 2
-	[10299] = true, -- Rank 3
-	[10300] = true, -- Rank 4
-	[10301] = true, -- Rank 5
-	[27150] = true, -- Rank 6
-	[54043] = true, -- Rank 7
-	-- Molten Armor
-	[34913] = true, -- Rank 1
-	[43043] = true, -- Rank 2
-	[43044] = true, -- Rank 3
-	-- Lightning Shield
-	[26364] = true, -- Rank 1
-	[26365] = true, -- Rank 2
-	[26366] = true, -- Rank 3
-	[26367] = true, -- Rank 5
-	[26370] = true, -- Rank 6
-	[26363] = true, -- Rank 7
-	[26371] = true, -- Rank 8
-	[26372] = true, -- Rank 9
-	[49278] = true, -- Rank 10
-	[49279] = true, -- Rank 11
-	-- Fire Shield
-	[2947] = true, -- Rank 1
-	[8316] = true, -- Rank 2
-	[8317] = true, -- Rank 3
-	[11770] = true, -- Rank 4
-	[11771] = true, -- Rank 5
-	[27269] = true, -- Rank 6
-	[47983] = true, -- Rank 7
+	[13008] = true, -- Retribution Aura
+	[26364] = true, -- Lightning Shield
+	[35916] = true, -- Molten Armor
 }
 
 -------------------------------------------------------------------------------

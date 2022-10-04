@@ -24,8 +24,8 @@ local UnitExists, UnitGUID, UnitName, UnitClass = UnitExists, UnitGUID, UnitName
 local GameTooltip, ReloadUI, GetScreenWidth = GameTooltip, ReloadUI, GetScreenWidth
 local GetSpellInfo, GetSpellLink = GetSpellInfo, GetSpellLink
 local CloseDropDownMenus, SecondsToTime = CloseDropDownMenus, SecondsToTime
-local IsInGroup, IsInRaid, IsInPvP = Skada.IsInGroup, Skada.IsInRaid, Skada.IsInPvP
-local GetNumGroupMembers, GetGroupTypeAndCount = Skada.GetNumGroupMembers, Skada.GetGroupTypeAndCount
+local IsInGroup, IsInRaid, IsInPvP = IsInGroup, IsInRaid, Skada.IsInPvP
+local GetNumGroupMembers, GetGroupTypeAndCount = GetNumGroupMembers, Skada.GetGroupTypeAndCount
 local GetUnitSpec, GetUnitRole = Skada.GetUnitSpec, Skada.GetUnitRole
 local UnitIterator, IsGroupDead = Skada.UnitIterator, Skada.IsGroupDead
 local uformat, EscapeStr, GetCreatureId = private.uformat, private.EscapeStr, Skada.GetCreatureId
@@ -1274,7 +1274,9 @@ do
 
 	function start_watching()
 		if not is_watching then
-			Skada:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "OnCombatEvent")
+			Skada:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "ParseCombatLog")
+			Skada:RegisterEvent("ENCOUNTER_START")
+			Skada:RegisterEvent("ENCOUNTER_END")
 			is_watching = true
 		end
 	end
@@ -1282,6 +1284,8 @@ do
 	function stop_watching()
 		if is_watching then
 			Skada:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			Skada:UnregisterEvent("ENCOUNTER_START")
+			Skada:UnregisterEvent("ENCOUNTER_END")
 			is_watching = nil
 		end
 	end
@@ -3381,7 +3385,7 @@ function Skada:OnEnable()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckZone")
 	self:RegisterEvent("UNIT_ENTERED_VEHICLE", "CheckVehicle")
 	self:RegisterEvent("UNIT_EXITED_VEHICLE", "CheckVehicle")
-	self:RegisterBucketEvent({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, 0.25, "UpdateRoster")
+	self:RegisterBucketEvent({"GROUP_ROSTER_UPDATE", "RAID_ROSTER_UPDATE"}, 0.25, "UpdateRoster")
 	start_watching()
 
 	if self.LoadableModules then
@@ -3696,6 +3700,29 @@ end
 
 -------------------------------------------------------------------------------
 
+function Skada:ENCOUNTER_START(encounter_id, encounter_name)
+	if self.disabled then
+		return
+	elseif self.current then
+		self.current.gotboss = encounter_id
+		self.current.mobname = encounter_name
+		self:SendMessage("COMBAT_ENCOUNTER_START", self.current)
+	else
+		self._encounter_id = encounter_id
+		self._encounter_name = encounter_name
+		self._encounter_time = GetTime()
+	end
+end
+
+function Skada:ENCOUNTER_END(encounter_id, encounter_name)
+	if not self.disabled and self.current then
+		if not self.current.gotboss then
+			self.current.mobname = encounter_name
+			self.current.gotboss = encounter_id
+		end
+	end
+end
+
 do
 	local tentative, tentative_timer
 	local death_counter, starting_members = 0, 0
@@ -3803,6 +3830,17 @@ do
 			Skada.current = create_set(L["Current"])
 		end
 
+		if Skada._encounter_name and GetTime() < (Skada._encounter_time or 0) + 15 then
+			Skada.current.mobname = Skada._encounter_name
+			Skada.current.gotboss = Skada._encounter_id or true
+
+			Skada._encounter_id = nil
+			Skada._encounter_name = nil
+			Skada._encounter_time = nil
+
+			Skada:SendMessage("COMBAT_ENCOUNTER_START", Skada.current)
+		end
+
 		if Skada.total == nil then
 			Skada.total = create_set(L["Total"])
 			Skada.char.total = Skada.total
@@ -3852,10 +3890,23 @@ do
 		end
 	end
 
-	function Skada:OnCombatEvent(_, ...)
-		-- disabled or test mode?
-		if self.disabled or self.testMode then return end
-		return self:CombatLogEvent(...)
+	do
+		local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
+		local timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags
+		local A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12
+
+		function Skada:ParseCombatLog()
+			-- disabled or test mode?
+			if self.disabled or self.testMode then return end
+
+			timestamp, eventtype, _, srcGUID, srcName, srcFlags, _, dstGUID, dstName, dstFlags,
+			_, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+			return self:OnCombatEvent(timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		end
+	end
+
+	function Skada:OnCombatEvent(timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+		return self:CombatLogEvent(timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
 	end
 
 	local function check_flags_interest(guid, flags, nopets)
@@ -3904,7 +3955,6 @@ do
 						if isboss then -- found?
 							set.mobname = bossname or dstName
 							set.gotboss = bossid or true
-							Skada:SendMessage("COMBAT_ENCOUNTER_START", set)
 							_targets = del(_targets)
 						else
 							_targets = _targets or new()

@@ -269,7 +269,7 @@ Skada:RegisterDisplay("Inline Bar Display", "mod_inline_desc", function(L)
 		bar.value = 0
 		bar.win = win
 
-		bar.bg = CreateFrame("Frame", "$parentBackground" .. bar.uuid, win.frame)
+		bar.bg = CreateFrame("Frame", "$parentBackground" .. bar.uuid, win.frame, "BackdropTemplate")
 		bar.bg:SetFrameLevel(win.frame:GetFrameLevel() + 6)
 		bar.label = bar.bg:CreateFontString("label" .. bar.uuid)
 		bar.label:SetFont(mod:GetFont(win.db))

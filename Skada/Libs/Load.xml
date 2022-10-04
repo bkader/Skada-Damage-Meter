@@ -31,6 +31,5 @@
 	<Script file="SpecializedLibToast-1.0\SpecializedLibToast-1.0.lua"/>
 	<Script file="LibTranslit-1.0\LibTranslit-1.0.lua"/>
 	<Script file="LibBossIDs-1.0\LibBossIDs-1.0.lua"/>
-	<Script file="LibFail-1.0\LibFail-1.0.lua"/>
 	<Script file="LibFlyPaper-1.1\LibFlyPaper-1.1.lua"/>
 </Ui>

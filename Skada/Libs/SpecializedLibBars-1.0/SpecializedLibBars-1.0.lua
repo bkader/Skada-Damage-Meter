@@ -303,7 +303,7 @@ do
 		orientation = (orientation == "RIGHT") and 3 or orientation
 
 		frameName = frameName:gsub("%W","")
-		local list = barListPrototype:Bind(createFrame("Frame", frameName, UIParent))
+		local list = barListPrototype:Bind(createFrame("Frame", frameName, UIParent, "BackdropTemplate"))
 		list:SetFrameLevel(1)
 		list:SetResizable(true)
 		list:SetMovable(true)
@@ -321,7 +321,7 @@ do
 			lib.defaultFont = myfont
 		end
 
-		list.button = list.button or createFrame("Button", "$parentAnchor", list)
+		list.button = list.button or createFrame("Button", "$parentAnchor", list, "BackdropTemplate")
 		list.button:SetFrameLevel(list:GetFrameLevel() + 3)
 		list.button:SetText(name)
 		list.button:SetNormalFontObject(myfont)

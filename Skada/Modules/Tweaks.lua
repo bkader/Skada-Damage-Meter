@@ -124,7 +124,7 @@ Skada:RegisterModule("Tweaks", function(L, P)
 			end
 		end
 
-		function Skada:OnCombatEvent(_, timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid, spellname, ...)
+		function Skada:OnCombatEvent(timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid, spellname, ...)
 			-- disabled or test mode?
 			if self.disabled or self.testMode then return end
 
@@ -336,100 +336,6 @@ Skada:RegisterModule("Tweaks", function(L, P)
 	end
 
 	---------------------------------------------------------------------------
-	-- CombatLog Fix
-
-	do
-		local setmetatable, rawset, rawget = setmetatable, rawset, rawget
-		local CombatLogClearEntries = CombatLogClearEntries
-		local frame, playerspells
-
-		local function aggressive_OnUpdate(self, elapsed)
-			self.timeout = self.timeout + elapsed
-			if self.timeout >= P.combatlogfixtime then
-				CombatLogClearEntries()
-				self.timeout = 0
-			end
-		end
-
-		local function default_OnUpdate(self, elapsed)
-			self.timeout = (self.timeout or 0) - elapsed
-			if self.timeout > 0 then return end
-			self:Hide()
-
-			-- was the last combat event within a second of cast succeeding?
-			if self.lastEvent and (GetTime() - self.lastEvent) <= 1 then return end
-
-			Skada:ScheduleTimer(CombatLogClearEntries, 0.1)
-		end
-
-		local function frame_OnEvent(self, event, unit, spellname)
-			if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-				self.lastEvent = unit -- timestamp
-			elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-				if unit == "player" and spellname and playerspells[spellname] then
-					self.timeout = 0.5
-					self:Show()
-				end
-			elseif event == "ZONE_CHANGED_NEW_AREA" then
-				local _, zt = IsInInstance()
-				if self.zonetype and zt ~= self.zonetype then
-					Skada:ScheduleTimer(CombatLogClearEntries, 0.1)
-				end
-				self.zonetype = zt
-			end
-		end
-
-		function mod:CombatEnter()
-			if P.combatlogfix then
-				Skada:ScheduleTimer(CombatLogClearEntries, 0.1)
-			end
-		end
-
-		function mod:CombatLogFix()
-			if not P.combatlogfix then
-				if frame then
-					frame:UnregisterAllEvents()
-					frame:SetScript("OnUpdate", nil)
-					frame:SetScript("OnEvent", nil)
-					frame:Hide()
-					frame = nil
-				end
-
-				Skada.UnregisterMessage(self, "COMBAT_PLAYER_ENTER", "CombatEnter")
-				return
-			end
-
-			frame = frame or CreateFrame("Frame")
-			if P.combatlogfixalt then
-				frame:UnregisterAllEvents()
-				frame.timeout = 0
-				frame:SetScript("OnUpdate", aggressive_OnUpdate)
-				frame:SetScript("OnEvent", nil)
-				frame:Show()
-			else
-				-- construct player's spells
-				if playerspells == nil then
-					playerspells = setmetatable({}, {__index = function(t, name)
-						local _, _, _, cost = GetSpellInfo(name)
-						rawset(t, name, not (not (cost and cost > 0)))
-						return rawget(t, name)
-					end})
-				end
-
-				frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-				frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-				frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-				frame.timeout = 0
-				frame:SetScript("OnUpdate", default_OnUpdate)
-				frame:SetScript("OnEvent", frame_OnEvent)
-				frame:Hide()
-			end
-
-			Skada.RegisterMessage(self, "COMBAT_PLAYER_ENTER", "CombatEnter")
-		end
-	end
-
-	---------------------------------------------------------------------------
 	-- Smart stop
 
 	do
@@ -486,9 +392,6 @@ Skada:RegisterModule("Tweaks", function(L, P)
 				ChatFrame_RemoveMessageEventFilter(channel_events[i], private.parse_chat_event)
 			end
 		end
-
-		-- combatlog fix
-		self:CombatLogFix()
 	end
 
 	do
@@ -508,13 +411,6 @@ Skada:RegisterModule("Tweaks", function(L, P)
 			-- smart stop & duration
 			if P.smartwait == nil then
 				P.smartwait = 3
-			end
-			-- combatlog fix
-			if P.combatlogfix == nil then
-				P.combatlogfix = true
-			end
-			if P.combatlogfixtime then
-				P.combatlogfixtime = 2
 			end
 			-- old spamage module
 			if type(P.spamage) == "table" then
@@ -588,51 +484,6 @@ Skada:RegisterModule("Tweaks", function(L, P)
 						step = 0.01,
 						bigStep = 0.1,
 						order = 30
-					}
-				}
-			}
-
-			adv_opt.args.combatlog = {
-				type = "group",
-				name = L["Combat Log"],
-				desc = format(L["Options for %s."], L["Combat Log"]),
-				set = set_value,
-				order = 20,
-				args = {
-					desc = {
-						type = "description",
-						name = L["opt_tweaks_combatlogfix_desc"],
-						fontSize = "medium",
-						order = 10,
-						width = "full"
-					},
-					combatlogfix = {
-						type = "toggle",
-						name = L["Enable"],
-						order = 20
-					},
-					combatlogfixalt = {
-						type = "toggle",
-						name = L["Aggressive Mode"],
-						desc = L["opt_tweaks_combatlogfixalt_desc"],
-						disabled = function()
-							return not P.combatlogfix
-						end,
-						order = 30
-					},
-					combatlogfixtime = {
-						type = "range",
-						name = L["Duration"],
-						min = 2,
-						max = 60,
-						step = 1,
-						disabled = function()
-							return not (P.combatlogfix and P.combatlogfixalt)
-						end,
-						hidden = function()
-							return not P.combatlogfixalt
-						end,
-						order = 40
 					}
 				}
 			}

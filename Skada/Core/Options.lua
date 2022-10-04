@@ -846,7 +846,7 @@ do
 			}
 
 			-- about args
-			local fields = {"Version", "Date", "Author", "Credits", "License", "Website", "Discord", "Localizations", "Thanks"}
+			local fields = {"Version", "Date", "Author", "Credits", "License", "Website", "Discord"}
 			for i = 1, #fields do
 				local field = fields[i]
 				local meta = GetAddOnMetadata(folder, field) or GetAddOnMetadata(folder, "X-" .. field)

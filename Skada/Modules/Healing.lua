@@ -30,11 +30,8 @@ Skada:RegisterModule("Healing", function(L, P)
 	local spellschools = Skada.spellschools
 	local ignoredSpells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
 	local passiveSpells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
-	local next, new, del = next, private.newTable, private.delTable
+	local del = private.delTable
 	local mod_cols = nil
-
-	-- list of spells used to queue units.
-	local queued_spells = {[49005] = 61607}
 
 	local function log_spellcast(set, playerid, playername, playerflags, spellid, spellschool)
 		if not set or (set == Skada.total and not P.totalidc) then return end
@@ -142,11 +139,6 @@ Skada:RegisterModule("Healing", function(L, P)
 	local function spell_heal(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid, ...)
 		if not spellid or ignoredSpells[spellid] then return end
 
-		local srcQueued = private.get_temp_unit(srcGUID)
-		if srcQueued and srcQueued.spellid == spellid then
-			srcGUID, srcName, srcFlags = srcQueued.id, srcQueued.name, srcQueued.flag
-		end
-
 		heal.playerid, heal.playername, heal.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
 		heal.dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
 
@@ -154,23 +146,6 @@ Skada:RegisterModule("Healing", function(L, P)
 		_, heal.school, heal.amount, heal.overheal, _, heal.critical = ...
 
 		Skada:DispatchSets(log_heal)
-	end
-
-	local function spell_aura(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, _, _, spellid)
-		spellid = spellid and not ignoredSpells[spellid] and queued_spells[spellid]
-		if not spellid then
-			return
-		elseif eventtype == "SPELL_AURA_APPLIED" then
-			local info = new()
-			info.id = srcGUID
-			info.name = srcName
-			info.flag = srcFlags
-			info.spellid = spellid
-
-			private.add_temp_unit(dstGUID, info)
-		else
-			private.del_temp_unit(dstGUID)
-		end
 	end
 
 	local function healing_tooltip(win, id, label, tooltip)
@@ -443,13 +418,6 @@ Skada:RegisterModule("Healing", function(L, P)
 			spell_heal,
 			"SPELL_HEAL",
 			"SPELL_PERIODIC_HEAL",
-			flags_src
-		)
-
-		Skada:RegisterForCL(
-			spell_aura,
-			"SPELL_AURA_APPLIED",
-			"SPELL_AURA_REMOVED",
 			flags_src
 		)
 
@@ -1079,7 +1047,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		local spells = actor.absorbspells -- absorb spells
 		if spells then
 			for spellid, spell in pairs(spells) do
-				local amt = spell.targets and spell.targets[win.actorname]
+				local amt = spell.targets and spell.targets[win.actorname] and spell.targets[win.actorname].amount
 				if amt then
 					nr = nr + 1
 
@@ -1198,15 +1166,15 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 			if spells then
 				for _, spell in pairs(spells) do
 					if spell.targets then
-						for name, amount in pairs(spell.targets) do
-							if amount > 0 then
+						for name, target in pairs(spell.targets) do
+							if target.amount and target.amount > 0 then
 								local t = tbl[name]
 								if not t then
 									t = new()
-									t.amount = amount
+									t.amount = target.amount
 									tbl[name] = t
 								else
-									t.amount = t.amount + amount
+									t.amount = t.amount + target.amount
 								end
 
 								self:_fill_actor_table(t, name, true)
@@ -1288,7 +1256,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 			if spells then
 				for spellid, spell in pairs(spells) do
 					if spell.targets and spell.targets[self.name] then
-						local amount = spell.targets[self.name]
+						local amount = spell.targets[self.name].amount
 						if amount > 0 then
 							total = total + amount
 
@@ -1386,7 +1354,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 			if spells then
 				for spellid, spell in pairs(spells) do
 					if spell.targets and spell.targets[self.name] then
-						local amount = spell.targets[self.name]
+						local amount = spell.targets[self.name].amount
 						total = total + amount
 
 						local t = tbl[spellid]
@@ -1470,7 +1438,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 			if spells then
 				for id, spell in pairs(spells) do
 					if id == spellid and spell.targets and spell.targets[self.name] then
-						local amount = spell.targets[self.name]
+						local amount = spell.targets[self.name].amount
 						total = total + amount
 
 						local t = tbl[actor.name]

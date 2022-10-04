@@ -1,14 +1,12 @@
+local MAJOR_VERSION = "LibTranslit-1.0"
+local MINOR_VERSION = 3
 if not LibStub then
-	error(MAJOR .. " requires LibStub.")
+	error(MAJOR_VERSION .. " requires LibStub.")
 end
-
-local MAJOR, MINOR = "LibTranslit-1.0", 3
-local lib = LibStub:NewLibrary(MAJOR, MINOR)
-if not lib then return end
-
-local strlen = strlen or string.len
-local strbyte = strbyte or string.byte
-local strchar = strchar or string.char
+local lib = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
+if not lib then
+	return
+end
 
 local CyrToLat = {
 	["А"] = "A",
@@ -84,18 +82,23 @@ function lib:Transliterate(str, mark)
 		return ""
 	end
 
-	mark = mark or ""
-	local tstr, marked, i = "", false, 1
-	while i <= strlen(str) do
+	local mark = mark or ""
+	local tstr = ""
+	local marked = false
+	local i = 1
+
+	while i <= string.len(str) do
 		local c = str:sub(i, i)
-		local b = strbyte(c)
+		local b = string.byte(c)
+
 		if b == 208 or b == 209 then
 			if marked == false then
 				tstr = tstr .. mark
 				marked = true
 			end
 			c = str:sub(i + 1, i + 1)
-			tstr = tstr .. (CyrToLat[strchar(b, strbyte(c))] or strchar(b, strbyte(c)))
+			tstr = tstr .. (CyrToLat[string.char(b, string.byte(c))] or string.char(b, string.byte(c)))
+
 			i = i + 2
 		else
 			if c == " " or c == "-" then

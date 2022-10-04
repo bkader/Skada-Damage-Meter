@@ -1,4 +1,4 @@
-## Interface: 90205
+## Interface: 20504
 ## Title: Skada: |cff7fff7fStorage|r
 ## Title-deDE: Skada: |cff7fff7fLagerung|r
 ## Title-esES: Skada: |cff7fff7fAlmacenamiento|r

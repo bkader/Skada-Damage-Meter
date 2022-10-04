@@ -370,7 +370,7 @@ do
 			lib.defaultFont = myfont
 		end
 
-		list.button = CreateFrame("Button", nil, list)
+		list.button = CreateFrame("Button", nil, list, "BackdropTemplate")
 		list.button:SetBackdrop(frame_defaults)
 		list.button:SetText(name)
 		list.button:SetNormalFontObject(myfont)

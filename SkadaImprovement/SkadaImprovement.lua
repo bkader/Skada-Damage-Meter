@@ -14,7 +14,6 @@ Skada:RegisterModule("Improvement", function(L)
 		"DamageTaken",
 		"Deaths",
 		"Dispels",
-		"Fails",
 		"Healing",
 		"Interrupts",
 		"Overhealing"
@@ -26,7 +25,6 @@ Skada:RegisterModule("Improvement", function(L)
 		DamageTaken = L["Damage Taken"],
 		Deaths = L["Deaths"],
 		Dispels = L["Dispels"],
-		Fails = L["Fails"],
 		Healing = L["Healing"],
 		Interrupts = L["Interrupts"],
 		Overhealing = L["Overhealing"]
@@ -38,7 +36,6 @@ Skada:RegisterModule("Improvement", function(L)
 		[L["Damage Taken"]] = "DamageTaken",
 		[L["Deaths"]] = "Deaths",
 		[L["Dispels"]] = "Dispels",
-		[L["Fails"]] = "Fails",
 		[L["Healing"]] = "Healing",
 		[L["Interrupts"]] = "Interrupts",
 		[L["Overhealing"]] = "Overhealing"
@@ -78,10 +75,6 @@ Skada:RegisterModule("Improvement", function(L)
 
 	updaters.Dispels = function(set, player)
 		return player.dispel
-	end
-
-	updaters.Fails = function(set, player)
-		return player.fail
 	end
 
 	local function find_boss_data(bossname)
@@ -139,7 +132,7 @@ Skada:RegisterModule("Improvement", function(L)
 				d.value = value
 				if win.modename == "ActiveTime" then
 					d.valuetext = Skada:FormatTime(d.value)
-				elseif win.modename == "Deaths" or win.modename == "Interrupts" or win.modename == "Fails" then
+				elseif win.modename == "Deaths" or win.modename == "Interrupts" then
 					d.valuetext = tostring(d.value)
 				else
 					d.valuetext = Skada:FormatValueCols(
@@ -187,7 +180,7 @@ Skada:RegisterModule("Improvement", function(L)
 
 				if mode == "ActiveTime" then
 					d.valuetext = Skada:FormatTime(d.value)
-				elseif mode == "Deaths" or mode == "Interrupts" or mode == "Fails" then
+				elseif mode == "Deaths" or mode == "Interrupts" then
 					d.valuetext = tostring(d.value)
 				else
 					d.valuetext = Skada:FormatNumber(d.value)

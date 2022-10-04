@@ -696,14 +696,6 @@ L["Dispelled target list"] = true
 L["%s's dispel spells"] = true
 L["%s's dispelled spells"] = true
 L["%s's dispelled targets"] = true
--- failbot module lines --
-L["Fails"] = true
-L["%s's fails"] = true
-L["Player's failed events"] = true
-L["Event's failed players"] = true
-L["Report Fails"] = true
-L["Reports the group fails at the end of combat if there are any."] = true
-L["Ignored Events"] = true
 -- interrupts module lines --
 L["Interrupts"] = INTERRUPTS
 L["Interrupt spells"] = true
@@ -789,11 +781,6 @@ L["Duration"] = true
 L["opt_tweaks_smartwait_desc"] = "For how long Skada should wait before stopping the segment."
 L["Modes Icons"] = true
 L["Show modes icons on bars and menus."] = true
-L["Combat Log"] = COMBAT_LOG
-L["opt_tweaks_combatlogfix_desc"] = "Keeps the combat log from breaking without munging it completely."
-L["Conservative Mode"] = true
-L["Aggressive Mode"] = true
-L["opt_tweaks_combatlogfixalt_desc"] = "Constantly clear the combat log instead of only when it breaks."
 L["Enable this if you want to ignore \124cffffbb00%s\124r."] = true
 L["Colors"] = COLORS
 L["Custom Colors"] = true
@@ -841,9 +828,6 @@ L["Credits"] = true
 L["Date"] = true
 L["Discord"] = true
 L["License"] = true
-L["Localizations"] = true
-L["Revision"] = true
-L["Thanks"] = true
 L["Version"] = true
 L["Website"] = true
 -- custom class names using globals

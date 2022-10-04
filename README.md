@@ -12,12 +12,12 @@ Skada is a modular damage meter with various viewing modes, segmented fights and
 
 _**ALSO AVAILABLE FOR**_:
 
+* _[Wrath of the Lich King](https://github.com/bkader/Skada/tree/main)_
 * _[Cataclysm](https://github.com/bkader/Skada/tree/cataclysm)_
 * _[Mists of Pandaria](https://github.com/bkader/Skada/tree/pandaria)_
 
 _**SOON AVAILABLE FOR**_:
 
-* _[Retail](https://github.com/bkader/Skada/tree/retail)_
 * _[Classic](https://github.com/bkader/Skada/tree/classic)_
 
 ## IMPORTANT: How to install

@@ -11,27 +11,9 @@ Skada:RegisterModule("Resurrects", function(L, P, _, C)
 	local mod_cols = nil
 
 	local resurrectSpells = {
-		-- Rebirth
-		[20484] = 0x08,
-		[20739] = 0x08,
-		[20742] = 0x08,
-		[20747] = 0x08,
-		[20748] = 0x08,
-		[26994] = 0x08,
-		[48477] = 0x08,
-		-- Reincarnation
-		[16184] = 0x08,
-		[16209] = 0x08,
-		[20608] = 0x08,
-		[21169] = 0x08,
-		-- Use Soulstone
-		[3026] = 0x01,
-		[20758] = 0x01,
-		[20759] = 0x01,
-		[20760] = 0x01,
-		[20761] = 0x01,
-		[27240] = 0x01,
-		[47882] = 0x01
+		[20484] = 0x08, -- Rebirth
+		[20608] = 0x08, -- Reincarnation
+		[3026] = 0x01 -- Use Soulstone
 	}
 
 	local function format_valuetext(d, columns, total, metadata, subview)

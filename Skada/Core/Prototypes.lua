@@ -782,8 +782,12 @@ function actorPrototype:GetAbsorbHealOnTarget(name, inc_overheal)
 	local spells = self.absorbspells -- absorb spells
 	if spells then
 		for _, spell in pairs(spells) do
-			if spell.targets and spell.targets[name] then
-				heal = heal + spell.targets[name]
+			local target = spell.targets and spell.targets[name]
+			if target then
+				heal = heal + target.amount
+				if inc_overheal and (target.o_amt or target.overheal) then
+					overheal = overheal + (target.o_amt or target.overheal)
+				end
 			end
 		end
 	end
@@ -807,14 +811,18 @@ function actorPrototype:GetAbsorbHealOnTarget(name, inc_overheal)
 end
 
 do
-	local function fill_absorb_targets_table(set, t, name, amount)
+	local function fill_absorb_targets_table(set, t, name, info)
 		local tbl = t[name]
 		if not tbl then
 			tbl = new()
-			tbl.amount = amount
+			tbl.amount = info.amount
+			tbl.o_amt = info.o_amt
 			t[name] = tbl
 		else
-			tbl.amount = tbl.amount + amount
+			tbl.amount = tbl.amount + info.amount
+			if info.o_amt or info.overheal then
+				tbl.o_amt = (tbl.o_amt or 0) + (info.o_amt or info.overheal)
+			end
 		end
 
 		set:_fill_actor_table(tbl, name)
@@ -844,8 +852,8 @@ do
 		tbl = clear(tbl or cacheTable)
 		for _, spell in pairs(spells) do
 			if spell.targets then
-				for name, amount in pairs(spell.targets) do
-					fill_absorb_targets_table(self.super, tbl, name, amount)
+				for name, target in pairs(spell.targets) do
+					fill_absorb_targets_table(self.super, tbl, name, target)
 				end
 			end
 		end
@@ -878,8 +886,8 @@ do
 		if spells then
 			for _, spell in pairs(spells) do
 				if spell.targets then
-					for name, amount in pairs(spell.targets) do
-						fill_absorb_targets_table(self.super, tbl, name, amount)
+					for name, target in pairs(spell.targets) do
+						fill_absorb_targets_table(self.super, tbl, name, target)
 					end
 				end
 			end

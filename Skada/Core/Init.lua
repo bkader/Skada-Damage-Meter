@@ -107,9 +107,11 @@ function private.register_classes()
 	ns.classcoords = setmetatable({
 		-- default classes
 		DEATHKNIGHT = {64/512, 128/512, 128/512, 192/512},
+		DEMONHUNTER = {192/512, 256/512, 128/512, 192/512},
 		DRUID = {192/512, 256/512, 0/512, 64/512},
 		HUNTER = {0/512, 64/512, 64/512, 128/512},
 		MAGE = {64/512, 128/512, 0/512, 64/512},
+		MONK = {128/512, 192/512, 128/512, 192/512},
 		PALADIN = {0/512, 64/512, 128/512, 192/512},
 		PRIEST = {128/512, 192/512, 64/512, 128/512},
 		ROGUE = {128/512, 192/512, 0/512, 64/512},
@@ -168,7 +170,11 @@ function private.register_classes()
 		[264] = {128/512, 192/512, 320/512, 384/512}, --> Shaman: Restoration
 		[265] = {384/512, 448/512, 320/512, 384/512}, --> Warlock: Affliction
 		[266] = {448/512, 512/512, 320/512, 384/512}, --> Warlock: Demonology
-		[267] = {0/512, 64/512, 384/512, 448/512} --> Warlock: Destruction
+		[267] = {0/512, 64/512, 384/512, 448/512}, --> Warlock: Destruction
+		[268] = {448/512, 512/512, 384/512, 448/512}, --> Monk: Brewmaster
+		[270] = {0/512, 64/512, 448/512, 512/512}, --> Monk: Mistweaver
+		[577] = {128/512, 192/512, 448/512, 512/512}, --> Demon Hunter: Havoc
+		[581] = {192/512, 256/512, 448/512, 512/512} --> Demon Hunter: Vengeance
 	}, coords_mt)
 
 	--------------------------
@@ -1081,14 +1087,7 @@ do
 		[75] = [[Interface\ICONS\inv_weapon_bow_07]], --> Auto Shot
 		[6603] = [[Interface\ICONS\inv_sword_04]], --> Melee
 		[3026] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
-		[20758] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
-		[20759] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
-		[20760] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
-		[20761] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
-		[27240] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
-		[47882] = [[Interface\ICONS\spell_shadow_soulgem]], --> Use Soulstone
 		[54755] = [[Interface\ICONS\inv_glyph_majordruid]], --> Glyph of Rejuvenation
-		[54968] = [[Interface\ICONS\inv_glyph_majorpaladin]], --> Glyph of Holy Light
 		[56160] = [[Interface\ICONS\inv_glyph_majorpriest]], --> Glyph of Power Word: Shield
 		[61607] = [[Interface\ICONS\ability_hunter_rapidkilling]] --> Mark of Blood
 	}

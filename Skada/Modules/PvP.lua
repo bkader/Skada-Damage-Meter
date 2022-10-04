@@ -25,13 +25,13 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 		if not aurasTable then
 			aurasTable = {
 				WARRIOR = {
-					[GetSpellInfo(56638)] = 71, -- Taste for Blood
-					[GetSpellInfo(64976)] = 71, -- Juggernaut
-					[GetSpellInfo(29801)] = 72, -- Rampage
+					-- [GetSpellInfo(56638)] = 71, -- Taste for Blood
+					-- [GetSpellInfo(64976)] = 71, -- Juggernaut
+					-- [GetSpellInfo(29801)] = 72, -- Rampage
 					[GetSpellInfo(50227)] = 73 -- Sword and Board
 				},
 				PALADIN = {
-					[GetSpellInfo(68020)] = 70, -- Seal of Command
+					-- [GetSpellInfo(68020)] = 70, -- Seal of Command
 					[GetSpellInfo(31801)] = 70 -- Seal of Vengeance
 				},
 				ROGUE = {
@@ -40,28 +40,28 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 					[GetSpellInfo(31223)] = 261 -- Master of Subtlety
 				},
 				PRIEST = {
-					[GetSpellInfo(52795)] = 256, -- Borrowed Time
+					-- [GetSpellInfo(52795)] = 256, -- Borrowed Time
 					[GetSpellInfo(47788)] = 257, -- Guardian Spirit
 					[GetSpellInfo(15473)] = 258, -- Shadowform
 					[GetSpellInfo(15286)] = 258 -- Vampiric Embrace
 				},
 				DEATHKNIGHT = {
 					[GetSpellInfo(49016)] = 250, -- Hysteria
-					[GetSpellInfo(53138)] = 250, -- Abomination's Might
+					-- [GetSpellInfo(53138)] = 250, -- Abomination's Might
 					[GetSpellInfo(55610)] = 251, -- Imp. Icy Talons
 					[GetSpellInfo(49222)] = 252 -- Bone Shield
 				},
 				MAGE = {
 					[GetSpellInfo(11426)] = 62, -- Ice Barrier
 					[GetSpellInfo(11129)] = 63, -- Combustion
-					[GetSpellInfo(31583)] = 64 -- Arcane Empowerment
+					-- [GetSpellInfo(31583)] = 64 -- Arcane Empowerment
 				},
 				WARLOCK = {
-					[GetSpellInfo(30299)] = 267 -- Nether Protection
+					-- [GetSpellInfo(30299)] = 267 -- Nether Protection
 				},
 				SHAMAN = {
 					[GetSpellInfo(51470)] = 262, -- Elemental Oath
-					[GetSpellInfo(30802)] = 263, -- Unleashed Rage
+					-- [GetSpellInfo(30802)] = 263, -- Unleashed Rage
 					[GetSpellInfo(974)] = 264 -- Earth Shield
 				},
 				HUNTER = {
@@ -84,9 +84,7 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 					[GetSpellInfo(46924)] = 71, -- Bladestorm
 					[GetSpellInfo(1680)] = 72, -- Whirlwind
 					[GetSpellInfo(23881)] = 72, -- Bloodthirst
-					[GetSpellInfo(47475)] = 72, -- Slam
-					[GetSpellInfo(12809)] = 73, -- Concussion Blow
-					[GetSpellInfo(47498)] = 73 -- Devastate
+					-- [GetSpellInfo(12809)] = 73, -- Concussion Blow
 				},
 				PALADIN = {
 					[GetSpellInfo(20473)] = 65, -- Holy Shock
@@ -98,7 +96,6 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 				},
 				ROGUE = {
 					[GetSpellInfo(1329)] = 259, -- Mutilate
-					[GetSpellInfo(51662)] = 259, -- Hunger For Blood
 					[GetSpellInfo(51690)] = 260, -- Killing Spree
 					[GetSpellInfo(13877)] = 260, -- Blade Flurry
 					[GetSpellInfo(13750)] = 260, -- Adrenaline Rush
@@ -115,7 +112,7 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 				},
 				DEATHKNIGHT = {
 					[GetSpellInfo(45902)] = 250, -- Heart Strike
-					[GetSpellInfo(49203)] = 251, -- Hungering Cold
+					-- [GetSpellInfo(49203)] = 251, -- Hungering Cold
 					[GetSpellInfo(49143)] = 251, -- Frost Strike
 					[GetSpellInfo(49184)] = 251, -- Howling Blast
 					[GetSpellInfo(55090)] = 252 -- Scourge Strike
@@ -123,7 +120,6 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 				MAGE = {
 					[GetSpellInfo(44425)] = 62, -- Arcane Barrage
 					[GetSpellInfo(44457)] = 63, -- Living Bomb
-					[GetSpellInfo(42859)] = 63, -- Scorch
 					[GetSpellInfo(31661)] = 63, -- Dragon's Breath
 					[GetSpellInfo(11113)] = 63, -- Blast Wave
 					[GetSpellInfo(44572)] = 64 -- Deep Freeze
@@ -131,7 +127,7 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 				WARLOCK = {
 					[GetSpellInfo(48181)] = 265, -- Haunt
 					[GetSpellInfo(30108)] = 265, -- Unstable Affliction
-					[GetSpellInfo(59672)] = 266, -- Metamorphosis
+					-- [GetSpellInfo(59672)] = 266, -- Metamorphosis
 					[GetSpellInfo(50769)] = 267, -- Chaos Bolt
 					[GetSpellInfo(30283)] = 267 -- Shadowfury
 				},
@@ -153,7 +149,7 @@ Skada:RegisterModule("Player vs. Player", "mod_pvp_desc", function(L, P)
 				},
 				DRUID = {
 					[GetSpellInfo(48505)] = 102, -- Starfall
-					[GetSpellInfo(50516)] = 102, -- Typhoon
+					-- [GetSpellInfo(50516)] = 102, -- Typhoon
 					[GetSpellInfo(33876)] = 103, -- Mangle (Cat)
 					[GetSpellInfo(33878)] = 104, -- Mangle (Bear)
 					[GetSpellInfo(18562)] = 105 -- Swiftmend

@@ -1,18 +1,8 @@
 local _, Skada = ...
 Skada:RegisterModule("Healthstones", function(L)
 	local mod = Skada:NewModule("Healthstones")
-	local stonename = GetSpellInfo(47874)
-	local stonespells = {
-		[27235] = true, -- Master Healthstone (2080)
-		[27236] = true, -- Master Healthstone (2288)
-		[27237] = true, -- Master Healthstone (2496)
-		[47872] = true, -- Demonic Healthstone (4200)
-		[47873] = true, -- Demonic Healthstone (3850)
-		[47874] = true, -- Demonic Healthstone (3500)
-		[47875] = true, -- Fel Healthstone (4280)
-		[47876] = true, -- Fel Healthstone (4708)
-		[47877] = true -- Fel Healthstone (5136)
-	}
+	local stonespell = 6262
+	local stonename = GetSpellInfo(stonespell)
 
 	local format = string.format
 	local mod_cols = nil
@@ -37,7 +27,7 @@ Skada:RegisterModule("Healthstones", function(L)
 	end
 
 	local function stone_used(_, _, srcGUID, srcName, srcFlags, _, _, _, spellid, spellname)
-		if (spellid and stonespells[spellid]) or (spellname and spellname == stonename) then
+		if (spellid and spellid == stonespell) or (spellname and spellname == stonename) then
 			Skada:DispatchSets(log_healthstone, srcGUID, srcName, srcFlags)
 		end
 	end

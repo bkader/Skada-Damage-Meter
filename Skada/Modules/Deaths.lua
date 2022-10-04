@@ -15,7 +15,7 @@ Skada:RegisterModule("Deaths", function(L, P, _, _, M)
 	local UnitIsFeignDeath = UnitIsFeignDeath
 	local GetSpellInfo = private.spell_info or GetSpellInfo
 	local GetSpellLink = private.spell_link or GetSpellLink
-	local IsInGroup, IsInPvP = Skada.IsInGroup, Skada.IsInPvP
+	local IsInGroup, IsInPvP = IsInGroup, Skada.IsInPvP
 	local GetTime, time, date = GetTime, time, date
 	local mod_cols, submod_cols = nil, nil
 
@@ -149,9 +149,9 @@ Skada:RegisterModule("Deaths", function(L, P, _, _, M)
 
 		if event == "SWING_MISSED" then
 			data.spellid, data.school = 6603, 0x01
-			misstype, amount = ...
+			misstype, _, amount = ...
 		else
-			data.spellid, _, data.school, misstype, amount = ...
+			data.spellid, _, data.school, misstype, _, amount = ...
 		end
 
 		if amount and amount > 0 and misstype and missTypes[misstype] then
@@ -295,27 +295,9 @@ Skada:RegisterModule("Deaths", function(L, P, _, _, M)
 	end
 
 	local resurrectSpells = {
-		-- Rebirth
-		[20484] = true,
-		[20739] = true,
-		[20742] = true,
-		[20747] = true,
-		[20748] = true,
-		[26994] = true,
-		[48477] = true,
-		-- Reincarnation
-		[16184] = true,
-		[16209] = true,
-		[20608] = true,
-		[21169] = true,
-		-- Use Soulstone
-		[3026] = true,
-		[20758] = true,
-		[20759] = true,
-		[20760] = true,
-		[20761] = true,
-		[27240] = true,
-		[47882] = true
+		[20484] = true, -- Rebirth
+		[20608] = true, -- Reincarnation
+		[3026] = true -- Use Soulstone
 	}
 
 	local function spell_resurrect(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid)
