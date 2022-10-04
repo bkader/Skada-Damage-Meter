@@ -3607,7 +3607,7 @@ end
 
 -------------------------------------------------------------------------------
 
-function Skada:ENCOUNTER_START(encounter_id, encounter_name)
+function Skada:ENCOUNTER_START(_, encounter_id, encounter_name)
 	if self.disabled then
 		return
 	elseif self.current then
@@ -3621,7 +3621,7 @@ function Skada:ENCOUNTER_START(encounter_id, encounter_name)
 	end
 end
 
-function Skada:ENCOUNTER_END(encounter_id, encounter_name)
+function Skada:ENCOUNTER_END(_, encounter_id, encounter_name)
 	if not self.disabled and self.current then
 		if not self.current.gotboss then
 			self.current.mobname = encounter_name

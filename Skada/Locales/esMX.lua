@@ -532,10 +532,6 @@ L["Debuff source list"] = "Fuentes de debufos"
 L["actor debuffs"] = function(n1, n2) return ((not n2 or n1 == n2) and "Debufos de %s" or "Debufos de %s en %s"):format(n1, n2) end
 L["%s's <%s> targets"] = "Objetivos de <%2$s> de %1$s"
 L["%s's <%s> sources"] = "Fuentes de <%2$s> de %1$s"
-L["Sunder Counter"] = "Hender armadura"
-L["Sunder target list"] = "Objetivos de Hender armadura"
-L["Sunder source list"] = "Fuentes de Hender armadura"
-L["Number of seconds after application to count refreshs."] = "N\195\186mero de segundos despu\195\169s de la aplicaci\195\179n para contar las actualizaciones."
 L["Enemy Buffs"] = "Bufos de enemigo"
 L["Enemy Debuffs"] = "Debufos de enemigo"
 -- CC Tracker Module --
@@ -734,9 +730,6 @@ L["Custom Colors"] = "Colores personalizados"
 L["Arena Teams"] = "Equipos de arena"
 L["Are you sure you want to reset all colors?"] = "¿Est\195\161s seguro de que quieres restablecer todos los colores?"
 L["Announce %s"] = "Anunciar: %s"
-L["Announces how long it took to apply %d stacks of %s and announces when it drops."] = "Anuncia el tiempo que tom\195\179 en aplicar %d cargas de %s y anuncia cuando expiren."
-L["%s dropped from %s!"] = "%s expir\195\179 en %s!"
-L["%s stacks of %s applied on %s in %s sec!"] = "¡%s pilas de %s aplicadas a %s en %s seg!"
 L["My Spells"] = "Mis habilidades"
 -- total data options
 L["Total Segment"] = "Segmento total" -- needs review
