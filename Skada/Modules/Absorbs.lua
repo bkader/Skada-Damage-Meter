@@ -22,56 +22,9 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	local COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
 	local COMBATLOG_OBJECT_REACTION_MASK = COMBATLOG_OBJECT_REACTION_MASK or 0x000000F0
 
-	local next = next
+	local next, band, max = next, bit.band, math.max
 	local T, del = Skada.Table, private.delTable
 	local mod_cols = nil
-
-	local absorbspells = {
-		-- PRIEST
-		[47753] = true, -- Divine Aegis (discipline)
-		[17] = true, -- Power Word: Shield (discipline)
-		[114908] = true, -- Spirit Shell (discipline)
-		[114214] = true, -- Angelic Bulwark (talent)
-		-- DEATHKNIGHT
-		[48707] = true, -- Anti-Magic Shell
-		[116888] = true, -- Shroud of Purgatory (talent)
-		[51052] = true, -- Anti-Magic Zone (talent)
-		[77535] = true, -- Blood Shield
-		[115635] = true, -- death barrier
-		-- SHAMAN
-		[114893] = true, -- Stone Bulwark (stone bulwark totem)
-		[145379] = true, -- Barreira da Natureza
-		[145378] = true, -- 2P T16
-		-- PALADIN
-		[86273] = true, -- Illuminated Healing (holy)
-		[65148] = true, -- Sacred Shield (talent)
-		-- MONK
-		[116849] = true, -- Life Cocoon (mistweaver)
-		[115295] = true, -- Guard (brewmaster)
-		[118604] = true, -- Guard (brewmaster)
-		[145051] = true, -- Proteção de Niuzao
-		[145056] = true, --
-		[145441] = true, -- 2P T16
-		[145439] = true, -- 2P T16
-		-- WARLOCK
-		[6229] = true, -- Twilight Ward
-		[108366] = true, -- Soul Leech (talent)
-		[108416] = true, -- Sacrificial Pact (talent)
-		[110913] = true, -- Dark Bargain (talent)
-		[7812] = true, -- Voidwalker's Sacrifice
-		-- MAGE
-		[11426] = true, -- Ice Barrier (talent)
-		[1463] = true, -- Incanter's Ward (talent)
-		-- WARRIOR
-		[112048] = true, -- Shield Barrier (protection)
-		-- OTHER
-		[116631] = true, -- enchant "Enchant Weapon - Colossus"
-		[140380] = true, -- trinket "Inscribed Bag of Hydra-Spawn"
-		[138925] = true -- trinket "Stolen Relic of Zuldazar"
-	}
-
-	local shields = {} -- holds the list of players shields and other stuff
-	local absorb = {}
 
 	local function format_valuetext(d, columns, total, aps, metadata, subview)
 		d.valuetext = Skada:FormatValueCols(
@@ -99,8 +52,12 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 	end
 
+	local absorb = {}
 	local function log_absorb(set, nocount)
-		if not absorb.spellid or not absorb.amount or absorb.amount == 0 then return end
+		if not absorb.spellid then return end
+
+		local amount = max(0, absorb.amount - absorb.overheal)
+		if amount == 0 then return end
 
 		local player = Skada:GetPlayer(set, absorb.playerid, absorb.playername)
 		if not player then
@@ -110,8 +67,8 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 
 		-- add absorbs amount
-		player.absorb = (player.absorb or 0) + absorb.amount
-		set.absorb = (set.absorb or 0) + absorb.amount
+		player.absorb = (player.absorb or 0) + amount
+		set.absorb = (set.absorb or 0) + amount
 
 		if absorb.overheal then
 			player.overheal = (player.overheal or 0) + absorb.overheal
@@ -125,13 +82,13 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local spell = player.absorbspells and player.absorbspells[absorb.spellid]
 		if not spell then
 			player.absorbspells = player.absorbspells or {}
-			spell = {school = absorb.school, amount = absorb.amount, o_amt = absorb.overheal, count = 1}
+			spell = {school = absorb.school, amount = amount, o_amt = absorb.overheal, count = 1}
 			player.absorbspells[absorb.spellid] = spell
 		else
 			if not spell.school and absorb.school then
 				spell.school = absorb.school
 			end
-			spell.amount = (spell.amount or 0) + absorb.amount
+			spell.amount = (spell.amount or 0) + amount
 			if not nocount then
 				spell.count = (spell.count or 0) + 1
 			end
@@ -144,11 +101,11 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		-- start cast counter.
 		spell.casts = spell.casts or 1
 
-		if not spell.min or absorb.amount < spell.min then
-			spell.min = absorb.amount
+		if not spell.min or amount < spell.min then
+			spell.min = amount
 		end
-		if not spell.max or absorb.amount > spell.max then
-			spell.max = absorb.amount
+		if not spell.max or amount > spell.max then
+			spell.max = amount
 		end
 
 		-- record the target
@@ -156,22 +113,37 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local target = spell.targets and spell.targets[absorb.dstName]
 		if not target then
 			spell.targets = spell.targets or {}
-			spell.targets[absorb.dstName] = {amount = absorb.amount, o_amt = absorb.overheal}
+			spell.targets[absorb.dstName] = {amount = amount, o_amt = absorb.overheal}
 		else
-			target.amount = target.amount + absorb.amount
+			target.amount = target.amount + amount
 			if absorb.overheal then
-				target.o_amt = (target.o_amt or 0) + absorb.amount
+				target.o_amt = (target.o_amt or 0) + amount
 			end
 		end
 	end
 
+	local BITMASK_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER or 0x00000100
+	local BITMASK_REACTION_MASK = COMBATLOG_OBJECT_REACTION_MASK or 0x000000F0
+	local BITMASK_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
+
+	local function validate_shield(srcFlags, dstFlags)
+		local valid = band(srcFlags, dstFlags, BITMASK_CONTROL_PLAYER) ~= 0
+		valid = valid and (band(srcFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
+		valid = valid and (band(dstFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
+		valid = valid and (band(srcFlags, dstFlags, BITMASK_REACTION_MASK) ~= 0)
+		return valid
+	end
+
+	local shields = {}
 	local function handle_shield(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
 		local spellid, _, spellschool, _, amount = ...
-		if not spellid or not absorbspells[spellid] or ignoredSpells[spellid] or not amount then return end
+		if not amount or not spellid or ignoredSpells[spellid] then return end
 
 		dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
 
 		if eventtype == "SPELL_AURA_APPLIED" then
+			if not validate_shield(srcFlags, dstFlags) then return end
+
 			local shield = shields[dstName] and shields[dstName][spellid]
 			if not shield then
 				shields[dstName] = shields[dstName] or new()
@@ -180,38 +152,57 @@ Skada:RegisterModule("Absorbs", function(L, P)
 			end
 			shield[srcName] = amount
 		elseif eventtype == "SPELL_AURA_REFRESH" then
-			if shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName] then
-				local prev_amount = shields[dstName][spellid][srcName]
-				if prev_amount and prev_amount > amount then
-					absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
-					absorb.dstName = dstName
+			local prev_amount = shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName]
+			if not prev_amount then return end
 
-					absorb.spellid = spellid
-					absorb.school = spellschool
-					absorb.amount = prev_amount - amount
-					absorb.overheal = nil
+			absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+			absorb.dstName = dstName
 
-					Skada:DispatchSets(log_absorb)
-				end
-				shields[dstName][spellid][srcName] = amount -- refresh amount
-			end
-		elseif shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName] then
-			local prev_amount = shields[dstName][spellid][srcName]
-			if prev_amount and prev_amount > amount then
+			absorb.spellid = spellid
+			absorb.school = spellschool
+			absorb.amount = 0
+			absorb.overheal = prev_amount
+
+			Skada:DispatchSets(log_absorb)
+			shields[dstName][spellid][srcName] = amount -- refresh amount
+		else
+			local prev_amount = shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName]
+			if prev_amount then
 				absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
 				absorb.dstName = dstName
 
 				absorb.spellid = spellid
 				absorb.school = spellschool
-				absorb.amount = prev_amount - amount
+				absorb.amount = 0
 				absorb.overheal = amount
 
 				Skada:DispatchSets(log_absorb)
 			end
-			shields[dstName][spellid][srcName] = del(shields[dstName][spellid][srcName]) -- remove shield
-			if next(shields[dstName][spellid]) == nil then
-				shields[dstName][spellid] = del(shields[dstName][spellid])
-			end
+
+			shields[dstName][spellid][srcName] = nil -- remove shield
+		end
+	end
+
+	local function spell_absorbed(_, _, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+		if band(srcFlags, BITMASK_CONTROL_PLAYER) == 0 or band(srcFlags, dstFlags, BITMASK_REACTION_MASK) == 0 then
+			return
+		end
+
+		local absGUID, absName, absFlags, _, spellid, _, spellschool, amount = ...
+		if type(absGUID) == "number" then
+			_, _, _, absGUID, absName, absFlags, _, spellid, _, spellschool, amount = ...
+		end
+
+		if not ignoredSpells[spellid] then
+			absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(absGUID, absName, absFlags)
+			absorb.dstName = dstName
+
+			absorb.spellid = spellid
+			absorb.school = spellschool
+			absorb.amount = amount
+			absorb.overheal = 0
+
+			Skada:DispatchSets(log_absorb)
 		end
 	end
 
@@ -443,7 +434,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 				local _, _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, amount = UnitBuff(unit, i)
 				if not spellid then
 					break -- nothing found
-				elseif absorbspells[spellid] and unitCaster and not ignoredSpells[spellid] and amount then
+				elseif not ignoredSpells[spellid] and unitCaster and amount then
 					handle_shield(nil, "SPELL_AURA_APPLIED", UnitGUID(unitCaster), UnitName(unitCaster), nil, dstGUID, dstName, nil, spellid, nil, nil, nil, amount)
 				end
 			end
@@ -500,6 +491,12 @@ Skada:RegisterModule("Absorbs", function(L, P)
 			flags_src
 		)
 
+		Skada:RegisterForCL(
+			spell_absorbed,
+			"SPELL_ABSORBED",
+			{dst_is_interesting = true}
+		)
+
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_ENTER", "CombatEnter")
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
 		Skada:AddMode(self, L["Absorbs and Healing"])
@@ -507,6 +504,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		-- table of ignored spells:
 		if Skada.ignoredSpells then
 			if Skada.ignoredSpells.absorbs then
+				ignoredSpells = setmetatable(ignoredSpells, {__index = Skada.ignoredSpells.absorbs})
 				ignoredSpells = Skada.ignoredSpells.absorbs
 			end
 			if Skada.ignoredSpells.activeTime then
