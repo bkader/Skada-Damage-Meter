@@ -681,7 +681,7 @@ do
 		local P = ns.db.profile
 		P.toast = P.toast or ns.defaults.toast
 
-		LibToast:Register("SkadaToastFrame", function(toast, text, title, icon, urgency)
+		LibToast:Register(format("%sToastFrame", folder), function(toast, text, title, icon, urgency)
 			toast:SetTitle(title or folder)
 			toast:SetText(text or L["A damage meter."])
 			toast:SetIconTexture(icon or ns.logo)

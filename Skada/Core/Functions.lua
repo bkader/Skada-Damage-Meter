@@ -666,8 +666,10 @@ do
 end
 
 -- new window creation dialog
+local dialog_name = nil
 function Skada:NewWindow(window)
-	if not StaticPopupDialogs["SkadaCreateWindowDialog"] then
+	dialog_name = dialog_name or format("%sCreateWindowDialog", folder)
+	if not StaticPopupDialogs[dialog_name] then
 		local function create_window(name, win)
 			name = name and name:trim()
 			if not name or name == "" then return end
@@ -683,7 +685,7 @@ function Skada:NewWindow(window)
 			end
 		end
 
-		StaticPopupDialogs["SkadaCreateWindowDialog"] = {
+		StaticPopupDialogs[dialog_name] = {
 			text = L["Enter the name for the new window."],
 			button1 = L["Create"],
 			button2 = L["Cancel"],
@@ -721,7 +723,7 @@ function Skada:NewWindow(window)
 			end
 		}
 	end
-	StaticPopup_Show("SkadaCreateWindowDialog", nil, nil, window)
+	StaticPopup_Show(dialog_name, nil, nil, window)
 end
 
 -- reinstall the addon
