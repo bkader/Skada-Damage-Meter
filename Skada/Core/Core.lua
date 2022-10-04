@@ -2669,28 +2669,49 @@ do
 	local UnitHasVehicleUI = UnitHasVehicleUI
 	local ignoredUnits = {target = true, focus = true, npc = true, NPC = true, mouseover = true}
 
-	function Skada:UNIT_PET(_, unit)
-		if unit and not ignoredUnits[unit] then
-			check_group()
+	local function get_pet_from_owner(owner)
+		if owner == "player" then
+			return "pet"
+		elseif find(owner, "raid") then
+			return gsub(owner, "raid", "raidpet")
+		elseif find(owner, "party") then
+			return gsub(owner, "party", "partypet")
+		else
+			return nil
 		end
 	end
 
-	function Skada:CheckVehicle(_, unit)
-		if unit and not ignoredUnits[unit] then
-			local guid = UnitGUID(unit)
-			if guid and players[guid] then
-				if UnitHasVehicleUI(unit) then
-					local prefix, id, suffix = strmatch(unit, "([^%d]+)([%d]*)(.*)")
-					local vUnitId = format("%spet%s%s", prefix, id, suffix)
-					if UnitExists(vUnitId) then
-						assign_pet(guid, UnitName(unit), UnitGUID(vUnitId))
-						vehicles[guid] = UnitGUID(vUnitId)
-					end
-				elseif vehicles[guid] then
-					-- delayed for a reason (2 x MAINMENU_SLIDETIME).
-					dismiss_pet(vehicles[guid], 0.6)
-				end
+	function Skada:UNIT_PET(owners)
+		for owner in pairs(owners) do
+			local unit = get_pet_from_owner(owner)
+			if not unit then
+				return
+			elseif UnitExists(unit) then
+				assign_pet(UnitGUID(owner), UnitName(owner), UnitGUID(unit))
 			end
+		end
+	end
+
+	local function process_check_vehicle(unit)
+		local guid = unit and not ignoredUnits[unit] and UnitGUID(unit)
+		if not guid or not players[guid] then
+			return
+		elseif UnitHasVehicleUI(unit) then
+			local prefix, id, suffix = strmatch(unit, "([^%d]+)([%d]*)(.*)")
+			local vUnitId = format("%spet%s%s", prefix, id, suffix)
+			if UnitExists(vUnitId) then
+				assign_pet(guid, UnitName(unit), UnitGUID(vUnitId))
+				vehicles[guid] = UnitGUID(vUnitId)
+			end
+		elseif vehicles[guid] then
+			-- delayed for a reason (2 x MAINMENU_SLIDETIME).
+			dismiss_pet(vehicles[guid], 0.6)
+		end
+	end
+
+	function Skada:CheckVehicle(units)
+		for unit in pairs(units) do
+			process_check_vehicle(unit)
 		end
 	end
 end
@@ -3287,12 +3308,12 @@ function Skada:OnEnable()
 	self.userGUID = userGUID
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	self:RegisterEvent("UNIT_PET")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckZone")
-	self:RegisterEvent("UNIT_ENTERED_VEHICLE", "CheckVehicle")
-	self:RegisterEvent("UNIT_EXITED_VEHICLE", "CheckVehicle")
-	self:RegisterBucketEvent("GROUP_ROSTER_UPDATE", 0.25, "UpdateRoster")
+	self:RegisterBucketEvent("UNIT_PET", 0.2)
+	self:RegisterBucketEvent("UNIT_ENTERED_VEHICLE", 0.1, "CheckVehicle")
+	self:RegisterBucketEvent("UNIT_EXITED_VEHICLE", 0.1, "CheckVehicle")
+	self:RegisterBucketEvent("GROUP_ROSTER_UPDATE", 0.2, "UpdateRoster")
 	start_watching()
 
 	if self.LoadableModules then

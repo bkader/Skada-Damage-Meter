@@ -1265,6 +1265,7 @@ globals = {
 	"CombatLogAdvanceEntry",
 	"CombatLogClearEntries",
 	"CombatLogGetCurrentEntry",
+	"CombatLogGetCurrentEventInfo",
 	"CombatLogGetNumEntries",
 	"CombatLogGetRetentionTime",
 	"CombatLogResetFilter",
