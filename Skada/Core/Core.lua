@@ -140,7 +140,7 @@ local function create_set(setname, set)
 		setmetatable(set, nil)
 		for k, v in pairs(set) do
 			if type(v) == "table" then
-				set[k] = wipe(v)
+				set[k] = clear(v)
 			else
 				set[k] = nil
 			end
@@ -561,20 +561,6 @@ function Window:SetDisplay(name)
 	end
 end
 
--- called before dataset is updated.
-local function update_in_progress(self)
-	for i = 1, #self.dataset do
-		local data = self.dataset[i]
-		if data then
-			if data.ignore then
-				data.icon = nil
-			end
-			data.id = nil
-			data.ignore = nil
-		end
-	end
-end
-
 -- tell window to update the display of its dataset, using its display provider.
 function Window:UpdateDisplay()
 	-- hidden window? nothing to do.
@@ -583,8 +569,6 @@ function Window:UpdateDisplay()
 	elseif self.selectedmode then
 		local set = self:GetSelectedSet()
 		if set then
-			update_in_progress(self)
-
 			if self.selectedmode.Update then
 				if set then
 					self.selectedmode:Update(self, set)
@@ -748,7 +732,22 @@ end
 
 -- creates or reuses a dataset table
 function Window:nr(i)
-	local d = self.dataset[i] or {}
+	local d = self.dataset[i]
+	if d then
+		if d.ignore then
+			d.color = nil
+			d.icon = nil
+		end
+		d.id = nil
+		d.text = nil
+		d.class = nil
+		d.role = nil
+		d.spec = nil
+		d.ignore = nil
+		return d
+	end
+
+	d = {}
 	self.dataset[i] = d
 	return d
 end
@@ -842,8 +841,6 @@ function Window:actor(d, actor, enemy, actorname)
 
 		if actor.id and Skada.validclass[d.class] then
 			d.text = Skada:FormatName(actor.name or actorname, actor.id)
-		elseif d.text then
-			d.text = nil
 		end
 	end
 	return d
@@ -1898,9 +1895,8 @@ do
 
 		local owner = fix_pets_handler(action.playerid, action.playerflags)
 		if owner then
-			action.petname = action.playername
-
 			if P.mergepets then
+				action.petname = action.playername
 				action.playerid = owner.id
 				action.playername = owner.name
 
@@ -3177,13 +3173,13 @@ function Skada:ApplySettings(name, hidemenu)
 end
 
 function private.reload_settings()
-	for i = 1, #windows do
+	for i = #windows, 1, -1 do
 		local win = windows[i]
 		if win and win.Destroy then
 			win:Destroy()
 		end
+		tremove(windows, i)
 	end
-	wipe(windows)
 
 	-- refresh refrences
 	P = Skada.db.profile

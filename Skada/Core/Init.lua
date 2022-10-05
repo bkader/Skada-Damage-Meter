@@ -555,7 +555,7 @@ end
 -- creates a table pool
 function private.table_pool()
 	local pool = {tables = {}, new = true, del = true, clear = true}
-	setmetatable(pool.tables, {__mode = "k"})
+	setmetatable(pool.tables, private.weaktable)
 
 	-- reuses or creates a table
 	pool.new = function()
