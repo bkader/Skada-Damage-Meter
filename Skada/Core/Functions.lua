@@ -10,7 +10,7 @@ local _
 local L = LibStub("AceLocale-3.0"):GetLocale(folder)
 local UnitClass, GetPlayerInfoByGUID = UnitClass, GetPlayerInfoByGUID
 local GetClassFromGUID = Skada.GetClassFromGUID
-local T = Skada.Table
+local new, del = private.newTable, private.delTable
 
 local COMBATLOG_OBJECT_TYPE_NPC = COMBATLOG_OBJECT_TYPE_NPC or 0x00000800
 
@@ -287,7 +287,7 @@ end
 -- temporary flags check bypass
 
 do
-	local new, del, clear = private.newTable, private.delTable, private.clearTable
+	local clear = private.clearTable
 	local temp_units = nil
 
 	-- adds a temporary unit with optional info
@@ -333,11 +333,11 @@ function Skada:ApplyBorder(frame, texture, color, thickness, padtop, padbottom, 
 	frame.borderFrame:SetPoint("TOPLEFT", frame, -thickness - padleft, thickness + padtop)
 	frame.borderFrame:SetPoint("BOTTOMRIGHT", frame, thickness + padright, -thickness - padbottom)
 
-	local borderbackdrop = T.get("Skada_BorderBackdrop")
+	local borderbackdrop = new()
 	borderbackdrop.edgeFile = (texture and thickness > 0) and self:MediaFetch("border", texture) or nil
 	borderbackdrop.edgeSize = thickness
 	frame.borderFrame:SetBackdrop(borderbackdrop)
-	T.free("Skada_BorderBackdrop", borderbackdrop)
+	del(borderbackdrop)
 	if color then
 		frame.borderFrame:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
 	end
