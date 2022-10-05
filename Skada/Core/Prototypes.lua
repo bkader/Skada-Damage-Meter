@@ -694,21 +694,48 @@ function actorPrototype:GetHealOnTarget(name, inc_overheal)
 end
 
 -- returns the amount of overheal on the given target
-function actorPrototype:GetOverhealOnTarget(name)
-	local spells = self.overheal and name and self.healspells
-	if not spells then
-		return 0
-	end
-
-	local total = 0
-	for _, spell in pairs(spells) do
-		local o_amt = spell.o_amt or spell.overheal
-		o_amt = (o_amt and o_amt > 0) and spell.targets and spell.targets[name] and (spell.targets[name].o_amt or spell.targets[name].overheal)
-		if o_amt then
-			total = total + o_amt
+do
+	local function fill_overheal_on_target_table(spellid, spell, name, tbl)
+		local info = spell.targets and spell.targets[name]
+		local o_amt = info and (info.o_amt or info.overheal)
+		if not o_amt or o_amt == 0 then
+			return 0
 		end
+
+		local t = tbl[spellid]
+		if not t then
+			t = new()
+			t.school = spell.school
+			t.amount = info.amount
+			t.o_amt = o_amt
+			tbl[spellid] = t
+		else
+			t.amount = t.amount + info.amount
+			t.o_amt = t.o_amt + o_amt
+		end
+		return o_amt
 	end
-	return total
+	function actorPrototype:GetOverhealSpellsOnTarget(name, tbl)
+		local total = name and self.overheal
+		if not total or total == 0 then return end
+
+		total = 0
+		tbl = clear(tbl or cacheTable)
+
+		local spells = self.healspells -- heal spells
+		if spells then
+			for spellid, spell in pairs(spells) do
+				total = total + fill_overheal_on_target_table(spellid, spell, name, tbl)
+			end
+		end
+		spells = self.absorbspells -- absorb spells
+		if spells then
+			for spellid, spell in pairs(spells) do
+				total = total + fill_overheal_on_target_table(spellid, spell, name, tbl)
+			end
+		end
+		return tbl, total
+	end
 end
 
 -- returns the total heal amount on the given target
@@ -928,20 +955,75 @@ do
 		set:_fill_actor_table(tbl, name)
 	end
 
-	function actorPrototype:GetOverhealTargets(tbl)
-		local spells = self.overheal and self.healspells
-		if not spells then return end
-
-		tbl = clear(tbl or cacheTable)
-		for _, spell in pairs(spells) do
-			local o_amt = spell.o_amt or spell.overheal
-			if o_amt and o_amt > 0 and spell.targets then
-				for name, target in pairs(spell.targets) do
-					fill_overheal_targets_table(self.super, tbl, name, target)
-				end
+	local function fill_overheal_spell_table(set, spell, t)
+		local o_amt = spell.o_amt or spell.overheal
+		if o_amt and o_amt > 0 and spell.targets then
+			for name, target in pairs(spell.targets) do
+				fill_overheal_targets_table(set, t, name, target)
 			end
 		end
-		return tbl
+	end
+
+	function actorPrototype:GetOverhealTargets(tbl)
+		local total = self.overheal
+		if not total or total == 0 then return end
+
+		tbl = clear(tbl or cacheTable)
+
+		local spells = self.healspells -- heal spells
+		if spells then
+			for _, spell in pairs(spells) do
+				fill_overheal_spell_table(self.super, spell, tbl)
+			end
+		end
+
+		spells = self.absorbspells -- absorb spells
+		if spells then
+			for _, spell in pairs(spells) do
+				fill_overheal_spell_table(self.super, spell, tbl)
+			end
+		end
+
+		return tbl, total
+	end
+end
+
+do
+	local function fill_overheal_spell_table(spellid, spell, tbl)
+		local o_amt = spell.o_amt or spell.overheal
+		if o_amt and o_amt > 0 then
+			local t = tbl[spellid]
+			if not t then
+				t = new()
+				t.school = spell.school
+				t.amount = spell.amount
+				t.o_amt = o_amt
+				tbl[spellid] = t
+			else
+				t.amount = t.amount + spell.amount
+				t.o_amt = t.o_amt + o_amt
+			end
+		end
+	end
+
+	function actorPrototype:GetOverhealSpells(tbl)
+		local total = self.overheal
+		if not total or total == 0 then return end
+
+		tbl = clear(tbl or cacheTable)
+		local spells = self.healspells -- heal spells
+		if spells then
+			for spellid, spell in pairs(spells) do
+				fill_overheal_spell_table(spellid, spell, tbl)
+			end
+		end
+		spells = self.absorbspells -- absorb spells
+		if spells then
+			for spellid, spell in pairs(spells) do
+				fill_overheal_spell_table(spellid, spell, tbl)
+			end
+		end
+		return tbl, total
 	end
 end
 

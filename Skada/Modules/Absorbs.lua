@@ -426,7 +426,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 		local GroupIterator = Skada.GroupIterator
 
-		local function check_unit_shields(unit)
+		local function check_starting_shields(unit)
 			if UnitIsDeadOrGhost(unit) then return end
 
 			local dstGUID, dstName = UnitGUID(unit), UnitName(unit)
@@ -442,12 +442,27 @@ Skada:RegisterModule("Absorbs", function(L, P)
 
 		function mod:CombatEnter(_, set)
 			if set and not set.stopped and not self.checked then
-				GroupIterator(check_unit_shields)
+				GroupIterator(check_starting_shields)
 				self.checked = true
 			end
 		end
 
+		local function check_remaining_shields(unit)
+			if UnitIsDeadOrGhost(unit) then return end
+
+			local dstGUID, dstName = UnitGUID(unit), UnitName(unit)
+			for i = 1, 40 do
+				local _, _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, amount = UnitBuff(unit, i)
+				if not spellid then
+					break -- nothing found
+				elseif not ignoredSpells[spellid] and unitCaster and amount then
+					handle_shield(nil, "SPELL_AURA_REMOVED", UnitGUID(unitCaster), UnitName(unitCaster), nil, dstGUID, dstName, nil, spellid, nil, nil, nil, amount)
+				end
+			end
+		end
+
 		function mod:CombatLeave()
+			GroupIterator(check_remaining_shields)
 			self.checked = nil
 		end
 	end

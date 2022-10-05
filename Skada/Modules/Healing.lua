@@ -500,9 +500,10 @@ Skada:RegisterModule("Overhealing", function(L)
 		if not set or not win.targetname then return end
 
 		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		local total = actor and actor:GetOverhealOnTarget(win.targetname)
+		if not actor or enemy then return end
 
-		if not total or total == 0 then
+		local spells, total = actor:GetOverhealSpellsOnTarget(win.targetname)
+		if not spells or total == 0 then
 			return
 		elseif win.metadata then
 			win.metadata.maxvalue = 0
@@ -510,18 +511,13 @@ Skada:RegisterModule("Overhealing", function(L)
 
 		local nr = 0
 		local actortime = mod_cols.sHPS and actor:GetTime()
-		local spells = actor.healspells
 
 		for spellid, spell in pairs(spells) do
-			local tar = spell.targets and spell.targets[win.targetname]
-			local o_amt = tar and (tar.o_amt or tar.overheal)
-			if o_amt and o_amt > 0 then
-				nr = nr + 1
+			nr = nr + 1
 
-				local d = win:spell(nr, spellid, spell, nil, true)
-				d.value = o_amt
-				fmt_valuetext(d, mod.metadata.columns, tar.amount + d.value, actortime and (d.value / actortime), win.metadata, true)
-			end
+			local d = win:spell(nr, spellid, spell, nil, true)
+			d.value = spell.o_amt
+			fmt_valuetext(d, mod.metadata.columns, spell.amount + d.value, actortime and (d.value / actortime), win.metadata, true)
 		end
 	end
 
@@ -535,10 +531,10 @@ Skada:RegisterModule("Overhealing", function(L)
 		if not set or not win.actorname then return end
 
 		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		local total = actor and actor:GetOverheal()
-		local spells = (total and total > 0) and actor.healspells
+		if not actor or enemy then return end
 
-		if not spells then
+		local spells, total = actor:GetOverhealSpells()
+		if not spells or total == 0 then
 			return
 		elseif win.metadata then
 			win.metadata.maxvalue = 0
@@ -548,14 +544,11 @@ Skada:RegisterModule("Overhealing", function(L)
 		local actortime = mod_cols.sHPS and actor:GetTime()
 
 		for spellid, spell in pairs(spells) do
-			local o_amt = spell.o_amt or spell.overheal
-			if o_amt and o_amt > 0 then
-				nr = nr + 1
+			nr = nr + 1
 
-				local d = win:spell(nr, spellid, spell, nil, true)
-				d.value = o_amt
-				fmt_valuetext(d, mod_cols, spell.amount + o_amt, actortime and (d.value / actortime), win.metadata, true)
-			end
+			local d = win:spell(nr, spellid, spell, nil, true)
+			d.value = spell.o_amt
+			fmt_valuetext(d, mod_cols, spell.amount + spell.o_amt, actortime and (d.value / actortime), win.metadata, true)
 		end
 	end
 
@@ -569,10 +562,10 @@ Skada:RegisterModule("Overhealing", function(L)
 		if not set or not win.actorname then return end
 
 		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		local total = actor and actor.overheal
-		local targets = (total and total > 0) and actor:GetOverhealTargets()
+		if not actor or enemy then return end
 
-		if not targets then
+		local targets, total = actor:GetOverhealTargets()
+		if not targets or total == 0 then
 			return
 		elseif win.metadata then
 			win.metadata.maxvalue = 0

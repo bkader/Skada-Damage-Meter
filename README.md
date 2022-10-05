@@ -149,7 +149,7 @@ actor:GetHealOnTarget(name, inc_overheal) -- returns the actor's heal and overhe
 actor:GetOverheal() -- returns the actor's overheal amount.
 actor:GetOHPS(active) -- returns the actor's overheal per second and overheal amount.
 actor:GetOverhealTargets(tbl) -- returns the table of actor's overheal targets.
-actor:GetOverhealOnTarget(name) -- returns the amount of overheal on the given target.
+actor:GetOverhealSpellsOnTarget(name) -- returns the spells and amount of overheal on the given target.
 
 actor:GetTotalHeal() -- returns the actor's heal amount including overheal.
 actor:GetTHPS(active) -- returns the actor's total heal per second and total heal amount.
