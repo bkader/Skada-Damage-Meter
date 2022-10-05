@@ -52,6 +52,13 @@ elseif LOCALE_frFR then
 	L_RESIZE_ALT_CLICK = "\124cff00ff00Alt clic\124r pour changer la hauteur."
 	L_LOCK_WINDOW = "Verrouiller la fenêtre"
 	L_UNLOCK_WINDOW = "Déverrouiller la fenêtre"
+elseif LOCALE_itIT then
+	L_RESIZE_HEADER = "Ridimensionare"
+	L_RESIZE_CLICK = "\124cff00ff00Clic\124r per ridimensionare la finestra."
+	L_RESIZE_SHIFT_CLICK = "\124cff00ff00Shift-Clic\124r per modificare la larghezza."
+	L_RESIZE_ALT_CLICK = "\124cff00ff00Alt-Click\124r per modificare l'altezza."
+	L_LOCK_WINDOW = "Blocca la finestra"
+	L_UNLOCK_WINDOW = "Sblocca la finestra"
 elseif LOCALE_koKR then
 	L_RESIZE_HEADER = "크기 조정"
 	L_RESIZE_CLICK = "\124cff00ff00클릭\124r하여 창 크기를 자유롭게 조정합니다."
@@ -59,6 +66,13 @@ elseif LOCALE_koKR then
 	L_RESIZE_ALT_CLICK = "높이를 변경하려면 \124cff00ff00Alt-클릭\124r하십시오"
 	L_LOCK_WINDOW = "잠금 창"
 	L_UNLOCK_WINDOW = "잠금 해제 창"
+elseif LOCALE_ptBR then
+	L_RESIZE_HEADER = "Redimensionar"
+	L_RESIZE_CLICK = "\124cff00ff00Clique\124r para redimensionar a janela."
+	L_RESIZE_SHIFT_CLICK = "\124cff00ff00Shift-Clique\124r para alterar a largura."
+	L_RESIZE_ALT_CLICK = "\124cff00ff00Alt-Clique\124r para alterar a altura."
+	L_LOCK_WINDOW = "Bloquear janela"
+	L_UNLOCK_WINDOW = "Desbloquear janela"
 elseif LOCALE_ruRU then
 	L_RESIZE_HEADER = "Изменение размера"
 	L_RESIZE_CLICK = "\124cff00ff00Щелкните\124r, чтобы изменить размер окна."
