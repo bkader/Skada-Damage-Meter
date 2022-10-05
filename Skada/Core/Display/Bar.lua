@@ -1049,6 +1049,11 @@ Skada:RegisterDisplay("Bar Display", "mod_bar_desc", function(L, P, G)
 			g.button:SetBackdropColor(color.r, color.g, color.b, color.a or 1)
 			Skada:ApplyBorder(g.button, p.title.bordertexture, p.title.bordercolor, p.title.borderthickness, p.title.borderinsets)
 
+			if g.stretcher then
+				g.stretcher.bg:SetTexture(backdrop.bgFile)
+				g.stretcher.bg:SetVertexColor(color.r, color.g, color.b, color.a or 1)
+			end
+
 			g.button.toolbar = g.button.toolbar or p.title.toolbar or 1
 			if g.button.toolbar ~= p.title.toolbar then
 				g.button.toolbar = p.title.toolbar or 1
