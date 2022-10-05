@@ -183,7 +183,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 	end
 
-	local function spell_absorbed(_, _, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+	local function spell_absorbed(_, _, _, _, srcFlags, _, dstName, dstFlags, ...)
 		if band(srcFlags, BITMASK_CONTROL_PLAYER) == 0 or band(srcFlags, dstFlags, BITMASK_REACTION_MASK) == 0 then
 			return
 		end
