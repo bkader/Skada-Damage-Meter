@@ -13,7 +13,7 @@ local Translit = LibStub("LibTranslit-1.0", true)
 
 -- cache frequently used globals
 local _G, GetAddOnMetadata = _G, GetAddOnMetadata
-local new, del = private.newTable, private.delTable
+local new, del, clear = private.newTable, private.delTable, private.clearTable
 local tsort, tinsert, tremove, tconcat, wipe = table.sort, table.insert, private.tremove, table.concat, wipe
 local next, pairs, ipairs, unpack, type, setmetatable = next, pairs, ipairs, unpack, type, setmetatable
 local tonumber, tostring, strmatch, format, gsub, lower, find = tonumber, tostring, strmatch, string.format, string.gsub, string.lower, string.find
@@ -30,8 +30,7 @@ local GetUnitSpec, GetUnitRole = Skada.GetUnitSpec, Skada.GetUnitRole
 local UnitIterator, IsGroupDead = Skada.UnitIterator, Skada.IsGroupDead
 local uformat, EscapeStr, GetCreatureId = private.uformat, private.EscapeStr, Skada.GetCreatureId
 local is_player, is_pet, assign_pet = private.is_player, private.is_pet, private.assign_pet
-local T, P, G = Skada.Table, nil, nil
-local _
+local P, G, _
 
 local LDB = LibStub("LibDataBroker-1.1")
 local dataobj = LDB:NewDataObject(folder, {
@@ -1180,9 +1179,6 @@ do
 				win.sticked[name] = nil
 			end
 		end
-
-		-- clean garbage afterwards
-		Skada:CleanGarbage()
 	end
 
 	function Skada:DeleteWindow(name, internal)
@@ -1587,9 +1583,6 @@ function Skada:DeleteSet(set, index)
 
 		self:Wipe()
 		self:UpdateDisplay(true)
-
-		-- clean garbage afterwards
-		self:CleanGarbage()
 	end
 end
 
@@ -2272,12 +2265,10 @@ local function slash_command(param)
 		private.open_options()
 	elseif cmd == "memorycheck" or cmd == "memory" or cmd == "ram" then
 		Skada:CheckMemory()
-	elseif cmd == "clear" or cmd == "clean" then
-		Skada:CleanGarbage()
-	elseif cmd == "import" and private.open_import then
-		private.open_import()
-	elseif cmd == "export" and private.open_export then
-		private.open_export()
+	elseif cmd == "import" and Skada.ProfileImport then
+		Skada:ProfileImport()
+	elseif cmd == "export" and Skada.ProfileExport then
+		Skada:ProfileExport()
 	elseif cmd == "about" or cmd == "info" then
 		InterfaceOptionsFrame_OpenToCategory(folder)
 	elseif cmd == "version" or cmd == "checkversion" then
@@ -2324,18 +2315,18 @@ local function slash_command(param)
 		if chan and (chan == "say" or chan == "guild" or chan == "raid" or chan == "party" or chan == "officer") and (report_mode_name and find_mode(report_mode_name)) then
 			Skada:Report(chan, "preset", report_mode_name, "current", num)
 		else
-			Skada:Print("Usage:")
+			Skada:Print(L["Usage:"])
 			Skada:Printf("%-20s", "/skada report [channel] [mode] [lines]")
 		end
 	else
-		Skada:Print(L["Usage:"])
+		Skada:Print(L["Commands:"])
 		print("\124cffffaeae/skada\124r \124cffffff33report\124r [channel] [mode] [lines]")
 		print("\124cffffaeae/skada\124r \124cffffff33toggle\124r / \124cffffff33show\124r / \124cffffff33hide\124r")
 		print("\124cffffaeae/skada\124r \124cffffff33newsegment\124r / \124cffffff33newphase\124r")
 		print("\124cffffaeae/skada\124r \124cffffff33numformat\124r / \124cffffff33measure\124r")
 		print("\124cffffaeae/skada\124r \124cffffff33import\124r / \124cffffff33export\124r")
 		print("\124cffffaeae/skada\124r \124cffffff33about\124r / \124cffffff33version\124r / \124cffffff33website\124r / \124cffffff33discord\124r")
-		print("\124cffffaeae/skada\124r \124cffffff33reset\124r / \124cffffff33clean\124r / \124cffffff33reinstall\124r")
+		print("\124cffffaeae/skada\124r \124cffffff33reset\124r / \124cffffff33reinstall\124r")
 		print("\124cffffaeae/skada\124r \124cffffff33config\124r / \124cffffff33debug\124r")
 	end
 end
@@ -2480,9 +2471,7 @@ do
 			end
 		end
 
-		-- clean garbage afterwards
 		report_table, report_set, report_mode = nil, nil, nil
-		self:CleanGarbage()
 	end
 end
 
@@ -2777,7 +2766,6 @@ function Skada:Reset(force)
 	self:UpdateDisplay(true)
 	self:Notify(L["All data has been reset."])
 	self.callbacks:Fire("Skada_DataReset")
-	self:CleanGarbage()
 	StaticPopup_Hide("SkadaCommonConfirmDialog")
 	CloseDropDownMenus()
 end
@@ -3440,7 +3428,7 @@ end
 
 function Skada:NewPhase()
 	if self.current and (time() - self.current.starttime) >= (P.minsetlength or 5) then
-		self.tempsets = self.tempsets or T.get("Skada_TempSegments")
+		self.tempsets = self.tempsets or new()
 
 		local set = create_set(L["Current"])
 		set.mobname = self.current.mobname
@@ -3473,7 +3461,7 @@ function combat_end()
 		for i = 1, #Skada.tempsets do
 			process_set(Skada.tempsets[i], curtime, Skada.current.name)
 		end
-		T.free("Skada_TempSegments", Skada.tempsets)
+		clear(Skada.tempsets)
 	end
 
 	-- clear total semgnt
@@ -3545,8 +3533,6 @@ function combat_end()
 		Skada:CancelTimer(toggle_timer, true)
 		toggle_timer = nil
 	end
-
-	Skada:ScheduleTimer("CleanGarbage", 5)
 end
 
 function Skada:StopSegment(msg, phase)
