@@ -147,14 +147,14 @@ local function create_set(setname, set)
 		end
 	else
 		Skada:Debug("create_set: New", setname)
-		set = {}
+		set = new()
 	end
 
 	-- add stuff.
 	set.name = setname
 	set.starttime = time()
 	set.time = 0
-	set.players = set.players or {}
+	set.players = set.players or new()
 	if setname ~= L["Total"] or P.totalidc then
 		set.last_action = set.starttime
 		set.last_time = GetTime()
@@ -331,12 +331,12 @@ do
 
 	-- create a new window
 	function new_window(ttwin)
-		local win = {}
+		local win = new()
 
-		win.dataset = {}
+		win.dataset = new()
 		if not ttwin then -- regular window?
-			win.metadata = {}
-			win.history = {}
+			win.metadata = new()
+			win.history = new()
 		end
 
 		return setmetatable(win, window_mt)
@@ -602,7 +602,7 @@ function Window:UpdateDisplay()
 						end
 					end
 
-					local d = existing or {}
+					local d = existing or new()
 					d.id = "total"
 					d.label = L["Total"]
 					d.text = nil
@@ -747,7 +747,7 @@ function Window:nr(i)
 		return d
 	end
 
-	d = {}
+	d = new()
 	self.dataset[i] = d
 	return d
 end
@@ -1087,7 +1087,7 @@ function Skada:CreateWindow(name, db, display)
 
 	local isnew = false
 	if not db then
-		db, isnew = {}, true
+		db, isnew = new(), true
 		private.tCopy(db, self.windowdefaults)
 
 		local wins = P.windows
@@ -1557,7 +1557,7 @@ function Skada:DeleteSet(set, index)
 	if set and index then
 		local s = tremove(sets, index)
 		self.callbacks:Fire("Skada_SetDeleted", index, s)
-		del(s, true)
+		s = del(s, true)
 
 		if set == self.last then
 			self.last = nil
@@ -1595,7 +1595,7 @@ function Skada:FindPlayer(set, id, name, is_create)
 	if not actors then
 		return
 	elseif not set._playeridx then
-		set._playeridx = {}
+		set._playeridx = new()
 	end
 
 	-- already cached player?
@@ -1646,7 +1646,11 @@ function Skada:GetPlayer(set, guid, name, flag)
 		return player
 	end
 
-	player = {id = guid, name = name, flag = flag, time = 0}
+	player = new()
+	player.id = guid
+	player.name = name
+	player.flag = flag
+	player.time = 0
 
 	if players[guid] then
 		_, player.class = UnitClass(players[guid])
@@ -1703,7 +1707,7 @@ function Skada:FindEnemy(set, name, id)
 	if not actors then
 		return
 	elseif not set._enemyidx then
-		set._enemyidx = {}
+		set._enemyidx = new()
 	end
 
 	local enemy = set._enemyidx[name]
@@ -1730,10 +1734,14 @@ function Skada:GetEnemy(set, name, guid, flag, create)
 	if not enemy then
 		-- should create table?
 		if create and not set.enemies then
-			set.enemies = {}
+			set.enemies = new()
 		end
 
-		enemy = {id = guid or name, name = name, flag = flag}
+		enemy = new()
+		enemy.id = guid
+		enemy.name = name
+		enemy.flag = flag
+
 		if guid or flag then
 			enemy.class = private.unit_class(guid, flag)
 		else
@@ -2204,7 +2212,7 @@ local function generate_total()
 					end
 				end
 
-				local player = index and total_players[index] or {}
+				local player = index and total_players[index] or new()
 
 				for k, v in pairs(p) do
 					if (type(v) == "string" or k == "spec" or k == "flag") then
@@ -2668,10 +2676,8 @@ do
 
 	function Skada:UNIT_PET(owners)
 		for owner in pairs(owners) do
-			local unit = get_pet_from_owner(owner)
-			if not unit then
-				return
-			elseif UnitExists(unit) then
+			local unit = not ignoredUnits[owner] and get_pet_from_owner(owner)
+			if unit and UnitExists(unit) then
 				assign_pet(UnitGUID(owner), UnitName(owner), UnitGUID(unit))
 			end
 		end
