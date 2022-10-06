@@ -10,7 +10,7 @@ local _
 local L = LibStub("AceLocale-3.0"):GetLocale(folder)
 local UnitClass, GetPlayerInfoByGUID = UnitClass, GetPlayerInfoByGUID
 local GetClassFromGUID = Skada.GetClassFromGUID
-local new, del = private.newTable, private.delTable
+local new, del, clear = private.newTable, private.delTable, private.clearTable
 
 local COMBATLOG_OBJECT_TYPE_NPC = COMBATLOG_OBJECT_TYPE_NPC or 0x00000800
 
@@ -161,13 +161,12 @@ do
 	end
 
 	local function generate_fake_data()
-		wipe(fakeSet)
 		fakeSet.name = "Fake Fight"
 		fakeSet.starttime = time() - 120
 		fakeSet.damage = 0
 		fakeSet.heal = 0
 		fakeSet.absorb = 0
-		fakeSet.players = wipe(fakeSet.players or {})
+		fakeSet.players = clear(fakeSet.players) or new()
 
 		local players = fake_players()
 		for i = 1, #players do
@@ -192,16 +191,16 @@ do
 				heal = random(250, 1500)
 			end
 
-			fakeSet.players[#fakeSet.players + 1] = {
-				id = name,
-				name = name,
-				class = class,
-				role = role,
-				spec = spec,
-				damage = damage,
-				heal = heal,
-				absorb = absorb
-			}
+			local player = new()
+			player.id = name
+			player.name = name
+			player.class = class
+			player.role = role
+			player.spec = spec
+			player.damage = damage
+			player.heal = heal
+			player.absorb = absorb
+			fakeSet.players[#fakeSet.players + 1] = player
 
 			fakeSet.damage = fakeSet.damage + damage
 			fakeSet.heal = fakeSet.heal + heal
@@ -256,7 +255,7 @@ do
 
 	function Skada:TestMode()
 		if InCombatLockdown() or IsGroupInCombat() then
-			wipe(fakeSet)
+			clear(fakeSet)
 			self.testMode = nil
 			if updateTimer then
 				self:CancelTimer(updateTimer)
@@ -266,12 +265,12 @@ do
 		end
 		self.testMode = not self.testMode
 		if not self.testMode then
-			wipe(fakeSet)
+			clear(fakeSet)
 			if updateTimer then
 				self:CancelTimer(updateTimer)
 				updateTimer = nil
 			end
-			self.current = nil
+			self.current = del(self.current, true)
 			return
 		end
 
@@ -285,7 +284,6 @@ end
 -- temporary flags check bypass
 
 do
-	local clear = private.clearTable
 	local temp_units = nil
 
 	-- adds a temporary unit with optional info
@@ -812,8 +810,8 @@ end
 do
 	local function clear_indexes(set, mt)
 		if set then
-			set._playeridx = nil
-			set._enemyidx = nil
+			set._playeridx = del(set._playeridx)
+			set._enemyidx = del(set._enemyidx)
 
 			-- should clear metatables?
 			if not mt then return end
