@@ -166,6 +166,7 @@ do
 		fakeSet.damage = 0
 		fakeSet.heal = 0
 		fakeSet.absorb = 0
+		fakeSet.type = "raid"
 		fakeSet.players = clear(fakeSet.players) or new()
 
 		local players = fake_players()

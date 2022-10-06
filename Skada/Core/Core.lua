@@ -561,6 +561,21 @@ function Window:SetDisplay(name)
 	end
 end
 
+-- checks if the window can show total bar/text
+local function can_show_total(win, set)
+	if not P.showtotals and not win.db.showtotals then
+		return false
+	elseif not win.selectedmode.GetSetSummary then
+		return false
+	elseif win.db.display ~= "bar" and win.db.display ~= "inline" then
+		return false
+	elseif not set.type or set.type == "none" and set.name ~= L["Total"] then
+		return false
+	else
+		return true
+	end
+end
+
 -- tell window to update the display of its dataset, using its display provider.
 function Window:UpdateDisplay()
 	-- hidden window? nothing to do.
@@ -579,16 +594,9 @@ function Window:UpdateDisplay()
 				Skada:Printf("Mode \124cffffbb00%s\124r does not have an Update function!", self.selectedmode.localeName or self.selectedmode.moduleName)
 			end
 
-			if
-				(self.db.display == "bar" or self.display.display == "inline") and
-				(P.showtotals or self.db.showtotals) and
-				self.selectedmode.GetSetSummary and
-				((set.type and set.type ~= "none") or set.name == L["Total"])
-			then
+			if can_show_total(self, set) then
 				local value, valuetext = self.selectedmode:GetSetSummary(set, self)
 				if value or valuetext then
-					local existing = nil -- an existing bar?
-
 					if not value then
 						value = 0
 						for j = 1, #self.dataset do
@@ -596,16 +604,12 @@ function Window:UpdateDisplay()
 							if data and data.id then
 								value = value + data.value
 							end
-							if data and not existing and not data.id then
-								existing = data
-							end
 						end
 					end
 
-					local d = existing or new()
+					local d = self:nr(0)
 					d.id = "total"
 					d.label = L["Total"]
-					d.text = nil
 					d.ignore = true
 					d.value = value + 1 -- to be always first
 					d.valuetext = valuetext or tostring(value)
@@ -614,9 +618,6 @@ function Window:UpdateDisplay()
 						d.icon = self.selectedmode.metadata.icon
 					else
 						d.icon = dataobj.icon
-					end
-					if not existing then
-						tinsert(self.dataset, 1, d)
 					end
 				end
 			end
@@ -849,9 +850,9 @@ end
 -- wipes windown's dataset table
 function reset_window(self)
 	if self.dataset then
-		for i = 1, #self.dataset do
+		for i = 0, #self.dataset do
 			if self.dataset[i] then
-				wipe(self.dataset[i])
+				clear(self.dataset[i])
 			end
 		end
 	end

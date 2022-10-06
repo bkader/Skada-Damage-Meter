@@ -696,7 +696,7 @@ Skada:RegisterDisplay("Bar Display", "mod_bar_desc", function(L, P, G)
 
 			local db = win.db
 			local hasicon = nil
-			for i = 1, #dataset do
+			for i = 0, #dataset do
 				local data = dataset[i]
 				if
 					(data and data.icon and not data.ignore) or
@@ -723,7 +723,7 @@ Skada:RegisterDisplay("Bar Display", "mod_bar_desc", function(L, P, G)
 			end
 
 			local nr = 1
-			for i = 1, #dataset do
+			for i = 0, #dataset do
 				local data = dataset[i]
 				if data and data.id then
 					local bar = bargroup:GetBar(data.id)
