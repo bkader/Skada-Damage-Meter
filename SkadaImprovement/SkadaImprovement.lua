@@ -52,7 +52,7 @@ Skada:RegisterModule("Improvement", function(L)
 	end
 
 	updaters.DamageTaken = function(set, actor)
-		return actor.damaged or actor.damagetaken
+		return actor.damaged
 	end
 
 	updaters.Deaths = function(set, actor)

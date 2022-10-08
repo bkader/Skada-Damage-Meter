@@ -244,7 +244,7 @@ end
 -- returns the set's damage taken amount
 function setPrototype:GetDamageTaken(class)
 	local inc_absorbed = Skada.db.profile.absdamage
-	local key = (inc_absorbed and "total" or "") .. (self.damagetaken and "damagetaken" or "damaged")
+	local key = (inc_absorbed and "total" or "") .. "damaged"
 	return self:GetTotal(class, true, key)
 end
 
@@ -276,9 +276,7 @@ end
 -- returns the actor's damage taken spells table if found
 function setPrototype:GetActorDamageTakenSpells(id, name)
 	local actor = self:GetActor(name, id)
-	if actor then
-		return actor.damagedspells or actor.damagetakenspells
-	end
+	return actor and actor.damagedspells or nil
 end
 
 -- returns the actor's damage taken sources table if found
@@ -439,15 +437,15 @@ do
 			tbl = new()
 			tbl.amount = info.amount
 			tbl.total = info.total
-			tbl.o_amt = info.o_amt or info.overkill
+			tbl.o_amt = info.o_amt
 			t[name] = tbl
 		else
 			tbl.amount = tbl.amount + info.amount
 			if info.total then
 				tbl.total = (tbl.total or 0) + info.total
 			end
-			if info.o_amt or info.overkill then
-				tbl.o_amt = (tbl.o_amt or 0) + (info.o_amt or info.overkill)
+			if info.o_amt then
+				tbl.o_amt = (tbl.o_amt or 0) + info.o_amt
 			end
 		end
 
@@ -493,8 +491,8 @@ function actorPrototype:GetDamageOnTarget(name)
 			end
 
 			-- overkill
-			if spell.targets[name].o_amt or spell.targets[name].overkill then
-				overkill = overkill + (spell.targets[name].o_amt or spell.targets[name].overkill)
+			if spell.targets[name].o_amt then
+				overkill = overkill + spell.targets[name].o_amt
 			end
 
 			-- useful
@@ -512,10 +510,10 @@ end
 
 -- returns the actor's damage taken amount
 function actorPrototype:GetDamageTaken()
-	if Skada.db.profile.absdamage and (self.totaldamaged or self.totaldamagetaken) then
-		return self.totaldamaged or self.totaldamagetaken
+	if Skada.db.profile.absdamage and self.totaldamaged then
+		return self.totaldamaged
 	end
-	return self.damaged or self.damagetaken or 0
+	return self.damaged or 0
 end
 
 -- returns the actor's dtps and damage taken amount
@@ -536,7 +534,7 @@ do
 			tbl = new()
 			tbl.amount = info.amount
 			tbl.total = info.total
-			tbl.o_amt = info.o_amt or info.overkill -- nil for players
+			tbl.o_amt = info.o_amt -- nil for players
 			tbl.useful = info.useful -- nil for enemies
 			t[name] = tbl
 		else
@@ -544,8 +542,8 @@ do
 			if info.total then
 				tbl.total = (tbl.total or 0) + info.total
 			end
-			if info.o_amt or info.overkill then -- nil for players
-				tbl.o_amt = (tbl.o_amt or 0) + (info.o_amt or info.overkill)
+			if info.o_amt then -- nil for players
+				tbl.o_amt = (tbl.o_amt or 0) + info.o_amt
 			end
 			if info.useful then -- nil for enemies
 				tbl.useful = (tbl.useful or 0) + info.useful
@@ -556,14 +554,14 @@ do
 	end
 
 	function actorPrototype:GetDamageSources(tbl)
-		local spells = self.damagedspells or self.damagetakenspells
+		local spells = self.damagedspells
 		if not spells then return end
 
 		local total = 0
-		if Skada.db.profile.absdamage and (self.totaldamaged or self.totaldamagetaken) then
-			total = self.totaldamaged or self.totaldamagetaken
-		elseif self.damaged or self.damagetaken then
-			total = self.damaged or self.damagetaken
+		if Skada.db.profile.absdamage and self.totaldamaged then
+			total = self.totaldamaged
+		elseif self.damaged then
+			total = self.damaged
 		end
 
 		tbl = clear(tbl or cacheTable)
@@ -582,7 +580,7 @@ end
 -- returns the actors damage from the given source
 function actorPrototype:GetDamageFromSource(name)
 	local damage, overkill, useful = 0, 0, 0
-	local spells = self.damagedspells or self.damagetakenspells
+	local spells = self.damagedspells
 
 	if not name or not spells then
 		return damage, overkill, useful
@@ -598,8 +596,8 @@ function actorPrototype:GetDamageFromSource(name)
 			end
 
 			-- overkill
-			if spell.sources[name].o_amt or spell.sources[name].overkill then
-				overkill = overkill + (spell.sources[name].o_amt or spell.sources[name].overkill)
+			if spell.sources[name].o_amt then
+				overkill = overkill + spell.sources[name].o_amt
 			end
 
 			-- useful
@@ -684,8 +682,8 @@ function actorPrototype:GetHealOnTarget(name, inc_overheal)
 			heal = heal + target
 		elseif target then
 			heal = heal + target.amount
-			if inc_overheal and (target.o_amt or target.overheal) then
-				overheal = overheal + (target.o_amt or target.overheal)
+			if inc_overheal and target.o_amt then
+				overheal = overheal + target.o_amt
 			end
 		end
 	end
@@ -697,7 +695,7 @@ end
 do
 	local function fill_overheal_on_target_table(spellid, spell, name, tbl)
 		local info = spell.targets and spell.targets[name]
-		local o_amt = info and (info.o_amt or info.overheal)
+		local o_amt = info and info.o_amt
 		if not o_amt or o_amt == 0 then
 			return 0
 		end
@@ -752,8 +750,8 @@ function actorPrototype:GetTotalHealOnTarget(name)
 			total = total + target
 		elseif target then
 			total = total + target.amount
-			if target.o_amt or target.overheal then
-				total = total + (target.o_amt or target.overheal)
+			if target.o_amt then
+				total = total + target.o_amt
 			end
 		end
 	end
@@ -812,8 +810,8 @@ function actorPrototype:GetAbsorbHealOnTarget(name, inc_overheal)
 			local target = spell.targets and spell.targets[name]
 			if target then
 				heal = heal + target.amount
-				if inc_overheal and (target.o_amt or target.overheal) then
-					overheal = overheal + (target.o_amt or target.overheal)
+				if inc_overheal and target.o_amt then
+					overheal = overheal + target.o_amt
 				end
 			end
 		end
@@ -827,8 +825,8 @@ function actorPrototype:GetAbsorbHealOnTarget(name, inc_overheal)
 				heal = heal + target
 			elseif target then
 				heal = heal + target.amount
-				if inc_overheal and (target.o_amt or target.overheal) then
-					overheal = overheal + (target.o_amt or target.overheal)
+				if inc_overheal and target.o_amt then
+					overheal = overheal + target.o_amt
 				end
 			end
 		end
@@ -847,8 +845,8 @@ do
 			t[name] = tbl
 		else
 			tbl.amount = tbl.amount + info.amount
-			if info.o_amt or info.overheal then
-				tbl.o_amt = (tbl.o_amt or 0) + (info.o_amt or info.overheal)
+			if info.o_amt then
+				tbl.o_amt = (tbl.o_amt or 0) + info.o_amt
 			end
 		end
 
@@ -863,8 +861,8 @@ do
 			tbl.amount = (tbl.amount or 0) + info
 		else
 			tbl.amount = (tbl.amount or 0) + info.amount
-			if info.o_amt or info.overheal then
-				tbl.o_amt = (tbl.o_amt or 0) + (info.o_amt or info.overheal)
+			if info.o_amt then
+				tbl.o_amt = (tbl.o_amt or 0) + info.o_amt
 			end
 		end
 
@@ -938,7 +936,7 @@ end
 -- returns the table of overheal targets if found
 do
 	local function fill_overheal_targets_table(set, t, name, info)
-		local amt = info.o_amt or info.overheal
+		local amt = info.o_amt
 		if not amt or amt == 0 then return end
 
 		local tbl = t[name]
@@ -956,8 +954,7 @@ do
 	end
 
 	local function fill_overheal_spell_table(set, spell, t)
-		local o_amt = spell.o_amt or spell.overheal
-		if o_amt and o_amt > 0 and spell.targets then
+		if spell.o_amt and spell.o_amt > 0 and spell.targets then
 			for name, target in pairs(spell.targets) do
 				fill_overheal_targets_table(set, t, name, target)
 			end
@@ -990,7 +987,7 @@ end
 
 do
 	local function fill_overheal_spell_table(spellid, spell, tbl)
-		local o_amt = spell.o_amt or spell.overheal
+		local o_amt = spell.o_amt
 		if o_amt and o_amt > 0 then
 			local t = tbl[spellid]
 			if not t then
@@ -1037,8 +1034,8 @@ do
 			tbl.amount = (tbl.amount or 0) + info
 		else
 			tbl.amount = (tbl.amount or 0) + info.amount
-			if info.o_amt or info.overheal then
-				tbl.amount = tbl.amount + (info.o_amt or info.overheal)
+			if info.o_amt then
+				tbl.amount = tbl.amount + info.o_amt
 			end
 		end
 

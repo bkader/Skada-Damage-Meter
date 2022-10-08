@@ -548,7 +548,7 @@ Skada:RegisterModule("Overhealing", function(L)
 
 			local d = win:spell(nr, spellid, spell, nil, true)
 			d.value = spell.o_amt
-			fmt_valuetext(d, mod_cols, spell.amount + spell.o_amt, actortime and (d.value / actortime), win.metadata, true)
+			fmt_valuetext(d, mod_cols, spell.amount + d.value, actortime and (d.value / actortime), win.metadata, true)
 		end
 	end
 
@@ -673,7 +673,7 @@ Skada:RegisterModule("Total Healing", function(L)
 			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
 		end
 
-		local total = spell.amount + (spell.o_amt or spell.overheal or 0)
+		local total = spell.amount + (spell.o_amt or 0)
 		tooltip:AddDoubleLine(L["Total"], Skada:FormatNumber(total), 1, 1, 1)
 		if spell.amount > 0 then
 			tooltip:AddDoubleLine(L["Healing"], format("%s (%s)", Skada:FormatNumber(spell.amount), Skada:FormatPercent(spell.amount, total)), 0.67, 1, 0.67)
@@ -775,7 +775,7 @@ Skada:RegisterModule("Total Healing", function(L)
 		local actortime = mod_cols.sHPS and actor:GetTime()
 
 		for spellid, spell in pairs(spells) do
-			local amount = spell.amount + (spell.o_amt or spell.overheal or 0)
+			local amount = spell.amount + (spell.o_amt or 0)
 			if amount > 0 then
 				nr = nr + 1
 
