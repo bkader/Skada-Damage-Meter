@@ -94,12 +94,6 @@ function setPrototype:GetActor(name, id, no_strict)
 	return Skada:FindActor(self, id, name, no_strict)
 end
 
--- returns the actor's time
-function setPrototype:GetActorTime(id, name, active)
-	local actor = self:GetActor(name, id)
-	return actor and actor:GetTime(active) or 0
-end
-
 do
 	local function calc_set_total(set, key, class, arena)
 		local total = set[key] or 0
