@@ -22,8 +22,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	local COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
 	local COMBATLOG_OBJECT_REACTION_MASK = COMBATLOG_OBJECT_REACTION_MASK or 0x000000F0
 
-	local next, band, max = next, bit.band, math.max
-	local T, del = Skada.Table, private.delTable
+	local band, del, clear = bit.band, private.delTable, private.clearTable
 	local mod_cols = nil
 
 	local function format_valuetext(d, columns, total, aps, metadata, subview)
@@ -534,8 +533,8 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	end
 
 	function mod:SetComplete(set)
-		T.clear(absorb)
-		T.clear(shields, del, true)
+		clear(absorb)
+		clear(shields)
 
 		-- clean absorbspells table:
 		if not set.absorb or set.absorb == 0 then return end

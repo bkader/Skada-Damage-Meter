@@ -840,7 +840,7 @@ do
 						name = L["Open Config"],
 						width = "full",
 						order = 0,
-						func = Skada.OpenOptions
+						func = private.open_options
 					}
 				}
 			}
@@ -885,12 +885,12 @@ function private.open_options(win)
 	if not ACD:Close(folder) then
 		HideUIPanel(InterfaceOptionsFrame)
 		HideUIPanel(GameMenuFrame)
-		if type(win) == "table" then
-			ACD:Open(folder)
+
+		ACD:Open(folder)
+		if type(win) == "table" and win.db then
 			ACD:SelectGroup(folder, "windows", win.db.name)
 		else
-			ACD:Open(folder)
-			ACD:SelectGroup(folder, win or "generaloptions")
+			ACD:SelectGroup(folder, type(win) == "string" and win or "generaloptions")
 		end
 	end
 end
