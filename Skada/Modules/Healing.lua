@@ -409,16 +409,16 @@ Skada:RegisterModule("Healing", function(L, P)
 
 		Skada:RegisterForCL(
 			spell_cast,
+			flags_src,
 			"SPELL_CAST_START",
-			"SPELL_CAST_SUCCESS",
-			flags_src
+			"SPELL_CAST_SUCCESS"
 		)
 
 		Skada:RegisterForCL(
 			spell_heal,
+			flags_src,
 			"SPELL_HEAL",
-			"SPELL_PERIODIC_HEAL",
-			flags_src
+			"SPELL_PERIODIC_HEAL"
 		)
 
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")

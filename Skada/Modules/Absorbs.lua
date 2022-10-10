@@ -500,16 +500,16 @@ Skada:RegisterModule("Absorbs", function(L, P)
 
 		Skada:RegisterForCL(
 			handle_shield,
+			flags_src,
 			"SPELL_AURA_APPLIED",
 			"SPELL_AURA_REFRESH",
-			"SPELL_AURA_REMOVED",
-			flags_src
+			"SPELL_AURA_REMOVED"
 		)
 
 		Skada:RegisterForCL(
 			spell_absorbed,
-			"SPELL_ABSORBED",
-			{dst_is_interesting = true}
+			{dst_is_interesting = true},
+			"SPELL_ABSORBED"
 		)
 
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_ENTER", "CombatEnter")

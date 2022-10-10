@@ -2,7 +2,7 @@
 -- Specialized ( = enhanced) for Skada
 -- Note to self: don't forget to notify original author of changes
 -- in the unlikely event they end up being usable outside of Skada.
-local MAJOR, MINOR = "SpecializedLibBars-1.0", 90014
+local MAJOR, MINOR = "SpecializedLibBars-1.0", 90015
 local lib, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end -- No Upgrade needed.
 
@@ -348,7 +348,8 @@ do
 		list.button.icon = list.button.icon or list.button:CreateTexture("$parentIcon", "ARTWORK")
 		list.button.icon:SetTexCoord(0.094, 0.906, 0.094, 0.906)
 		list.button.icon:SetPoint("LEFT", list.button, "LEFT", 5, 0)
-		list.button.icon:SetSize(14, 14)
+		list.button.icon:SetWidth(14)
+		list.button.icon:SetHeight(14)
 
 		list.length = length or 200
 		list.thickness = thickness or 15
@@ -379,7 +380,8 @@ do
 		if not list.resizeright then
 			list.resizeright = CreateFrame("Button", "$parentRightResizer", list)
 			list.resizeright:SetFrameLevel(list:GetFrameLevel() + 3)
-			list.resizeright:SetSize(12, 12)
+			list.resizeright:SetWidth(12)
+			list.resizeright:SetHeight(12)
 			list.resizeright:SetAlpha(0)
 			list.resizeright.icon = list.resizeright:CreateTexture("$parentIcon", "OVERLAY")
 			list.resizeright.icon:SetAllPoints(list.resizeright)
@@ -392,7 +394,8 @@ do
 		if not list.resizeleft then
 			list.resizeleft = CreateFrame("Button", "$parentLeftResizer", list)
 			list.resizeleft:SetFrameLevel(list:GetFrameLevel() + 3)
-			list.resizeleft:SetSize(12, 12)
+			list.resizeleft:SetWidth(12)
+			list.resizeleft:SetHeight(12)
 			list.resizeleft:SetAlpha(0)
 			list.resizeleft.icon = list.resizeleft:CreateTexture("$parentIcon", "OVERLAY")
 			list.resizeleft.icon:SetAllPoints(list.resizeleft)
@@ -406,7 +409,8 @@ do
 			list.lockbutton = CreateFrame("Button", "$parentLockButton", list)
 			list.lockbutton:SetPoint("BOTTOM", list, "BOTTOM", 0, 2)
 			list.lockbutton:SetFrameLevel(list:GetFrameLevel() + 3)
-			list.lockbutton:SetSize(12, 12)
+			list.lockbutton:SetWidth(12)
+			list.lockbutton:SetHeight(12)
 			list.lockbutton:SetAlpha(0)
 			list.lockbutton.icon = list.lockbutton:CreateTexture("$parentIcon", "OVERLAY")
 			list.lockbutton.icon:SetAllPoints(list.lockbutton)
@@ -419,14 +423,16 @@ do
 		if not list.stretcher then
 			list.stretcher = CreateFrame("Button", "$parentStretcher", list)
 			list.stretcher:SetFrameLevel(list:GetFrameLevel() + 3)
-			list.stretcher:SetSize(32, 12)
+			list.stretcher:SetWidth(32)
+			list.stretcher:SetHeight(12)
 			list.stretcher:SetAlpha(0)
 			list.stretcher.bg = list.stretcher:CreateTexture("$parentBG", "BACKGROUND")
 			list.stretcher.bg:SetAllPoints(true)
 			list.stretcher.bg:SetTexture([[Interface\Buttons\WHITE8X8]])
 			list.stretcher.bg:SetVertexColor(0, 0, 0, 0.85)
 			list.stretcher.icon = list.stretcher:CreateTexture("$parentIcon", "ARTWORK")
-			list.stretcher.icon:SetSize(12, 12)
+			list.stretcher.icon:SetWidth(12)
+			list.stretcher.icon:SetHeight(12)
 			list.stretcher.icon:SetPoint("CENTER")
 			list.stretcher.icon:SetTexture(ICON_STRETCH)
 			list.stretcher.icon:SetDesaturated(true)
@@ -445,7 +451,8 @@ do
 
 		list:SetOrientation(orientation)
 		list:SetReverseGrowth(nil, true)
-		list:SetSize(length, height)
+		list:SetWidth(length)
+		list:SetHeight(height)
 
 		return list
 	end
@@ -794,7 +801,8 @@ do
 		-- Create button frame.
 		local btn = CreateFrame("Button", "$parent" .. title:gsub("%s+", "_"), self.button)
 		btn:SetFrameLevel(self.button:GetFrameLevel() + 1)
-		btn:SetSize(14, 14)
+		btn:SetWidth(14)
+		btn:SetHeight(14)
 
 		btn:SetNormalTexture(normaltex)
 		btn:SetHighlightTexture(highlighttex or normaltex, 1.0)
@@ -1819,7 +1827,8 @@ do
 
 		self.spark = self.spark or self:CreateTexture(nil, "OVERLAY")
 		self.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
-		self.spark:SetSize(10, 10)
+		self.spark:SetWidth(10)
+		self.spark:SetHeight(10)
 		self.spark:SetBlendMode("ADD")
 		self.spark:Hide()
 
@@ -2039,7 +2048,8 @@ do
 
 		self:SetWidth(width)
 		self:SetHeight(height)
-		self.icon:SetSize(height, height)
+		self.icon:SetWidth(height)
+		self.icon:SetHeight(height)
 	end
 
 	function barPrototype:SetLength(length)
