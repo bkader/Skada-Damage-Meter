@@ -219,14 +219,19 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		local e = Skada:GetEnemy(set, dmg.enemyname, dmg.enemyid, dmg.enemyflags, true)
 		if not e then return end
 
-		set.edamaged = (set.edamaged or 0) + dmg.amount
-		set.etotaldamaged = (set.etotaldamaged or 0) + dmg.amount
-
 		e.damaged = (e.damaged or 0) + dmg.amount
-		e.totaldamaged = (e.totaldamaged or 0) + dmg.amount
-		if absorbed > 0 then
-			set.etotaldamaged = set.etotaldamaged + absorbed
-			e.totaldamaged = e.totaldamaged + absorbed
+		set.edamaged = (set.edamaged or 0) + dmg.amount
+
+		if e.totaldamaged then
+			e.totaldamaged = e.totaldamaged + dmg.amount + absorbed
+		elseif absorbed > 0 then
+			e.totaldamaged = e.damaged + absorbed
+		end
+
+		if set.etotaldamaged then
+			set.etotaldamaged = set.etotaldamaged + dmg.amount + absorbed
+		elseif absorbed > 0 then
+			set.etotaldamaged = set.edamaged + absorbed
 		end
 
 		-- damage spell.
@@ -877,11 +882,20 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 			add_actor_time(set, e, dmg.spellid, dmg.dstName)
 		end
 
-		set.edamage = (set.edamage or 0) + dmg.amount
-		set.etotaldamage = (set.etotaldamage or 0) + dmg.amount
-
 		e.damage = (e.damage or 0) + dmg.amount
-		e.totaldamage = (e.totaldamage or 0) + dmg.amount
+		set.edamage = (set.edamage or 0) + dmg.amount
+
+		if e.totaldamage then
+			e.totaldamage = e.totaldamage + dmg.amount + absorbed
+		elseif absorbed > 0 then
+			e.totaldamage = e.damage + absorbed
+		end
+
+		if set.etotaldamage then
+			set.etotaldamage = set.etotaldamage + dmg.amount + absorbed
+		elseif absorbed > 0 then
+			set.etotaldamage = set.edamage + absorbed
+		end
 
 		local overkill = dmg.overkill or 0
 		if overkill > 0 then
@@ -900,10 +914,10 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 			spell.amount = spell.amount + dmg.amount
 		end
 
-		if absorbed > 0 then
-			set.etotaldamage = set.etotaldamage + absorbed
-			e.totaldamage = e.totaldamage + absorbed
-			spell.total = (spell.total and (spell.total + dmg.amount) or spell.amount) + absorbed
+		if spell.total then
+			spell.total = spell.total + dmg.amount + absorbed
+		elseif absorbed > 0 then
+			spell.total = spell.amount + absorbed
 		end
 
 		if overkill > 0 then

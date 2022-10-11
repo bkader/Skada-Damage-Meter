@@ -17,13 +17,13 @@ local new, del, clear, copy = private.newTable, private.delTable, private.clearT
 local tsort, tinsert, tremove, tconcat, wipe = table.sort, table.insert, private.tremove, table.concat, wipe
 local next, pairs, ipairs, unpack, type, setmetatable = next, pairs, ipairs, unpack, type, setmetatable
 local tonumber, tostring, strmatch, format, gsub, lower, find = tonumber, tostring, strmatch, string.format, string.gsub, string.lower, string.find
-local floor, max, min, abs, band, time, GetTime = math.floor, math.max, math.min, math.abs, bit.band, time, GetTime
+local floor, max, min, abs, band = math.floor, math.max, math.min, math.abs, bit.band
 local IsInInstance, GetInstanceInfo, GetBattlefieldArenaFaction = IsInInstance, GetInstanceInfo, GetBattlefieldArenaFaction
 local InCombatLockdown, IsGroupInCombat = InCombatLockdown, Skada.IsGroupInCombat
 local UnitExists, UnitGUID, UnitName, UnitClass = UnitExists, UnitGUID, UnitName, UnitClass
 local GameTooltip, ReloadUI, GetScreenWidth = GameTooltip, ReloadUI, GetScreenWidth
 local GetSpellInfo, GetSpellLink = GetSpellInfo, GetSpellLink
-local CloseDropDownMenus, SecondsToTime = CloseDropDownMenus, SecondsToTime
+local SecondsToTime, time, GetTime = SecondsToTime, time, GetTime
 local IsInGroup, IsInRaid, IsInPvP = IsInGroup, IsInRaid, Skada.IsInPvP
 local GetNumGroupMembers, GetGroupTypeAndCount = GetNumGroupMembers, Skada.GetGroupTypeAndCount
 local GetCreatureId, GetUnitSpec, GetUnitRole = Skada.GetCreatureId, Skada.GetUnitSpec, Skada.GetUnitRole
@@ -87,9 +87,6 @@ local modes, windows = {}, {}
 
 -- flags for party, instance and ovo
 local was_in_party = nil
-
--- secret flags
-local _bound_sets = nil
 
 -- bitmasks
 local BITMASK_MINE = private.BITMASK_MINE
@@ -189,7 +186,6 @@ end
 -- process the given set and stores into sv.
 local function process_set(set, curtime, mobname)
 	if not set then return end
-	_bound_sets = nil -- to refresh mt
 
 	curtime = curtime or time()
 
@@ -563,11 +559,7 @@ function Window:UpdateDisplay()
 		local set = self:GetSelectedSet()
 		if set then
 			if self.selectedmode.Update then
-				if set then
-					self.selectedmode:Update(self, set)
-				else
-					Skada:Printf("No set available to pass to %s Update function! Try to reset Skada.", self.selectedmode.localeName or self.selectedmode.moduleName)
-				end
+				self.selectedmode:Update(self, set)
 			else
 				Skada:Printf("Mode \124cffffbb00%s\124r does not have an Update function!", self.selectedmode.localeName or self.selectedmode.moduleName)
 			end
@@ -1052,7 +1044,7 @@ function Window:RightClick(bar, button)
 		self.class = nil
 		self:DisplaySets()
 	end
-	CloseDropDownMenus() -- always close
+	Skada:CloseMenus()
 end
 
 -------------------------------------------------------------------------------
@@ -1145,7 +1137,7 @@ do
 	function Skada:DeleteWindow(name, internal)
 		if internal then
 			delete_window(name)
-			CloseDropDownMenus()
+			Skada:CloseMenus()
 			return
 		end
 
@@ -1158,7 +1150,7 @@ do
 				whileDead = 0,
 				hideOnEscape = 1,
 				OnAccept = function(self, data)
-					CloseDropDownMenus()
+					Skada:CloseMenus()
 					ACR:NotifyChange(folder)
 					return delete_window(data)
 				end
@@ -1408,6 +1400,7 @@ function Skada:RegisterModule(...)
 		-- name must always be first.
 		local name = tremove(args, 1)
 		if type(name) ~= "string" then
+			del(args)
 			return
 		end
 
@@ -1424,6 +1417,7 @@ function Skada:RegisterModule(...)
 
 		-- double check func is a callback
 		if type(func) ~= "function" then
+			del(args)
 			return
 		end
 
@@ -1451,7 +1445,7 @@ function Skada:RegisterModule(...)
 		self.options.args.modules.args.blocked.args[name] = {type = "toggle", name = L[name], desc = desc}
 	end
 
-	args = del(args)
+	del(args)
 end
 
 -- checks whether the select module(s) are disabled
@@ -2733,7 +2727,7 @@ function Skada:Reset(force)
 	self:Notify(L["All data has been reset."])
 	self.callbacks:Fire("Skada_DataReset")
 	StaticPopup_Hide("SkadaCommonConfirmDialog")
-	CloseDropDownMenus()
+	self:CloseMenus()
 end
 
 function Skada:UpdateDisplay(force)
@@ -3028,7 +3022,7 @@ function restore_window_view(self, theset, themode)
 	end
 
 	-- force menu to close and let Skada handle the rest
-	CloseDropDownMenus()
+	Skada:CloseMenus()
 	restore_view(self, theset or self.selectedset, themode or self.db.mode)
 end
 
@@ -3102,7 +3096,7 @@ function Skada:ApplySettings(name, hidemenu)
 
 	-- close dropdown menus?
 	if hidemenu == true then
-		CloseDropDownMenus()
+		Skada:CloseMenus()
 	end
 
 	-- fire callback in case modules need it
@@ -3345,21 +3339,6 @@ function Skada:GetSet(s)
 	end
 
 	return self.setPrototype:Bind(set)
-end
-
-function Skada:GetSets()
-	if _bound_sets then
-		return self.char.sets
-	end
-
-	_bound_sets = true
-
-	local sets = self.char.sets
-	for i = 1, #sets do
-		sets[i] = self.setPrototype:Bind(sets[i])
-	end
-
-	return sets
 end
 
 -------------------------------------------------------------------------------
