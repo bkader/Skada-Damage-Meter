@@ -585,7 +585,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		local actortime = mod_cols.sDTPS and actor:GetTime()
 
 		for sourcename, source in pairs(sources) do
-			if source.useful and source.useful > 0 and (not win.class or win.class == source.class) then
+			if win:show_actor(source, set) and source.useful and source.useful > 0 then
 				nr = nr + 1
 
 				local d = win:actor(nr, source, nil, sourcename)
@@ -1454,7 +1454,7 @@ Skada:RegisterModule("Enemy Healing Done", function(L, P)
 		local actors = set.enemies -- enemies
 		for i = 1, #actors do
 			local actor = actors[i]
-			if actor and actor.heal and (not win.class or win.class == actor.class) then
+			if win:show_actor(actor, set, true) and actor.heal then
 				local hps, amount = actor:GetHPS()
 				if amount > 0 then
 					nr = nr + 1
