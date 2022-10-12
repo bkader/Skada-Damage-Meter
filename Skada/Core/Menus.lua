@@ -1,5 +1,5 @@
 local folder, Skada = ...
-local private = Skada.private
+local Private = Skada.Private
 
 local L = LibStub("AceLocale-3.0"):GetLocale(folder)
 local AceGUI = LibStub("AceGUI-3.0")
@@ -16,7 +16,7 @@ local UIDropDownMenu_AddButton = UIDropDownMenu_AddButton
 local CloseDropDownMenus = CloseDropDownMenus
 local ToggleDropDownMenu = ToggleDropDownMenu
 local IsShiftKeyDown = IsShiftKeyDown
-local del = private.delTable
+local del = Private.delTable
 local _
 
 local _menu_main = nil
@@ -151,7 +151,7 @@ function Skada:OpenMenu(window)
 				info.text = L["Report"]
 				info.value = "report"
 				info.func = function()
-					private.open_report(self.win)
+					Private.open_report(self.win)
 				end
 				info.notCheckable = 1
 				UIDropDownMenu_AddButton(info, level)
@@ -234,7 +234,7 @@ function Skada:OpenMenu(window)
 			wipe(info)
 			info.text = L["Configure"]
 			info.func = function()
-				private.open_options(self.win)
+				Private.open_options(self.win)
 			end
 			info.notCheckable = 1
 			UIDropDownMenu_AddButton(info, level)
@@ -738,7 +738,8 @@ function Skada:SegmentMenu(window)
 end
 
 do
-	local categorized, categories
+	local categories -- list of mode categories.
+	local categorized -- modes organized by category.
 
 	local function sort_categories(a, b)
 		local a_score = (a == L["Other"]) and 1000 or 0
@@ -751,7 +752,9 @@ do
 	local function construct_categories()
 		if categories then return end
 
-		categories, categorized = {}, {}
+		categories = {}
+		categorized = {}
+
 		modes = Skada:GetModes()
 		for i = 1, #modes do
 			local mode = modes[i]
@@ -761,12 +764,13 @@ do
 				categories[#categories + 1] = mode.category
 			end
 		end
+
 		tsort(categories, sort_categories)
 	end
 
 	local function build_large_menu()
 		local menu_name = format("%sMenuModeLarge", folder)
-		local menu = CreateFrame("Button", menu_name, UIParent, "BackdropTemplate")
+		local menu = CreateFrame("Button", menu_name, UIParent)
 		menu:SetFrameStrata("TOOLTIP")
 		menu:SetClampedToScreen(true)
 		menu:SetBackdrop({
@@ -1234,7 +1238,7 @@ do
 		frame:AddChild(report)
 	end
 
-	function private.open_report(window)
+	function Private.open_report(window)
 		if Skada.testMode then
 			return -- nothing to do.
 		elseif IsShiftKeyDown() then

@@ -1,5 +1,5 @@
 local folder, ns = ...
-local private = ns.private
+local Private = ns.Private
 
 local Skada = LibStub("AceAddon-3.0"):NewAddon(ns, folder, "AceEvent-3.0", "AceTimer-3.0", "AceBucket-3.0", "AceHook-3.0", "AceConsole-3.0", "AceComm-3.0", "LibCompat-1.0-Skada")
 Skada.callbacks = Skada.callbacks or LibStub("CallbackHandler-1.0"):New(Skada)
@@ -9,12 +9,11 @@ local L = LibStub("AceLocale-3.0"):GetLocale(folder)
 local ACD = LibStub("AceConfigDialog-3.0")
 local ACR = LibStub("AceConfigRegistry-3.0")
 local DBI = LibStub("LibDBIcon-1.0", true)
-local Translit = LibStub("LibTranslit-1.0", true)
 
 -- cache frequently used globals
 local _G, GetAddOnMetadata = _G, GetAddOnMetadata
-local new, del, clear, copy = private.newTable, private.delTable, private.clearTable, private.tCopy
-local tsort, tinsert, tremove, tconcat, wipe = table.sort, table.insert, private.tremove, table.concat, wipe
+local new, del, clear, copy = Private.newTable, Private.delTable, Private.clearTable, Private.tCopy
+local tsort, tinsert, tremove, tconcat, wipe = table.sort, table.insert, Private.tremove, table.concat, wipe
 local next, pairs, ipairs, unpack, type, setmetatable = next, pairs, ipairs, unpack, type, setmetatable
 local tonumber, tostring, strmatch, format, gsub, lower, find = tonumber, tostring, strmatch, string.format, string.gsub, string.lower, string.find
 local floor, max, min, abs, band = math.floor, math.max, math.min, math.abs, bit.band
@@ -28,8 +27,9 @@ local IsInGroup, IsInRaid, IsInPvP = IsInGroup, IsInRaid, Skada.IsInPvP
 local GetNumGroupMembers, GetGroupTypeAndCount = GetNumGroupMembers, Skada.GetGroupTypeAndCount
 local GetCreatureId, GetUnitSpec, GetUnitRole = Skada.GetCreatureId, Skada.GetUnitSpec, Skada.GetUnitRole
 local UnitIterator, IsGroupDead = Skada.UnitIterator, Skada.IsGroupDead
-local prevent_duplicate, uformat, EscapeStr = private.prevent_duplicate, private.uformat, private.EscapeStr
-local is_player, is_pet, assign_pet = private.is_player, private.is_pet, private.assign_pet
+local prevent_duplicate, uformat, EscapeStr = Private.prevent_duplicate, Private.uformat, Private.EscapeStr
+local is_player, is_pet, assign_pet = Private.is_player, Private.is_pet, Private.assign_pet
+local callbacks = Skada.callbacks
 local P, G, _
 
 local LDB = LibStub("LibDataBroker-1.1")
@@ -69,15 +69,12 @@ local check_version, convert_version
 local check_for_join_and_leave
 
 -- list of players, pets and vehicles
-local players = private.players
-local pets = private.pets
+local players = Private.players
+local pets = Private.pets
 local vehicles = {}
 
 -- targets table used when detecting boss fights.
 local _targets = nil
-
--- format funtions.
-local set_numeral_format, set_value_format
 
 -- list of feeds & selected feed
 local feeds, selected_feed = {}, nil
@@ -89,11 +86,16 @@ local modes, windows = {}, {}
 local was_in_party = nil
 
 -- bitmasks
-local BITMASK_MINE = private.BITMASK_MINE
-local BITMASK_GROUP = private.BITMASK_GROUP
-local BITMASK_PETS = private.BITMASK_PETS
-local BITMASK_FRIENDLY = private.BITMASK_FRIENDLY
-local BITMASK_TYPE_PLAYER = private.BITMASK_TYPE_PLAYER
+local BITMASK_MINE = Private.BITMASK_MINE
+local BITMASK_GROUP = Private.BITMASK_GROUP
+local BITMASK_PETS = Private.BITMASK_PETS
+local BITMASK_FRIENDLY = Private.BITMASK_FRIENDLY
+local BITMASK_TYPE_PLAYER = Private.BITMASK_TYPE_PLAYER
+
+-- prototypes
+local setPrototype = ns.setPrototype
+local playerPrototype = ns.playerPrototype
+local enemyPrototype = ns.enemyPrototype
 
 -------------------------------------------------------------------------------
 -- local functions.
@@ -137,7 +139,7 @@ local function create_set(setname, set)
 		setmetatable(set, nil)
 		for k, v in pairs(set) do
 			if type(v) == "table" then
-				set[k] = clear(v)
+				set[k] = wipe(v)
 			else
 				set[k] = nil
 			end
@@ -162,8 +164,8 @@ local function create_set(setname, set)
 		verify_set(modes[i], set)
 	end
 
-	Skada.callbacks:Fire("Skada_SetCreated", set)
-	return Skada.setPrototype:Bind(set)
+	callbacks:Fire("Skada_SetCreated", set)
+	return setPrototype:Bind(set)
 end
 
 -- prepares the given set name.
@@ -213,7 +215,7 @@ local function process_set(set, curtime, mobname)
 			end
 
 			-- do you want to do something?
-			Skada.callbacks:Fire("Skada_SetComplete", set, curtime)
+			callbacks:Fire("Skada_SetComplete", set, curtime)
 
 			tinsert(Skada.char.sets, 1, set)
 			Skada:Debug("Segment Saved:", set.name)
@@ -277,7 +279,7 @@ end
 
 local dismiss_pet
 do
-	local dismiss_handler = private.dismiss_pet
+	local dismiss_handler = Private.dismiss_pet
 	function dismiss_pet(guid, delay)
 		if not guid or not pets[guid] then return end
 		Skada:ScheduleTimer(dismiss_handler, delay or 0.1, guid)
@@ -382,7 +384,7 @@ do
 					end,
 					set = function(_, display)
 						db.display = display
-						private.reload_settings()
+						Private.reload_settings()
 					end
 				},
 				separator1 = {
@@ -486,9 +488,9 @@ do
 	-- fires a callback event
 	function Window:Fire(event, ...)
 		if self.bargroup and self.bargroup.callbacks then
-			self.bargroup.callbacks:Fire(event, self, ...)
+			self.callbacks:Fire(event, self, ...)
 		elseif self.frame and self.frame.callbacks then
-			self.frame.callbacks:Fire(event, self, ...)
+			self.callbacks:Fire(event, self, ...)
 		end
 	end
 end
@@ -696,8 +698,8 @@ function Window:nr(i)
 	local d = self.dataset[i]
 	if d then
 		if d.ignore then
-			d.color = nil
 			d.icon = nil
+			d.color = nil
 		end
 		d.id = nil
 		d.text = nil
@@ -822,9 +824,9 @@ end
 -- wipes windown's dataset table
 function reset_window(self)
 	if self.dataset then
-		for i = 0, #self.dataset do
+		for i = #self.dataset, 0, -1 do
 			if self.dataset[i] then
-				clear(self.dataset[i])
+				wipe(self.dataset[i])
 			end
 		end
 	end
@@ -1514,7 +1516,7 @@ function Skada:DeleteSet(set, index)
 
 	if set and index then
 		local s = tremove(sets, index)
-		self.callbacks:Fire("Skada_SetDeleted", index, s)
+		callbacks:Fire("Skada_SetDeleted", index, s)
 		s = del(s, true)
 
 		if set == self.last then
@@ -1559,7 +1561,7 @@ function Skada:FindPlayer(set, id, name, is_create)
 	-- already cached player?
 	local player = set._playeridx[id]
 	if player then
-		return self.playerPrototype:Bind(player, set)
+		return playerPrototype:Bind(player, set)
 	end
 
 	-- search the set
@@ -1579,7 +1581,7 @@ function Skada:FindPlayer(set, id, name, is_create)
 		dummy_pet.id = id
 		dummy_pet.name = name
 		dummy_pet.owner = ownerName
-		return self.playerPrototype:Bind(dummy_pet, set)
+		return playerPrototype:Bind(dummy_pet, set)
 	end
 
 	-- search friendly enemies
@@ -1592,7 +1594,7 @@ function Skada:FindPlayer(set, id, name, is_create)
 	-- our last hope!
 	dummy_pet.id = id
 	dummy_pet.name = name or L["Unknown"]
-	return self.playerPrototype:Bind(dummy_pet, set)
+	return playerPrototype:Bind(dummy_pet, set)
 end
 
 -- finds a player table or creates it if not found
@@ -1615,7 +1617,7 @@ function Skada:GetPlayer(set, guid, name, flag)
 	elseif pets[guid] then
 		player.class = "PET"
 	else
-		player.class = private.unit_class(guid, flag, nil, nil, name)
+		player.class = Private.unit_class(guid, flag, nil, nil, name)
 	end
 
 	for i = 1, #modes do
@@ -1655,8 +1657,8 @@ function Skada:GetPlayer(set, guid, name, flag)
 	player.last = player.last or set.last_time or GetTime()
 
 	self.changed = true
-	self.callbacks:Fire("Skada_GetPlayer", player, set)
-	return self.playerPrototype:Bind(player, set)
+	callbacks:Fire("Skada_GetPlayer", player, set)
+	return playerPrototype:Bind(player, set)
 end
 
 -- finds an enemy unit
@@ -1670,13 +1672,13 @@ function Skada:FindEnemy(set, name, id)
 
 	local enemy = set._enemyidx[name]
 	if enemy then
-		return self.enemyPrototype:Bind(enemy, set)
+		return enemyPrototype:Bind(enemy, set)
 	end
 
 	for i = 1, #actors do
 		local actor = actors[i]
 		if actor and ((id and id == actor.id) or (name and actor.name == name)) then
-			set._enemyidx[name] = self.enemyPrototype:Bind(actor, set)
+			set._enemyidx[name] = enemyPrototype:Bind(actor, set)
 			return actor
 		end
 	end
@@ -1701,7 +1703,7 @@ function Skada:GetEnemy(set, name, guid, flag, create)
 		enemy.flag = flag
 
 		if guid or flag then
-			enemy.class = private.unit_class(guid, flag, nil, enemy, name)
+			enemy.class = Private.unit_class(guid, flag, nil, enemy, name)
 		else
 			enemy.class = "ENEMY"
 		end
@@ -1717,8 +1719,8 @@ function Skada:GetEnemy(set, name, guid, flag, create)
 	end
 
 	self.changed = true
-	self.callbacks:Fire("Skada_GetEnemy", enemy, set)
-	return self.enemyPrototype:Bind(enemy, set)
+	callbacks:Fire("Skada_GetEnemy", enemy, set)
+	return enemyPrototype:Bind(enemy, set)
 end
 
 -- generic find a player or an enemey
@@ -2048,7 +2050,7 @@ do
 	end
 
 	local function add_submode_lines(mode, win, id, label, tooltip)
-		if mode and not private.total_noclick(win.selectedset, mode) then
+		if mode and not Private.total_noclick(win.selectedset, mode) then
 			add_subview_lines(tooltip, win, mode, id, label)
 		end
 	end
@@ -2056,7 +2058,7 @@ do
 	local function add_click_lines(mode, label, win, t, fmt)
 		if type(mode) == "function" then
 			t:AddLine(uformat(fmt, label))
-		elseif not private.total_noclick(win.selectedset, mode) then
+		elseif not Private.total_noclick(win.selectedset, mode) then
 			t:AddLine(format(fmt, label or mode.localeName))
 		end
 	end
@@ -2224,7 +2226,7 @@ local function slash_command(param)
 		P.debug = not P.debug
 		Skada:Print("Debug mode " .. (P.debug and ("\124cff00ff00" .. L["ENABLED"] .. "\124r") or ("\124cffff0000" .. L["DISABLED"] .. "\124r")))
 	elseif cmd == "config" or cmd == "options" then
-		private.open_options()
+		Private.open_options()
 	elseif cmd == "memorycheck" or cmd == "memory" or cmd == "ram" then
 		Skada:CheckMemory()
 	elseif cmd == "import" and Skada.ProfileImport then
@@ -2466,7 +2468,7 @@ function Skada:PLAYER_ENTERING_WORLD()
 	-- account-wide addon version
 	local version = convert_version(self.version)
 	if version ~= G.version then
-		self.callbacks:Fire("Skada_UpdateCore", G.version, version)
+		callbacks:Fire("Skada_UpdateCore", G.version, version)
 		G.version = version
 	end
 
@@ -2475,7 +2477,7 @@ function Skada:PLAYER_ENTERING_WORLD()
 		if (version - self.char.version) >= 3 or (version - self.char.version) <= -3 then
 			self:Reset(true)
 		end
-		self.callbacks:Fire("Skada_UpdateData", self.char.version, version)
+		callbacks:Fire("Skada_UpdateData", self.char.version, version)
 		self.char.version = version
 	end
 end
@@ -2725,7 +2727,7 @@ function Skada:Reset(force)
 	dataobj.text = "n/a"
 	self:UpdateDisplay(true)
 	self:Notify(L["All data has been reset."])
-	self.callbacks:Fire("Skada_DataReset")
+	callbacks:Fire("Skada_DataReset")
 	StaticPopup_Hide("SkadaCommonConfirmDialog")
 	self:CloseMenus()
 end
@@ -2752,160 +2754,6 @@ end
 
 -------------------------------------------------------------------------------
 -- format functions
-
-do
-	local reverse = string.reverse
-	local numbersystem = nil
-	function set_numeral_format(system)
-		system = system or numbersystem
-		if numbersystem == system then return end
-		numbersystem = system
-
-		local ShortenValue = function(num)
-			if num >= 1e9 or num <= -1e9 then
-				return format("%.2fB", num * 1e-09)
-			elseif num >= 1e6 or num <= -1e6 then
-				return format("%.2fM", num * 1e-06)
-			elseif num >= 1e3 or num <= -1e3 then
-				return format("%.1fK", num * 0.001)
-			end
-			return format("%.0f", num)
-		end
-
-		if system == 3 or (system == 1 and (LOCALE_koKR or LOCALE_zhCN or LOCALE_zhTW)) then
-			-- default to chinese, even for western clients.
-			local symbol_1k, symbol_10k, symbol_1b = "千", "万", "亿"
-			if LOCALE_koKR then
-				symbol_1k, symbol_10k, symbol_1b = "천", "만", "억"
-			elseif LOCALE_zhTW then
-				symbol_1k, symbol_10k, symbol_1b = "千", "萬", "億"
-			end
-
-			ShortenValue = function(num)
-				if num >= 1e8 or num <= -1e8 then
-					return format("%.2f%s", num * 1e-08, symbol_1b)
-				elseif num >= 1e4 or num <= -1e4 then
-					return format("%.2f%s", num * 0.0001, symbol_10k)
-				elseif num >= 1e3 or num <= -1e3 then
-					return format("%.1f%s", num * 0.0001, symbol_1k)
-				end
-				return format("%.0f", num)
-			end
-		end
-
-		Skada.FormatNumber = function(self, num, fmt)
-			if not num then
-				return
-			else
-				fmt = fmt or P.numberformat or 1
-			end
-
-			if fmt == 1 and (num >= 1e3 or num <= -1e3) then
-				return ShortenValue(num)
-			elseif fmt == 2 and (num >= 1e3 or num <= -1e3) then
-				local left, mid, right = strmatch(tostring(floor(num)), "^([^%d]*%d)(%d*)(.-)$")
-				return format("%s%s%s", left, reverse(gsub(reverse(mid), "(%d%d%d)", "%1,")), right)
-			else
-				return format("%.0f", num)
-			end
-		end
-	end
-end
-
-function Skada:FormatPercent(value, total, dec)
-	dec = dec or P.decimals or 1
-
-	-- no value? 0%
-	if not value then
-		return format("%." .. dec .. "f%%", 0)
-	end
-
-	-- correct values.
-	value, total = total and (100 * value) or value, max(1, total or 0)
-
-	-- below 0? clamp to -999
-	if value <= 0 then
-		return format("%." .. dec .. "f%%", max(-999, value / total))
-	-- otherwise, clamp to 999
-	else
-		return format("%." .. dec .. "f%%", min(999, value / total))
-	end
-end
-
-function Skada:FormatTime(sec, alt, ...)
-	if not sec then
-		return
-	elseif alt then
-		return SecondsToTime(sec, ...)
-	elseif sec >= 3600 then
-		local h = floor(sec / 3600)
-		local m = floor(sec / 60 - (h * 60))
-		local s = floor(sec - h * 3600 - m * 60 + 0.5)
-		return format("%02.f:%02.f:%02.f", h, m, s)
-	else
-		return format("%02.f:%02.f", floor(sec / 60), floor(sec % 60 + 0.5))
-	end
-end
-
-function Skada:FormatName(name)
-	name = P.realmless and gsub(name, ("%-.*"), "") or name
-	if P.translit and Translit then
-		return Translit:Transliterate(name, "!")
-	end
-	return name
-end
-
-do
-	-- brackets and separators
-	local brackets = {"(%s)", "{%s}", "[%s]", "<%s>", "%s"}
-	local separators = {"%s, %s", "%s. %s", "%s; %s", "%s - %s", "%s \124\124 %s", "%s / %s", "%s \\ %s", "%s ~ %s", "%s %s"}
-
-	-- formats default values
-	local format_2 = "%s (%s)"
-	local format_3 = "%s (%s, %s)"
-
-	function set_value_format(bracket, separator)
-		format_2 = brackets[bracket or 1]
-		format_3 = "%s " .. format(format_2, separators[separator or 1])
-		format_2 = "%s " .. format_2
-	end
-
-	function Skada:FormatValueText(v1, b1, v2, b2, v3, b3)
-		if b1 and b2 and b3 then
-			return format(format_3, v1, v2, v3)
-		elseif b1 and b2 then
-			return format(format_2, v1, v2)
-		elseif b1 and b3 then
-			return format(format_2, v1, v3)
-		elseif b2 and b3 then
-			return format(format_2, v2, v3)
-		elseif b2 then
-			return v2
-		elseif b1 then
-			return v1
-		elseif b3 then
-			return v3
-		end
-	end
-
-	function Skada:FormatValueCols(col1, col2, col3)
-		if col1 and col2 and col3 then
-			return format(format_3, col1, col2, col3)
-		elseif col1 and col2 then
-			return format(format_2, col1, col2)
-		elseif col1 and col3 then
-			return format(format_2, col1, col3)
-		elseif col2 and col3 then
-			return format(format_2, col2, col3)
-		elseif col2 then
-			return col2
-		elseif col1 then
-			return col1
-		elseif col3 then
-			return col3
-		end
-	end
-end
 
 do
 	local function set_label_format(name, starttime, endtime, fmt, dye)
@@ -3076,7 +2924,7 @@ function dataobj:OnClick(button)
 	end
 end
 
-function private.refresh_button()
+function Private.refresh_button()
 	if not DBI then return end
 
 	DBI:Refresh(folder, Skada.db.profile.icon)
@@ -3101,7 +2949,7 @@ function Skada:ApplySettings(name, hidemenu)
 	end
 
 	-- fire callback in case modules need it
-	Skada.callbacks:Fire("Skada_ApplySettings")
+	callbacks:Fire("Skada_ApplySettings")
 
 	for i = 1, #windows do
 		local win = windows[i]
@@ -3131,13 +2979,13 @@ function Skada:ApplySettings(name, hidemenu)
 		end
 	end
 
-	set_numeral_format(P.numbersystem)
-	set_value_format(P.brackets, P.separator)
+	Private.set_numeral_format(P.numbersystem)
+	Private.set_value_format(P.brackets, P.separator)
 
 	Skada:UpdateDisplay(true)
 end
 
-function private.reload_settings()
+function Private.reload_settings()
 	for i = #windows, 1, -1 do
 		local win = windows[i]
 		if win and win.Destroy then
@@ -3163,7 +3011,7 @@ function private.reload_settings()
 	end
 
 	Skada:ClearAllIndexes()
-	private.refresh_button()
+	Private.refresh_button()
 	Skada.total = Skada.char.total
 	Skada:ApplySettings()
 end
@@ -3189,8 +3037,8 @@ function Skada:OnInitialize()
 		if LDS then LDS:EnhanceOptions(self.options.args.profiles.args.general, self.db) end
 
 		-- import/export profile if found.
-		if private.advanced_profile then
-			private.advanced_profile(self.options.args.profiles.args)
+		if Private.advanced_profile then
+			Private.advanced_profile(self.options.args.profiles.args)
 		end
 	end
 
@@ -3198,16 +3046,16 @@ function Skada:OnInitialize()
 	G = self.db.global
 
 	self:RegisterChatCommand("skada", slash_command, true) -- force flag set
-	self.db.RegisterCallback(self, "OnProfileChanged", private.reload_settings)
-	self.db.RegisterCallback(self, "OnProfileCopied", private.reload_settings)
-	self.db.RegisterCallback(self, "OnProfileReset", private.reload_settings)
-	self.db.RegisterCallback(self, "OnDatabaseShutdown", "ClearAllIndexes", true)
+	self.db.RegisterCallback(self, "OnProfileChanged", Private.reload_settings)
+	self.db.RegisterCallback(self, "OnProfileCopied", Private.reload_settings)
+	self.db.RegisterCallback(self, "OnProfileReset", Private.reload_settings)
+	self.db.RegisterCallback(self, "OnDatabaseShutdown", "ClearAllIndexes")
 
-	private.init_options()
-	private.register_medias()
-	private.register_classes()
-	private.register_schools()
-	private.register_toast()
+	Private.init_options()
+	Private.register_medias()
+	Private.register_classes()
+	Private.register_schools()
+	Private.register_toast()
 	self:RegisterComms(not P.syncoff)
 
 	if self.LoadableDisplay then
@@ -3234,8 +3082,8 @@ function Skada:OnInitialize()
 	self.maxmeme = min(60, max(30, self.maxsets + 10))
 
 	-- use our custom functions
-	GetSpellInfo = private.spell_info or GetSpellInfo
-	GetSpellLink = private.spell_link or GetSpellLink
+	GetSpellInfo = Private.spell_info or GetSpellInfo
+	GetSpellLink = Private.spell_link or GetSpellLink
 end
 
 function Skada:SetupStorage()
@@ -3286,7 +3134,7 @@ function Skada:OnEnable()
 	end
 
 	self:SetupStorage()
-	private.reload_settings()
+	Private.reload_settings()
 
 	-- SharedMedia is sometimes late, we wait few seconds then re-apply settings.
 	self:ScheduleTimer("ApplySettings", 2)
@@ -3294,7 +3142,7 @@ function Skada:OnEnable()
 end
 
 -- called on boss defeat
-function private.boss_defeated()
+function Private.boss_defeated()
 	local set = Skada.current
 	if not set or set.success then return end
 
@@ -3339,7 +3187,7 @@ function Skada:GetSet(s)
 		set = self.char.sets[s]
 	end
 
-	return self.setPrototype:Bind(set)
+	return setPrototype:Bind(set)
 end
 
 -------------------------------------------------------------------------------
@@ -3390,7 +3238,7 @@ end
 
 function combat_end()
 	if not Skada.current then return end
-	private.clear_temp_units()
+	Private.clear_temp_units()
 
 	-- trigger events.
 	local curtime = time()
@@ -3430,7 +3278,7 @@ function combat_end()
 	end
 
 	if Skada.current.time >= P.minsetlength then
-		Skada.total.time = Skada.total.time + Skada.current.time
+		Skada.total.time = (Skada.total.time or 0) + Skada.current.time
 	end
 
 	Skada.last = Skada.current
@@ -3826,7 +3674,7 @@ do
 			end
 		-- default boss defeated event? (no DBM/BigWigs)
 		elseif not Skada.bossmod and set.gotboss and death_events[event] and set.gotboss == GetCreatureId(dstGUID) then
-			Skada:ScheduleTimer(private.boss_defeated, P.updatefrequency or 0.5)
+			Skada:ScheduleTimer(Private.boss_defeated, P.updatefrequency or 0.5)
 		end
 	end
 
@@ -3943,7 +3791,7 @@ do
 
 					if not fail and flags.src_is_interesting or flags.src_is_not_interesting then
 						if not src_is_interesting then
-							src_is_interesting = check_flags_interest(srcGUID, srcFlags) or private.get_temp_unit(srcGUID)
+							src_is_interesting = check_flags_interest(srcGUID, srcFlags) or Private.get_temp_unit(srcGUID)
 						end
 
 						if (flags.src_is_interesting and not src_is_interesting) or (flags.src_is_not_interesting and src_is_interesting) then

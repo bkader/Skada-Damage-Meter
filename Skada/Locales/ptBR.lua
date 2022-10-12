@@ -627,6 +627,7 @@ if not L then return end
 -- L["%s's death log"] = ""
 -- L["Player's deaths"] = ""
 -- L["%s dies"] = ""
+-- L["buff"] = ""
 -- L["debuff"] = ""
 -- L["Spell details"] = ""
 -- L["Spell"] = ""

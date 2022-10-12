@@ -1,13 +1,13 @@
 local _, Skada = ...
-local private = Skada.private
+local Private = Skada.Private
 Skada:RegisterModule("Resurrects", function(L, P, _, C)
 	local mod = Skada:NewModule("Resurrects")
 	local playermod = mod:NewModule("Resurrect spell list")
 	local targetmod = mod:NewModule("Resurrect target list")
 
-	local pairs, format, uformat = pairs, string.format, private.uformat
-	local new, clear = private.newTable, private.clearTable
-	local get_resurrected_targets = nil
+	local pairs, format, uformat = pairs, string.format, Private.uformat
+	local new, clear = Private.newTable, Private.clearTable
+	local get_actor_ress_targets = nil
 	local mod_cols = nil
 
 	local resurrectSpells = {
@@ -103,11 +103,8 @@ Skada:RegisterModule("Resurrects", function(L, P, _, C)
 		win.title = uformat(L["%s's resurrect targets"], win.actorname)
 		if not set or not win.actorname then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		local total = (actor and not enemy) and actor.ress
-		local targets = (total and total > 0) and get_resurrected_targets(actor)
-
-		if not targets then
+		local targets, total, actor = get_actor_ress_targets(set, win.actorid, win.actorname)
+		if not targets or not actor or total == 0 then
 			return
 		elseif win.metadata then
 			win.metadata.maxvalue = 0
@@ -188,25 +185,28 @@ Skada:RegisterModule("Resurrects", function(L, P, _, C)
 
 	---------------------------------------------------------------------------
 
-	get_resurrected_targets = function(self, tbl)
-		if not self.resspells then return end
+	get_actor_ress_targets = function(self, id, name, tbl)
+		local actor = self:GetActor(name, id)
+		local total = actor and actor.ress
+		local spells = total and actor.resspells
+		if not spells then return end
 
 		tbl = clear(tbl or C)
-		for _, spell in pairs(self.resspells) do
+		for _, spell in pairs(spells) do
 			if spell.targets then
-				for name, count in pairs(spell.targets) do
-					local t = tbl[name]
+				for targetname, count in pairs(spell.targets) do
+					local t = tbl[targetname]
 					if not t then
 						t = new()
 						t.count = count
-						tbl[name] = t
+						tbl[targetname] = t
 					else
 						t.count = t.count + count
 					end
-					self.super:_fill_actor_table(t, name)
+					self:_fill_actor_table(t, targetname)
 				end
 			end
 		end
-		return tbl
+		return tbl, total, actor
 	end
 end)

@@ -1,5 +1,5 @@
 local folder, Skada = ...
-local private = Skada.private
+local Private = Skada.Private
 
 local select, pairs, type = select, pairs, type
 local tonumber, format = tonumber, string.format
@@ -10,8 +10,8 @@ local _
 local L = LibStub("AceLocale-3.0"):GetLocale(folder)
 local UnitClass, GetPlayerInfoByGUID = UnitClass, GetPlayerInfoByGUID
 local GetClassFromGUID = Skada.GetClassFromGUID
-local new, del = private.newTable, private.delTable
-local clear, copy = private.clearTable, private.tCopy
+local new, del = Private.newTable, Private.delTable
+local clear, copy = Private.clearTable, Private.tCopy
 
 local COMBATLOG_OBJECT_TYPE_NPC = COMBATLOG_OBJECT_TYPE_NPC or 0x00000800
 
@@ -21,6 +21,163 @@ local COMBATLOG_OBJECT_TYPE_NPC = COMBATLOG_OBJECT_TYPE_NPC or 0x00000800
 function Skada:Debug(...)
 	if self.db.profile.debug then
 		print("\124cff33ff99Skada Debug\124r:", ...)
+	end
+end
+
+-------------------------------------------------------------------------------
+-- format functions
+
+do
+	local reverse = string.reverse
+	local numbersystem = nil
+	function Private.set_numeral_format(system)
+		system = system or numbersystem
+		if numbersystem == system then return end
+		numbersystem = system
+
+		local ShortenValue = function(num)
+			if num >= 1e9 or num <= -1e9 then
+				return format("%.2fB", num * 1e-09)
+			elseif num >= 1e6 or num <= -1e6 then
+				return format("%.2fM", num * 1e-06)
+			elseif num >= 1e3 or num <= -1e3 then
+				return format("%.1fK", num * 0.001)
+			end
+			return format("%.0f", num)
+		end
+
+		if system == 3 or (system == 1 and (LOCALE_koKR or LOCALE_zhCN or LOCALE_zhTW)) then
+			-- default to chinese, even for western clients.
+			local symbol_1k, symbol_10k, symbol_1b = "千", "万", "亿"
+			if LOCALE_koKR then
+				symbol_1k, symbol_10k, symbol_1b = "천", "만", "억"
+			elseif LOCALE_zhTW then
+				symbol_1k, symbol_10k, symbol_1b = "千", "萬", "億"
+			end
+
+			ShortenValue = function(num)
+				if num >= 1e8 or num <= -1e8 then
+					return format("%.2f%s", num * 1e-08, symbol_1b)
+				elseif num >= 1e4 or num <= -1e4 then
+					return format("%.2f%s", num * 0.0001, symbol_10k)
+				elseif num >= 1e3 or num <= -1e3 then
+					return format("%.1f%s", num * 0.0001, symbol_1k)
+				end
+				return format("%.0f", num)
+			end
+		end
+
+		Skada.FormatNumber = function(self, num, fmt)
+			if not num then return end
+			fmt = fmt or self.db.profile.numberformat or 1
+
+			if fmt == 1 and (num >= 1e3 or num <= -1e3) then
+				return ShortenValue(num)
+			elseif fmt == 2 and (num >= 1e3 or num <= -1e3) then
+				local left, mid, right = strmatch(tostring(floor(num)), "^([^%d]*%d)(%d*)(.-)$")
+				return format("%s%s%s", left, reverse(gsub(reverse(mid), "(%d%d%d)", "%1,")), right)
+			else
+				return format("%.0f", num)
+			end
+		end
+	end
+end
+
+function Skada:FormatPercent(value, total, dec)
+	dec = dec or self.db.profile.decimals or 1
+
+	-- no value? 0%
+	if not value then
+		return format("%." .. dec .. "f%%", 0)
+	end
+
+	-- correct values.
+	value, total = total and (100 * value) or value, max(1, total or 0)
+
+	-- below 0? clamp to -999
+	if value <= 0 then
+		return format("%." .. dec .. "f%%", max(-999, value / total))
+	-- otherwise, clamp to 999
+	else
+		return format("%." .. dec .. "f%%", min(999, value / total))
+	end
+end
+
+function Skada:FormatTime(sec, alt, ...)
+	if not sec then
+		return
+	elseif alt then
+		return SecondsToTime(sec, ...)
+	elseif sec >= 3600 then
+		local h = floor(sec / 3600)
+		local m = floor(sec / 60 - (h * 60))
+		local s = floor(sec - h * 3600 - m * 60 + 0.5)
+		return format("%02.f:%02.f:%02.f", h, m, s)
+	else
+		return format("%02.f:%02.f", floor(sec / 60), floor(sec % 60 + 0.5))
+	end
+end
+
+local Translit = LibStub("LibTranslit-1.0", true)
+function Skada:FormatName(name)
+	if self.db.profile.realmless then
+		name = gsub(name, ("%-.*"), "")
+	end
+	if self.db.profile.translit and Translit then
+		return Translit:Transliterate(name, "!")
+	end
+	return name
+end
+
+do
+	-- brackets and separators
+	local brackets = {"(%s)", "{%s}", "[%s]", "<%s>", "%s"}
+	local separators = {"%s, %s", "%s. %s", "%s; %s", "%s - %s", "%s \124\124 %s", "%s / %s", "%s \\ %s", "%s ~ %s", "%s %s"}
+
+	-- formats default values
+	local format_2 = "%s (%s)"
+	local format_3 = "%s (%s, %s)"
+
+	function Private.set_value_format(bracket, separator)
+		format_2 = brackets[bracket or 1]
+		format_3 = "%s " .. format(format_2, separators[separator or 1])
+		format_2 = "%s " .. format_2
+	end
+
+	function Skada:FormatValueText(v1, b1, v2, b2, v3, b3)
+		if b1 and b2 and b3 then
+			return format(format_3, v1, v2, v3)
+		elseif b1 and b2 then
+			return format(format_2, v1, v2)
+		elseif b1 and b3 then
+			return format(format_2, v1, v3)
+		elseif b2 and b3 then
+			return format(format_2, v2, v3)
+		elseif b2 then
+			return v2
+		elseif b1 then
+			return v1
+		elseif b3 then
+			return v3
+		end
+	end
+
+	function Skada:FormatValueCols(col1, col2, col3)
+		if col1 and col2 and col3 then
+			return format(format_3, col1, col2, col3)
+		elseif col1 and col2 then
+			return format(format_2, col1, col2)
+		elseif col1 and col3 then
+			return format(format_2, col1, col3)
+		elseif col2 and col3 then
+			return format(format_2, col2, col3)
+		elseif col2 then
+			return col2
+		elseif col1 then
+			return col1
+		elseif col3 then
+			return col3
+		end
 	end
 end
 
@@ -67,11 +224,11 @@ end
 -- class, role and spec functions
 
 do
-	local is_player = private.is_player
-	local is_pet = private.is_pet
-	local is_creature = private.is_creature
+	local is_player = Private.is_player
+	local is_pet = Private.is_pet
+	local is_creature = Private.is_creature
 
-	function private.unit_class(guid, flag, set, db, name)
+	function Private.unit_class(guid, flag, set, db, name)
 		set = set or Skada.current
 		if set then
 			-- an existing player?
@@ -289,26 +446,26 @@ do
 	local temp_units = nil
 
 	-- adds a temporary unit with optional info
-	function private.add_temp_unit(guid, info)
+	function Private.add_temp_unit(guid, info)
 		if not guid then return end
 		temp_units = temp_units or new()
 		temp_units[guid] = info or true
 	end
 
 	-- deletes a temporary unit if found
-	function private.del_temp_unit(guid)
+	function Private.del_temp_unit(guid)
 		if guid and temp_units and temp_units[guid] then
 			temp_units[guid] = del(temp_units[guid])
 		end
 	end
 
 	-- returns the temporary unit stored "info" or false
-	function private.get_temp_unit(guid)
+	function Private.get_temp_unit(guid)
 		return guid and temp_units and temp_units[guid]
 	end
 
 	-- clears all store temporary units
-	function private.clear_temp_units()
+	function Private.clear_temp_units()
 		temp_units = clear(temp_units)
 	end
 end
@@ -468,9 +625,9 @@ do
 		end
 
 		if channel == "PURR" then
-			self:SendCommMessage(folder, private.serialize(nil, nil, ...), "WHISPER", target, "NORMAL", show_progress_window, self)
+			self:SendCommMessage(folder, Private.serialize(nil, nil, ...), "WHISPER", target, "NORMAL", show_progress_window, self)
 		elseif channel then
-			self:SendCommMessage(folder, private.serialize(nil, nil, ...), channel, target)
+			self:SendCommMessage(folder, Private.serialize(nil, nil, ...), channel, target)
 		end
 	end
 
@@ -490,7 +647,7 @@ do
 
 	local function on_comm_received(self, prefix, message, channel, sender)
 		if prefix == folder and channel and sender and sender ~= self.userName then
-			dispatch_comm(sender, private.deserialize(message))
+			dispatch_comm(sender, Private.deserialize(message))
 		end
 	end
 
@@ -659,7 +816,7 @@ do
 			return
 		end
 
-		private.confirm_dialog(L["Do you want to reset Skada?\nHold SHIFT to reset all data."], f, t)
+		Private.confirm_dialog(L["Do you want to reset Skada?\nHold SHIFT to reset all data."], f, t)
 	end
 end
 
@@ -741,7 +898,7 @@ do
 	end
 
 	function Skada:Reinstall()
-		private.confirm_dialog(L["Are you sure you want to reinstall Skada?"], f, t)
+		Private.confirm_dialog(L["Are you sure you want to reinstall Skada?"], f, t)
 	end
 end
 
@@ -810,52 +967,27 @@ end
 -------------------------------------------------------------------------------
 
 do
-	local function clear_indexes(set, mt)
-		if set then
-			set._playeridx = del(set._playeridx)
-			set._enemyidx = del(set._enemyidx)
-
-			-- should clear metatables?
-			if not mt then return end
-
-			local actors = set.players -- players
-			if actors then
-				for i = 1, #actors do
-					local actor = actors[i]
-					if actor and actor.super then
-						actor.super = nil
-						setmetatable(actor, nil)
-					end
-				end
-			end
-
-			actors = set.enemies -- enemies
-			if actors then
-				for i = 1, #actors do
-					local actor = actors[i]
-					if actor and actor.super then
-						actor.super = nil
-						setmetatable(actor, nil)
-					end
-				end
-			end
-		end
+	local function clear_indexes(set)
+		if not set then return end
+		set._playeridx = del(set._playeridx)
+		set._enemyidx = del(set._enemyidx)
 	end
 
-	function Skada:ClearAllIndexes(mt)
-		clear_indexes(Skada.current, mt)
-		clear_indexes(Skada.total, mt)
+	function Skada:ClearAllIndexes()
+		clear_indexes(Skada.current)
+		clear_indexes(Skada.total)
 
 		local sets = Skada.char.sets
 		if sets then
 			for i = 1, #sets do
-				clear_indexes(sets[i], mt)
+				clear_indexes(sets[i])
 			end
 		end
 
-		if Skada.tempsets then
-			for i = 1, #Skada.tempsets do
-				clear_indexes(Skada.tempsets[i], mt)
+		sets = Skada.tempsets
+		if sets then
+			for i = 1, #sets do
+				clear_indexes(sets[i])
 			end
 		end
 	end
@@ -865,9 +997,9 @@ end
 -- profile import, export and sharing
 
 do
-	local ipairs, strmatch, uformat = ipairs, strmatch, private.uformat
+	local ipairs, strmatch, uformat = ipairs, strmatch, Private.uformat
 	local UnitName, GetRealmName = UnitName, GetRealmName
-	local open_window = private.open_import_export
+	local open_window = Private.open_import_export
 	local serialize_profile = nil
 
 	local function get_profile_name(str)
@@ -904,7 +1036,7 @@ do
 		wipe(temp)
 		copy(temp, Skada.db.profile, "modeclicks")
 		temp.__name = Skada.db:GetCurrentProfile()
-		return private.serialize(true, format("%s profile", temp.__name), temp)
+		return Private.serialize(true, format("%s profile", temp.__name), temp)
 	end
 
 	local function import_profile(data, name)
@@ -913,7 +1045,7 @@ do
 			return false
 		end
 
-		local success, profile = private.deserialize(data, true)
+		local success, profile = Private.deserialize(data, true)
 		if not success or profile.numbersystem == nil then -- sanity check!
 			Skada:Print("Import profile failed!")
 			return false
@@ -931,16 +1063,16 @@ do
 			profile = profile[folder]
 		end
 
-		local old_reload_settings = private.reload_settings
-		private.reload_settings = function()
-			private.reload_settings = old_reload_settings
+		local old_reload_settings = Private.reload_settings
+		Private.reload_settings = function()
+			Private.reload_settings = old_reload_settings
 			copy(Skada.db.profile, profile)
-			private.reload_settings()
+			Private.reload_settings()
 			LibStub("AceConfigRegistry-3.0"):NotifyChange(folder)
 		end
 
 		Skada.db:SetProfile(profileName)
-		private.reload_settings()
+		Private.reload_settings()
 		Skada:Wipe()
 		Skada:UpdateDisplay(true)
 		return true
@@ -954,9 +1086,9 @@ do
 		return open_window(L["This is your current profile in text format."], serialize_profile())
 	end
 
-	function private.advanced_profile(args)
+	function Private.advanced_profile(args)
 		if not args then return end
-		private.advanced_profile = nil -- remove it
+		Private.advanced_profile = nil -- remove it
 		local CONST_COMM_PROFILE = "PR"
 
 		local Share = {}
@@ -978,7 +1110,7 @@ do
 				Share:Enable(false) -- disable receiving
 				Share.target = nil -- reset target
 			end
-			private.confirm_dialog(uformat(L["opt_profile_received"], sender), acceptfunc)
+			Private.confirm_dialog(uformat(L["opt_profile_received"], sender), acceptfunc)
 		end
 
 		function Share:Send(profileStr, target)
