@@ -273,6 +273,8 @@ if not L then return end
 -- L["Toggles showing the minimap button."] = ""
 -- L["Transliterate"] = ""
 -- L["Converts Cyrillic letters into Latin letters."] = ""
+-- L["Remove realm name"] = ""
+-- L["opt_realmless_desc"] = ""
 -- L["Merge pets"] = ""
 -- L["Merges pets with their owners. Changing this only affects new data."] = ""
 -- L["Show totals"] = ""

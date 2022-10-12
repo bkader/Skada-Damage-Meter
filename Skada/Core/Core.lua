@@ -2848,6 +2848,7 @@ function Skada:FormatTime(sec, alt, ...)
 end
 
 function Skada:FormatName(name)
+	name = P.realmless and gsub(name, ("%-.*"), "") or name
 	if P.translit and Translit then
 		return Translit:Transliterate(name, "!")
 	end
