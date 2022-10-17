@@ -38,16 +38,16 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 	end
 
-	local function log_spellcast(set, playerid, playername, playerflags, spellid, spellschool)
+	local function log_spellcast(set, actorid, actorname, actorflags, spellid, spellschool)
 		if not set or (set == Skada.total and not P.totalidc) then return end
 
-		local player = Skada:FindPlayer(set, playerid, playername, playerflags)
-		if player and player.absorbspells and player.absorbspells[spellid] then
-			player.absorbspells[spellid].casts = (player.absorbspells[spellid].casts or 1) + 1
+		local actor = Skada:FindPlayer(set, actorid, actorname, actorflags)
+		if actor and actor.absorbspells and actor.absorbspells[spellid] then
+			actor.absorbspells[spellid].casts = (actor.absorbspells[spellid].casts or 1) + 1
 
 			-- fix possible missing spell school.
-			if not player.absorbspells[spellid].school and spellschool then
-				player.absorbspells[spellid].school = spellschool
+			if not actor.absorbspells[spellid].school and spellschool then
+				actor.absorbspells[spellid].school = spellschool
 			end
 		end
 	end
@@ -59,19 +59,19 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local amount = max(0, absorb.amount - absorb.overheal)
 		if amount == 0 then return end
 
-		local player = Skada:GetPlayer(set, absorb.playerid, absorb.playername)
-		if not player then
+		local actor = Skada:GetPlayer(set, absorb.actorid, absorb.actorname)
+		if not actor then
 			return
-		elseif player.role ~= "DAMAGER" and not passiveSpells[absorb.spellid] and not nocount then
-			Skada:AddActiveTime(set, player, absorb.dstName)
+		elseif actor.role ~= "DAMAGER" and not passiveSpells[absorb.spellid] and not nocount then
+			Skada:AddActiveTime(set, actor, absorb.dstName)
 		end
 
 		-- add absorbs amount
-		player.absorb = (player.absorb or 0) + amount
+		actor.absorb = (actor.absorb or 0) + amount
 		set.absorb = (set.absorb or 0) + amount
 
 		if absorb.overheal then
-			player.overheal = (player.overheal or 0) + absorb.overheal
+			actor.overheal = (actor.overheal or 0) + absorb.overheal
 			set.overheal = (set.overheal or 0) + absorb.overheal
 		end
 
@@ -79,11 +79,11 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		if set == Skada.total and not P.totalidc then return end
 
 		-- record the spell
-		local spell = player.absorbspells and player.absorbspells[absorb.spellid]
+		local spell = actor.absorbspells and actor.absorbspells[absorb.spellid]
 		if not spell then
-			player.absorbspells = player.absorbspells or {}
+			actor.absorbspells = actor.absorbspells or {}
 			spell = {school = absorb.school, amount = amount, o_amt = absorb.overheal, count = 1}
-			player.absorbspells[absorb.spellid] = spell
+			actor.absorbspells[absorb.spellid] = spell
 		else
 			if not spell.school and absorb.school then
 				spell.school = absorb.school
@@ -155,7 +155,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 			local prev_amount = shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName]
 			if not prev_amount then return end
 
-			absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
 			absorb.dstName = dstName
 
 			absorb.spellid = spellid
@@ -168,7 +168,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		else
 			local prev_amount = shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName]
 			if prev_amount then
-				absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+				absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
 				absorb.dstName = dstName
 
 				absorb.spellid = spellid
@@ -194,7 +194,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 
 		if not ignoredSpells[spellid] then
-			absorb.playerid, absorb.playername, absorb.playerflags = Skada:FixMyPets(absGUID, absName, absFlags)
+			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(absGUID, absName, absFlags)
 			absorb.dstName = dstName
 
 			absorb.spellid = spellid
