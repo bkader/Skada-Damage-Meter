@@ -555,8 +555,6 @@ L["Ignore Main Tanks"] = "忽略主坦克"
 L["%s on %s removed by %s"] = "%s位于%s已被%s移除"
 L["%s on %s removed by %s's %s"] = "%s位于%s已被%s的%s移除"
 -- Damage Module --
--- environmental damage
-L["Environment"] = "环境"
 -- damage done module
 L["Damage"] = "伤害"
 L["Damage target list"] = "伤害目标"

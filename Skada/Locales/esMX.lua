@@ -559,8 +559,6 @@ L["Ignore Main Tanks"] = "Ignorar los tanques principales"
 L["%s on %s removed by %s"] = "%s sobre %s eliminado por %s"
 L["%s on %s removed by %s's %s"] = "%1$s sobre %2$s eliminado por %4$s de %3$s"
 -- Damage Module --
--- environmental damage
-L["Environment"] = "Entorno"
 -- damage done module
 L["Damage"] = "Da\195\177o"
 L["Damage target list"] = "Lista de objetivos de da\195\177o"

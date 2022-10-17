@@ -558,8 +558,6 @@ L["Ignore Main Tanks"] = "Игнорировать танков"
 L["%s on %s removed by %s"] = "%s на %s прервал %s"
 L["%s on %s removed by %s's %s"] = "%s на %s прервал %s (%s)"
 -- Damage Module --
--- environmental damage
-L["Environment"] = "Окружающая среда"
 -- damage done module
 L["Damage"] = "Урон"
 L["Damage target list"] = "Урон по врагам"

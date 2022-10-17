@@ -557,8 +557,6 @@ if not L then return end
 -- L["%s on %s removed by %s"] = ""
 -- L["%s on %s removed by %s's %s"] = ""
 -- Damage Module --
--- environmental damage
--- L["Environment"] = ""
 -- damage done module
 -- L["Damage"] = ""
 -- L["Damage target list"] = ""

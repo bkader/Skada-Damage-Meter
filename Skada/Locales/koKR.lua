@@ -557,8 +557,6 @@ L["Ignore Main Tanks"] = "방어 전담 무시"
 L["%s on %s removed by %s"] = "%2$s에게 걸린 %1$s\1241이;가; %3$s\1241으로;로; 제거되었습니다"
 L["%s on %s removed by %s's %s"] = "%2$s에게 걸린 %1$s\1241이;가; %3$s의 %4$s\1241으로;로; 제거되었습니다"
 -- Damage Module --
--- environmental damage
-L["Environment"] = "환경"
 -- damage done module
 L["Damage"] = "피해"
 -- L["Damage target list"] = ""

@@ -305,6 +305,7 @@ Skada:RegisterModule("Healing", function(L, P)
 
 	function targetmod:Update(win, set)
 		win.title = uformat(L["%s's healed targets"], win.actorname)
+		if not set or not win.actorname then return end
 
 		local targets, total, actor = set:GetActorHealTargets(win.actorid, win.actorname)
 		if not targets or not actor or total == 0 then

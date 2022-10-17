@@ -557,8 +557,6 @@ L["CC Breaks"] = "Rompitori CdM"
 L["%s on %s removed by %s"] = "%s su %s rimosso da %s"
 L["%s on %s removed by %s's %s"] = "%s su %s rimosso dal %s di %s"
 -- Damage Module --
--- environmental damage
--- L["Environment"] = ""
 -- damage done module
 L["Damage"] = "Danno"
 -- L["Damage target list"] = ""
