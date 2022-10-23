@@ -22,7 +22,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	local COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
 	local COMBATLOG_OBJECT_REACTION_MASK = COMBATLOG_OBJECT_REACTION_MASK or 0x000000F0
 
-	local band, wipe = bit.band, wipe
+	local next, wipe, band = next, wipe, bit.band
 	local del, clear = Private.delTable, Private.clearTable
 	local mod_cols = nil
 
@@ -135,71 +135,70 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	end
 
 	local shields = {}
-	local function handle_shield(_, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-		local spellid, _, spellschool, _, amount = ...
-		if not amount or not spellid or ignoredSpells[spellid] then return end
+	local function handle_shield(t)
+		if not t.amount or not t.spellid or ignoredSpells[t.spellid] then return end
 
-		dstName = Skada:FixPetsName(dstGUID, dstName, dstFlags)
+		local dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
 
-		if eventtype == "SPELL_AURA_APPLIED" then
-			if not validate_shield(srcFlags, dstFlags) then return end
+		if t.event == "SPELL_AURA_APPLIED" then
+			if not validate_shield(t.srcFlags, t.dstFlags) then return end
 
-			local shield = shields[dstName] and shields[dstName][spellid]
+			local shield = shields[dstName] and shields[dstName][t.spellid]
 			if not shield then
 				shields[dstName] = shields[dstName] or new()
-				shields[dstName][spellid] = new()
-				shield = shields[dstName][spellid]
+				shields[dstName][t.spellid] = new()
+				shield = shields[dstName][t.spellid]
 			end
-			shield[srcName] = amount
-		elseif eventtype == "SPELL_AURA_REFRESH" then
-			local prev_amount = shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName]
+			shield[t.srcName] = t.amount
+		elseif t.event == "SPELL_AURA_REFRESH" then
+			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
 			if not prev_amount then return end
 
-			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
 			absorb.dstName = dstName
 
-			absorb.spellid = spellid
-			absorb.school = spellschool
+			absorb.spellid = t.spellid
+			absorb.school = t.spellschool
 			absorb.amount = 0
 			absorb.overheal = prev_amount
 
 			Skada:DispatchSets(log_absorb)
-			shields[dstName][spellid][srcName] = amount -- refresh amount
+			shields[dstName][t.spellid][t.srcName] = t.amount -- refresh amount
 		else
-			local prev_amount = shields[dstName] and shields[dstName][spellid] and shields[dstName][spellid][srcName]
+			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
 			if prev_amount then
-				absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(srcGUID, srcName, srcFlags)
+				absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
 				absorb.dstName = dstName
 
-				absorb.spellid = spellid
-				absorb.school = spellschool
+				absorb.spellid = t.spellid
+				absorb.school = t.spellschool
 				absorb.amount = 0
-				absorb.overheal = amount
+				absorb.overheal = t.amount
 
 				Skada:DispatchSets(log_absorb)
 			end
 
-			shields[dstName][spellid][srcName] = nil -- remove shield
+			shields[dstName][t.spellid][t.srcName] = del(shields[dstName][t.spellid][t.srcName]) -- remove shield
+			if next(shields[dstName][t.spellid]) == nil then
+				shields[dstName][t.spellid] = del(shields[dstName][t.spellid])
+			end
 		end
+
+		if t.__temp then t = del(t) end
 	end
 
-	local function spell_absorbed(_, _, _, _, srcFlags, _, dstName, dstFlags, ...)
-		if band(srcFlags, BITMASK_CONTROL_PLAYER) == 0 or band(srcFlags, dstFlags, BITMASK_REACTION_MASK) == 0 then
+	local function spell_absorbed(t)
+		if band(t.srcFlags, BITMASK_CONTROL_PLAYER) == 0 or band(t.srcFlags, t.dstFlags, BITMASK_REACTION_MASK) == 0 then
 			return
 		end
 
-		local absGUID, absName, absFlags, _, spellid, _, spellschool, amount = ...
-		if type(absGUID) == "number" then
-			_, _, _, absGUID, absName, absFlags, _, spellid, _, spellschool, amount = ...
-		end
+		if t.extraspellid and not ignoredSpells[t.extraspellid] then
+			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.extraGUID, t.extraName, t.extraFlags)
+			absorb.dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
 
-		if not ignoredSpells[spellid] then
-			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(absGUID, absName, absFlags)
-			absorb.dstName = dstName
-
-			absorb.spellid = spellid
-			absorb.school = spellschool
-			absorb.amount = amount
+			absorb.spellid = t.extraspellid
+			absorb.school = t.extraschool
+			absorb.amount = t.absorbed
 			absorb.overheal = 0
 
 			Skada:DispatchSets(log_absorb)
@@ -418,7 +417,16 @@ Skada:RegisterModule("Absorbs", function(L, P)
 				if not spellid then
 					break -- nothing found
 				elseif not ignoredSpells[spellid] and unitCaster and amount then
-					handle_shield(nil, "SPELL_AURA_APPLIED", UnitGUID(unitCaster), UnitName(unitCaster), nil, dstGUID, dstName, nil, spellid, nil, nil, nil, amount)
+					local t = new()
+					t.event = "SPELL_AURA_APPLIED"
+					t.srcGUID = UnitGUID(unitCaster)
+					t.srcName = UnitName(unitCaster)
+					t.dstGUID = dstGUID
+					t.dstName = dstName
+					t.spellid = spellid
+					t.amount = amount
+					t.__temp = true
+					handle_shield(t)
 				end
 			end
 		end
@@ -439,7 +447,16 @@ Skada:RegisterModule("Absorbs", function(L, P)
 				if not spellid then
 					break -- nothing found
 				elseif not ignoredSpells[spellid] and unitCaster and amount then
-					handle_shield(nil, "SPELL_AURA_REMOVED", UnitGUID(unitCaster), UnitName(unitCaster), nil, dstGUID, dstName, nil, spellid, nil, nil, nil, amount)
+					local t = new()
+					t.event = "SPELL_AURA_REMOVED"
+					t.srcGUID = UnitGUID(unitCaster)
+					t.srcName = UnitName(unitCaster)
+					t.dstGUID = dstGUID
+					t.dstName = dstName
+					t.spellid = spellid
+					t.amount = amount
+					t.__temp = true
+					handle_shield(t)
 				end
 			end
 		end
