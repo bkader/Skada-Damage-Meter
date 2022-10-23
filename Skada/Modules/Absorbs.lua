@@ -2,8 +2,10 @@ local _, Skada = ...
 local Private = Skada.Private
 
 -- cache frequently used globals
-local pairs, format, uformat = pairs, string.format, Private.uformat
+local pairs, tostring, format, uformat = pairs, tostring, string.format, Private.uformat
 local new, del = Private.newTable, Private.delTable
+local tooltip_school = Skada.tooltip_school
+local hits_perc = "%s (\124cffffffff%s\124r)"
 
 -- ============== --
 -- Absorbs module --
@@ -11,12 +13,12 @@ local new, del = Private.newTable, Private.delTable
 
 Skada:RegisterModule("Absorbs", function(L, P)
 	local mod = Skada:NewModule("Absorbs")
-	local playermod = mod:NewModule("Absorb spell list")
+	local spellmod = mod:NewModule("Absorb spell list")
 	local targetmod = mod:NewModule("Absorbed target list")
-	local spellmod = targetmod:NewModule("Absorb spell list")
-	local spellschools = Skada.spellschools
-	local ignoredSpells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
-	local passiveSpells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
+	local targetspellmod = targetmod:NewModule("Absorb spell list")
+	tooltip_school = tooltip_school or Skada.tooltip_school
+	local ignored_spells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
+	local passive_spells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
 
 	local COMBATLOG_OBJECT_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER or 0x00000100
 	local COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
@@ -38,31 +40,24 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 	end
 
-	local function log_spellcast(set, actorid, actorname, actorflags, spellid, spellschool)
+	local function log_spellcast(set, actorid, actorname, actorflags, spellid)
 		if not set or (set == Skada.total and not P.totalidc) then return end
 
 		local actor = Skada:FindPlayer(set, actorid, actorname, actorflags)
 		if actor and actor.absorbspells and actor.absorbspells[spellid] then
 			actor.absorbspells[spellid].casts = (actor.absorbspells[spellid].casts or 1) + 1
-
-			-- fix possible missing spell school.
-			if not actor.absorbspells[spellid].school and spellschool then
-				actor.absorbspells[spellid].school = spellschool
-			end
 		end
 	end
 
 	local absorb = {}
 	local function log_absorb(set, nocount)
-		if not absorb.spellid then return end
-
 		local amount = max(0, absorb.amount - absorb.overheal)
 		if amount == 0 then return end
 
 		local actor = Skada:GetPlayer(set, absorb.actorid, absorb.actorname)
 		if not actor then
 			return
-		elseif actor.role ~= "DAMAGER" and not passiveSpells[absorb.spellid] and not nocount then
+		elseif actor.role ~= "DAMAGER" and not passive_spells[absorb.spellid] and not nocount then
 			Skada:AddActiveTime(set, actor, absorb.dstName)
 		end
 
@@ -82,30 +77,29 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local spell = actor.absorbspells and actor.absorbspells[absorb.spellid]
 		if not spell then
 			actor.absorbspells = actor.absorbspells or {}
-			spell = {school = absorb.school, amount = amount, o_amt = absorb.overheal, count = 1}
-			actor.absorbspells[absorb.spellid] = spell
-		else
-			if not spell.school and absorb.school then
-				spell.school = absorb.school
-			end
-			spell.amount = (spell.amount or 0) + amount
-			if not nocount then
-				spell.count = (spell.count or 0) + 1
-			end
+			actor.absorbspells[absorb.spellid] = {amount = 0}
+			spell = actor.absorbspells[absorb.spellid]
+		end
+		spell.amount = spell.amount + amount
 
-			if absorb.overheal then
-				spell.o_amt = (spell.o_amt or 0) + absorb.overheal
-			end
+		if absorb.overheal then
+			spell.o_amt = (spell.o_amt or 0) + absorb.overheal
 		end
 
 		-- start cast counter.
 		spell.casts = spell.casts or 1
 
-		if not spell.min or amount < spell.min then
-			spell.min = amount
-		end
-		if not spell.max or amount > spell.max then
-			spell.max = amount
+		if not nocount then
+			spell.count = (spell.count or 0) + 1
+
+			spell.n_num = (spell.n_num or 0) + 1
+			spell.n_amt = (spell.n_amt or 0) + absorb.amount
+			if not spell.n_max or absorb.amount > spell.n_max then
+				spell.n_max = absorb.amount
+			end
+			if not spell.n_min or absorb.amount < spell.n_min then
+				spell.n_min = absorb.amount
+			end
 		end
 
 		-- record the target
@@ -113,12 +107,13 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local target = spell.targets and spell.targets[absorb.dstName]
 		if not target then
 			spell.targets = spell.targets or {}
-			spell.targets[absorb.dstName] = {amount = amount, o_amt = absorb.overheal}
-		else
-			target.amount = target.amount + amount
-			if absorb.overheal then
-				target.o_amt = (target.o_amt or 0) + amount
-			end
+			spell.targets[absorb.dstName] = {amount = 0}
+			target = spell.targets[absorb.dstName]
+		end
+		target.amount = target.amount + amount
+
+		if absorb.overheal then
+			target.o_amt = (target.o_amt or 0) + amount
 		end
 	end
 
@@ -136,7 +131,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 
 	local shields = {}
 	local function handle_shield(t)
-		if not t.amount or not t.spellid or ignoredSpells[t.spellid] then return end
+		if not t.amount or not t.spellid or ignored_spells[t.spellid] then return end
 
 		local dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
 
@@ -150,6 +145,13 @@ Skada:RegisterModule("Absorbs", function(L, P)
 				shield = shields[dstName][t.spellid]
 			end
 			shield[t.srcName] = t.amount
+
+			-- record spell cast (ignore pre-shields)
+			if not t.__temp then
+				local srcGUID, srcName, srcFlags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
+				Skada:DispatchSets(log_spellcast, srcGUID, srcName, srcFlags, t.spellstring)
+			end
+
 		elseif t.event == "SPELL_AURA_REFRESH" then
 			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
 			if not prev_amount then return end
@@ -157,21 +159,20 @@ Skada:RegisterModule("Absorbs", function(L, P)
 			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
 			absorb.dstName = dstName
 
-			absorb.spellid = t.spellid
-			absorb.school = t.spellschool
+			absorb.spellid = t.spellstring
 			absorb.amount = 0
 			absorb.overheal = prev_amount
 
 			Skada:DispatchSets(log_absorb)
 			shields[dstName][t.spellid][t.srcName] = t.amount -- refresh amount
+
 		else
 			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
 			if prev_amount then
 				absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
 				absorb.dstName = dstName
 
-				absorb.spellid = t.spellid
-				absorb.school = t.spellschool
+				absorb.spellid = t.spellstring
 				absorb.amount = 0
 				absorb.overheal = t.amount
 
@@ -192,12 +193,11 @@ Skada:RegisterModule("Absorbs", function(L, P)
 			return
 		end
 
-		if t.extraspellid and not ignoredSpells[t.extraspellid] then
+		if t.extraspellid and not ignored_spells[t.extraspellid] then
 			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.extraGUID, t.extraName, t.extraFlags)
 			absorb.dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
 
-			absorb.spellid = t.extraspellid
-			absorb.school = t.extraschool
+			absorb.spellid = t.extrastring
 			absorb.amount = t.absorbed
 			absorb.overheal = 0
 
@@ -223,63 +223,50 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		tooltip:AddDoubleLine(Skada:FormatNumber(damage) .. "/" .. suffix, Skada:FormatNumber(aps), 1, 1, 1)
 	end
 
-	local function playermod_tooltip(win, id, label, tooltip)
+	local function spellmod_tooltip(win, id, label, tooltip)
 		local set = win:GetSelectedSet()
 		if not set then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		if not actor or enemy then return end -- unavailable for enemies yet
-
-		local spell = actor.absorbspells and actor.absorbspells[id]
+		local actor = set:GetActor(win.actorname, win.actorid)
+		local spell = actor and actor.absorbspells and actor.absorbspells[id]
 		if not spell then return end
 
 		tooltip:AddLine(actor.name .. " - " .. label)
-		if spell.school and spellschools[spell.school] then
-			tooltip:AddLine(spellschools(spell.school))
-		end
+		tooltip_school(tooltip, id)
 
 		if spell.casts and spell.casts > 0 then
 			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
 		end
 
-		local average = nil
-		if spell.count and spell.count > 0 then
-			tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)
-			average = spell.amount / spell.count
+		if not spell.count or spell.count == 0 then return end
+
+		-- hits and average
+		tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)
+		tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.amount / spell.count), 1, 1, 1)
+		if spell.o_amt and spell.o_amt > 0 then
+			tooltip:AddDoubleLine(L["Overheal"], format(hits_perc, Skada:FormatNumber(spell.o_amt), Skada:FormatPercent(spell.o_amt, spell.amount + spell.o_amt)), 1, 0.67, 0.67)
 		end
 
-		local separator = nil
-
-		if spell.min then
+		-- normal hits
+		if spell.n_num then
 			tooltip:AddLine(" ")
-			separator = true
-			tooltip:AddDoubleLine(L["Minimum"], Skada:FormatNumber(spell.min), 1, 1, 1)
-		end
-
-		if spell.max then
-			if not separator then
-				tooltip:AddLine(" ")
-				separator = true
+			tooltip:AddDoubleLine(L["Normal Hits"], format(hits_perc, Skada:FormatNumber(spell.n_num), Skada:FormatPercent(spell.n_num, spell.count)))
+			if spell.n_min then
+				tooltip:AddDoubleLine(L["Minimum"], Skada:FormatNumber(spell.n_min), 1, 1, 1)
 			end
-			tooltip:AddDoubleLine(L["Maximum"], Skada:FormatNumber(spell.max), 1, 1, 1)
-		end
-
-		if average then
-			if not separator then
-				tooltip:AddLine(" ")
-				separator = true
+			if spell.n_max then
+				tooltip:AddDoubleLine(L["Maximum"], Skada:FormatNumber(spell.n_max), 1, 1, 1)
 			end
-
-			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(average), 1, 1, 1)
+			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.n_amt / spell.n_num), 1, 1, 1)
 		end
 	end
 
-	function spellmod:Enter(win, id, label)
+	function targetspellmod:Enter(win, id, label)
 		win.targetid, win.targetname = id, label
 		win.title = L["actor absorb spells"](win.actorname or L["Unknown"], label)
 	end
 
-	function spellmod:Update(win, set)
+	function targetspellmod:Update(win, set)
 		win.title = L["actor absorb spells"](win.actorname or L["Unknown"], win.targetname or L["Unknown"])
 		if not set or not win.targetname then return end
 
@@ -309,12 +296,12 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		end
 	end
 
-	function playermod:Enter(win, id, label)
+	function spellmod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
 		win.title = L["actor absorb spells"](label)
 	end
 
-	function playermod:Update(win, set)
+	function spellmod:Update(win, set)
 		win.title = L["actor absorb spells"](win.actorname or L["Unknown"])
 		if not set or not win.actorname then return end
 
@@ -416,7 +403,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 				local _, _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, amount = UnitBuff(unit, i)
 				if not spellid then
 					break -- nothing found
-				elseif not ignoredSpells[spellid] and unitCaster and amount then
+				elseif not ignored_spells[spellid] and unitCaster and amount then
 					local t = new()
 					t.event = "SPELL_AURA_APPLIED"
 					t.srcGUID = UnitGUID(unitCaster)
@@ -446,7 +433,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 				local _, _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, amount = UnitBuff(unit, i)
 				if not spellid then
 					break -- nothing found
-				elseif not ignoredSpells[spellid] and unitCaster and amount then
+				elseif not ignored_spells[spellid] and unitCaster and amount then
 					local t = new()
 					t.event = "SPELL_AURA_REMOVED"
 					t.srcGUID = UnitGUID(unitCaster)
@@ -479,12 +466,12 @@ Skada:RegisterModule("Absorbs", function(L, P)
 	end
 
 	function mod:OnEnable()
-		playermod.metadata = {tooltip = playermod_tooltip}
-		targetmod.metadata = {showspots = true, click1 = spellmod}
+		spellmod.metadata = {tooltip = spellmod_tooltip}
+		targetmod.metadata = {showspots = true, click1 = targetspellmod}
 		self.metadata = {
 			showspots = true,
 			post_tooltip = absorb_tooltip,
-			click1 = playermod,
+			click1 = spellmod,
 			click2 = targetmod,
 			click4 = Skada.FilterClass,
 			click4_label = L["Toggle Class Filter"],
@@ -495,7 +482,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		mod_cols = self.metadata.columns
 
 		-- no total click.
-		playermod.nototal = true
+		spellmod.nototal = true
 		targetmod.nototal = true
 
 		local flags_src = {src_is_interesting = true}
@@ -519,13 +506,13 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		Skada:AddMode(self, L["Absorbs and Healing"])
 
 		-- table of ignored spells:
-		if Skada.ignoredSpells then
-			if Skada.ignoredSpells.absorbs then
-				ignoredSpells = setmetatable(ignoredSpells, {__index = Skada.ignoredSpells.absorbs})
-				ignoredSpells = Skada.ignoredSpells.absorbs
+		if Skada.ignored_spells then
+			if Skada.ignored_spells.absorbs then
+				ignored_spells = setmetatable(ignored_spells, {__index = Skada.ignored_spells.absorbs})
+				ignored_spells = Skada.ignored_spells.absorbs
 			end
-			if Skada.ignoredSpells.activeTime then
-				passiveSpells = Skada.ignoredSpells.activeTime
+			if Skada.ignored_spells.activeTime then
+				passive_spells = Skada.ignored_spells.activeTime
 			end
 		end
 	end
@@ -557,10 +544,10 @@ end)
 
 Skada:RegisterModule("Absorbs and Healing", function(L, P)
 	local mod = Skada:NewModule("Absorbs and Healing")
-	local playermod = mod:NewModule("Absorbs and healing spells")
+	local spellmod = mod:NewModule("Absorbs and healing spells")
 	local targetmod = mod:NewModule("Absorbed and healed targets")
-	local spellmod = targetmod:NewModule("Absorbs and healing spells")
-	local spellschools = Skada.spellschools
+	local targetspellmod = targetmod:NewModule("Absorbs and healing spells")
+	tooltip_school = tooltip_school or Skada.tooltip_school
 	local mod_cols = nil
 
 	local function format_valuetext(d, columns, total, hps, metadata, subview)
@@ -595,88 +582,65 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		tooltip:AddDoubleLine(Skada:FormatNumber(amount) .. "/" .. suffix, Skada:FormatNumber(hps), 1, 1, 1)
 	end
 
-	local function playermod_tooltip(win, id, label, tooltip)
+	local function spellmod_tooltip(win, id, label, tooltip)
 		local set = win:GetSelectedSet()
-		if not set or not win.actorname then return end
+		if not set then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
+		local actor = set:GetActor(win.actorname, win.actorid)
 		if not actor then return end
 
-		local spell = actor.absorbspells and actor.absorbspells[id] -- absorb?
-		spell = spell or actor.healspells and actor.healspells[id] -- heal?
+		local spell = actor.healspells and actor.healspells[id] or actor.absorbspells and actor.absorbspells[id]
 		if not spell then return end
 
 		tooltip:AddLine(actor.name .. " - " .. label)
-		if spell.school and spellschools[spell.school] then
-			tooltip:AddLine(spellschools(spell.school))
-		end
+		tooltip_school(tooltip, id)
 
-		if enemy then
-			tooltip:AddDoubleLine(L["Amount"], spell.amount, 1, 1, 1)
-			return
-		end
-
-		if spell.casts then
+		if spell.casts and spell.casts > 0 then
 			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
 		end
 
-		local average = nil
-		if spell.count and spell.count > 0 then
-			tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)
-			average = spell.amount / spell.count
+		if not spell.count or spell.count == 0 then return end
 
-			if spell.c_num and spell.c_num > 0 then
-				tooltip:AddDoubleLine(L["Critical"], Skada:FormatPercent(spell.c_num, spell.count), 0.67, 1, 0.67)
-			end
-		end
-
+		-- hits and average
+		tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)
+		tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.amount / spell.count), 1, 1, 1)
 		if spell.o_amt and spell.o_amt > 0 then
-			tooltip:AddDoubleLine(L["Total Healing"], Skada:FormatNumber(spell.o_amt + spell.amount), 1, 1, 1)
-			tooltip:AddDoubleLine(L["Overheal"], format("%s (%s)", Skada:FormatNumber(spell.o_amt), Skada:FormatPercent(spell.o_amt, spell.o_amt + spell.amount)), 1, 0.67, 0.67)
+			tooltip:AddDoubleLine(L["Overheal"], format(hits_perc, Skada:FormatNumber(spell.o_amt), Skada:FormatPercent(spell.o_amt, spell.amount + spell.o_amt)), 1, 0.67, 0.67)
 		end
 
-		local separator = nil
-
-		if spell.min then
+		-- normal hits
+		if spell.n_num then
 			tooltip:AddLine(" ")
-			separator = true
-
-			local spellmin = spell.min
-			if spell.c_min and spell.c_min < spellmin then
-				spellmin = spell.c_min
+			tooltip:AddDoubleLine(L["Normal Hits"], format(hits_perc, Skada:FormatNumber(spell.n_num), Skada:FormatPercent(spell.n_num, spell.count)))
+			if spell.n_min then
+				tooltip:AddDoubleLine(L["Minimum"], Skada:FormatNumber(spell.n_min), 1, 1, 1)
 			end
-			tooltip:AddDoubleLine(L["Minimum"], Skada:FormatNumber(spellmin), 1, 1, 1)
+			if spell.n_max then
+				tooltip:AddDoubleLine(L["Maximum"], Skada:FormatNumber(spell.n_max), 1, 1, 1)
+			end
+			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.n_amt / spell.n_num), 1, 1, 1)
 		end
 
-		if spell.max then
-			if not separator then
-				tooltip:AddLine(" ")
-				separator = true
+		-- critical hits
+		if spell.c_num then
+			tooltip:AddLine(" ")
+			tooltip:AddDoubleLine(L["Critical Hits"], format(hits_perc, Skada:FormatNumber(spell.c_num), Skada:FormatPercent(spell.c_num, spell.count)))
+			if spell.c_min then
+				tooltip:AddDoubleLine(L["Minimum"], Skada:FormatNumber(spell.c_min), 1, 1, 1)
 			end
-
-			local spellmax = spell.max
-			if spell.c_max and spell.c_max > spellmax then
-				spellmax = spell.c_max
+			if spell.c_max then
+				tooltip:AddDoubleLine(L["Maximum"], Skada:FormatNumber(spell.c_max), 1, 1, 1)
 			end
-			tooltip:AddDoubleLine(L["Maximum"], Skada:FormatNumber(spellmax), 1, 1, 1)
-		end
-
-		if average then
-			if not separator then
-				tooltip:AddLine(" ")
-				separator = true
-			end
-
-			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(average), 1, 1, 1)
+			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.c_amt / spell.c_num), 1, 1, 1)
 		end
 	end
 
-	function spellmod:Enter(win, id, label)
+	function targetspellmod:Enter(win, id, label)
 		win.targetid, win.targetname = id, label
 		win.title = L["actor absorb and heal spells"](win.actorname or L["Unknown"], label)
 	end
 
-	function spellmod:Update(win, set)
+	function targetspellmod:Update(win, set)
 		win.title = L["actor absorb and heal spells"](win.actorname or L["Unknown"], win.targetname or L["Unknown"])
 		if not set or not win.targetname then return end
 
@@ -722,12 +686,12 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		end
 	end
 
-	function playermod:Enter(win, id, label)
+	function spellmod:Enter(win, id, label)
 		win.actorid, win.actorname = id, label
 		win.title = L["actor absorb and heal spells"](label)
 	end
 
-	function playermod:Update(win, set)
+	function spellmod:Update(win, set)
 		win.title = L["actor absorb and heal spells"](win.actorname or L["Unknown"])
 		if not win.actorname then return end
 
@@ -864,11 +828,11 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 	end
 
 	function mod:OnEnable()
-		playermod.metadata = {tooltip = playermod_tooltip}
-		targetmod.metadata = {showspots = true, click1 = spellmod}
+		spellmod.metadata = {tooltip = spellmod_tooltip}
+		targetmod.metadata = {showspots = true, click1 = targetspellmod}
 		self.metadata = {
 			showspots = true,
-			click1 = playermod,
+			click1 = spellmod,
 			click2 = targetmod,
 			click4 = Skada.FilterClass,
 			click4_label = L["Toggle Class Filter"],
@@ -880,7 +844,7 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		mod_cols = self.metadata.columns
 
 		-- no total click.
-		playermod.nototal = true
+		spellmod.nototal = true
 		targetmod.nototal = true
 
 		Skada:AddFeed(L["Healing: Personal HPS"], feed_personal_hps)
@@ -1001,8 +965,7 @@ end, "Absorbs", "Healing", "Absorbs and Healing")
 
 Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 	local mod = Skada:NewModule("Healing Done By Spell")
-	local spellmod = mod:NewModule("Healing spell sources")
-	local spellschools = Skada.spellschools
+	local sourcemod = mod:NewModule("Healing spell sources")
 	local GetSpellInfo = Private.spell_info or GetSpellInfo
 	local clear = Private.clearTable
 	local get_absorb_heal_spells = nil
@@ -1020,7 +983,7 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 		end
 	end
 
-	local function player_tooltip(win, id, label, tooltip)
+	local function sourcemod_tooltip(win, id, label, tooltip)
 		local set = win.spellname and win:GetSelectedSet()
 		local player = set and set:GetActor(label, id)
 		if not player then return end
@@ -1055,62 +1018,12 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 		end
 	end
 
-	local function spell_tooltip(win, id, label, tooltip)
-		local set = win:GetSelectedSet()
-		local total = set and set:GetAbsorbHeal()
-		if not total or total == 0 then return end
-
-		clear(C)
-		for i = 1, #set.actors do
-			local actor = set.actors[i]
-			if actor and not actor.enemy and (actor.absorbspells or actor.healspells) then
-				local spell = actor.absorbspells and actor.absorbspells[id] or actor.healspells and actor.healspells[id]
-				if spell and spell.amount then
-					local t = C[id]
-					if not t then
-						t = new()
-						t.school = spell.school
-						t.amount = spell.amount
-						t.o_amt = spell.o_amt
-						t.isabsorb = (actor.absorbspells and actor.absorbspells[id])
-						C[id] = t
-					else
-						t.amount = t.amount + spell.amount
-						if spell.o_amt then
-							t.o_amt = (t.o_amt or 0) + spell.o_amt
-						end
-					end
-				end
-			end
-		end
-
-		local spell = C[id]
-		if not spell then return end
-
-		tooltip:AddLine((GetSpellInfo(id)))
-		if spell.school and spellschools[spell.school] then
-			tooltip:AddLine(spellschools(spell.school))
-		end
-
-		if spell.casts and spell.casts > 0 then
-			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
-		end
-
-		if spell.count and spell.count > 0 then
-			tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)
-		end
-		tooltip:AddDoubleLine(spell.isabsorb and L["Absorbs"] or L["Healing"], format("%s (%s)", Skada:FormatNumber(spell.amount), Skada:FormatPercent(spell.amount, total)), 1, 1, 1)
-		if set.overheal and spell.o_amt and spell.o_amt > 0 then
-			tooltip:AddDoubleLine(L["Overheal"], format("%s (%s)", Skada:FormatNumber(spell.o_amt), Skada:FormatPercent(spell.o_amt, set.overheal)), 1, 1, 1)
-		end
-	end
-
-	function spellmod:Enter(win, id, label)
+	function sourcemod:Enter(win, id, label)
 		win.spellid, win.spellname = id, label
 		win.title = uformat(L["%s's sources"], label)
 	end
 
-	function spellmod:Update(win, set)
+	function sourcemod:Update(win, set)
 		win.title = uformat(L["%s's sources"], win.spellname)
 		if not (win.spellid and set) then return end
 
@@ -1183,10 +1096,9 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 	end
 
 	function mod:OnEnable()
-		spellmod.metadata = {showspots = true, tooltip = player_tooltip}
+		sourcemod.metadata = {showspots = true, tooltip = sourcemod_tooltip}
 		self.metadata = {
-			click1 = spellmod,
-			post_tooltip = spell_tooltip,
+			click1 = sourcemod,
 			columns = {Healing = true, HPS = false, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_nature_healingwavelesser]]
 		}
@@ -1207,7 +1119,6 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 		if not spell then
 			spell = new()
 			-- common
-			spell.school = info.school
 			spell.amount = info.amount
 
 			-- for heals

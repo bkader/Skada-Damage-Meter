@@ -690,9 +690,7 @@ if not L then return end
 -- L["Healthstones"] = ""
 -- resurrect module lines --
 -- L["Resurrects"] = ""
--- L["Resurrect spell list"] = ""
 -- L["Resurrect target list"] = ""
--- L["%s's resurrect spells"] = ""
 -- L["%s's resurrect targets"] = ""
 -- nickname module lines --
 -- L["Nickname"] = ""

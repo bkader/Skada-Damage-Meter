@@ -283,12 +283,7 @@ Skada:RegisterModule("Deaths", function(L, P, _, _, M)
 		end
 	end
 
-	local ress_spells = {
-		[20484] = true, -- Rebirth
-		[20608] = true, -- Reincarnation
-		[3026] = true -- Use Soulstone
-	}
-
+	local ress_spells = Skada.ress_spells
 	local function spell_resurrect(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellid)
 		if spellid and (event == "SPELL_RESURRECT" or ress_spells[spellid]) then
 			data.spellid = spellid
@@ -854,9 +849,9 @@ Skada:RegisterModule("Deaths", function(L, P, _, _, M)
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
 		Skada:AddMode(self)
 
-		if Skada.ignoredSpells then
-			-- ignored_buffs = Skada.ignoredSpells.buffs or ignored_buffs
-			ignored_debuffs = Skada.ignoredSpells.debuffs or ignored_debuffs
+		if Skada.ignored_spells then
+			-- ignored_buffs = Skada.ignored_spells.buffs or ignored_buffs
+			ignored_debuffs = Skada.ignored_spells.debuffs or ignored_debuffs
 		end
 	end
 
