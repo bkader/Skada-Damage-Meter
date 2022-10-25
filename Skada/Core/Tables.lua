@@ -2,6 +2,7 @@
 -- Contains all tables used by different files and modules.
 local folder, ns = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(folder)
+local setmetatable = setmetatable
 
 -------------------------------------------------------------------------------
 -- table we need.
@@ -48,7 +49,7 @@ ignored_spells.absorbs = {
 	[114556] = true, -- Purgatory (Death Knight)
 	[115069] = true, -- Stagger (Monk)
 	[142862] = true, -- Ancient Barrier (Malkorok)
-	[184553]  = true -- Spirit Shift
+	[184553]  = true, -- Spirit Shift
 }
 
 -- [[ buffs module ]] --
@@ -272,12 +273,110 @@ ns.missTypes = {
 	MISS = "mis_n",
 	PARRY = "par_n",
 	REFLECT = "ref_n",
-	RESIST = "res_n"
+	RESIST = "res_n",
 }
 
 -- resurrect spells
 ns.ress_spells = {
+	[3026] = 0x01, -- Use Soulstone
 	[20484] = 0x08, -- Rebirth
 	[20608] = 0x08, -- Reincarnation
-	[3026] = 0x01 -- Use Soulstone
 }
+
+-- list of crowd control spells
+ns.cc_spells = {
+	[118] = 0x40, -- Polymorph
+	[339] = 0x08, -- Entangling Roots
+	[676] = 0x01, -- Disarm
+	[710] = 0x20, -- Banish
+	[2637] = 0x08, -- Hibernate
+	[3355] = 0x10, -- Freezing Trap Effect
+	[6358] = 0x20, -- Seduction (Succubus)
+	[6770] = 0x01, -- Sap
+	[9484] = 0x02, -- Shackle Undead
+	[20066] = 0x02, -- Repentance
+	[28271] = 0x40, -- Polymorph: Turtle
+	[28272] = 0x40, -- Polymorph: Pig
+	[33786] = 0x08, -- Cyclone
+	[45524] = 0x10, -- Chains of Ice
+	[51722] = 0x01, -- Dismantle
+	[52719] = 0x01, -- Concussion Blow
+}
+
+-- extended list of crowd control spells
+ns.extra_cc_spells = setmetatable({
+	-- Death Knight
+	[47476] = 0x20, -- Strangulate
+	[47481] = 0x01, -- Gnaw
+	[49560] = 0x01, -- Death Grip
+	[79092] = 0x10, -- Hungering Cold
+	-- Druid
+	[339] = 0x08, -- Entangling Roots
+	[16979] = 0x01, -- Feral Charge - Bear
+	[19975] = 0x08, -- Entangling Roots (Nature's Grasp)
+	[22570] = 0x01, -- Maim
+	[45334] = 0x01, -- Feral Charge Effect
+	[66070] = 0x08, -- Entangling Roots (Force of Nature)
+	-- Hunter
+	[1513] = 0x08, -- Scare Beast
+	[4167] = 0x01, -- Web (Spider)
+	[5116] = 0x01, -- Concussive Shot
+	[19386] = 0x08, -- Wyvern Sting
+	[19503] = 0x01, -- Scatter Shot
+	[19577] = 0x08, -- Intimidation (stun)
+	[24394] = 0x01, -- Intimidation
+	[26090] = 0x08, -- Pummel (Gorilla)
+	[50541] = 0x01, -- Clench (Scorpid)
+	[64803] = 0x01, -- Entrapment
+	-- Mage
+	[122] = 0x10, -- Frost Nova
+	[31661] = 0x04, -- Dragon's Breath
+	[33395] = 0x10, -- Freeze (Frost Water Elemental)
+	[44572] = 0x10, -- Deep Freeze
+	[55021] = 0x40, -- Silenced - Improved Counterspell
+	[61305] = 0x40, -- Polymorph Cat
+	[61721] = 0x40, -- Polymorph Rabbit
+	[61780] = 0x40, -- Polymorph Turkey
+	-- Paladin
+	[853] = 0x02, -- Hammer of Justice
+	[2812] = 0x02, -- Holy Wrath
+	[10326] = 0x02, -- Turn Evil
+	[31935] = 0x02, -- Avengers Shield
+	-- Priest
+	[605] = 0x20, -- Dominate Mind (Mind Control)
+	[8122] = 0x20, -- Psychic Scream
+	[15487] = 0x20, -- Silence
+	[64044] = 0x20, -- Psychic Horror
+	-- Rogue
+	[408] = 0x01, -- Kidney Shot
+	[1330] = 0x01, -- Garrote - Silence
+	[1776] = 0x01, -- Gouge
+	[1833] = 0x01, -- Cheap Shot
+	[2094] = 0x01, -- Blind
+	-- Shaman
+	[3600] = 0x08, -- Earthbind (Earthbind Totem)
+	[8034] = 0x10, -- Frostbrand Weapon
+	[8056] = 0x10, -- Frost Shock
+	[51514] = 0x08, -- Hex
+	[64695] = 0x08, -- Earthgrab (Earthbind Totem with Storm, Earth and Fire talent)
+	-- Warlock
+	[5484] = 0x20, -- Howl of Terror
+	[6789] = 0x20, -- Death Coil
+	[22703] = 0x04, -- Infernal Awakening
+	[24259] = 0x20, -- Spell Lock
+	[30283] = 0x20, -- Shadowfury
+	-- Warrior
+	[5246] = 0x01, -- Initmidating Shout
+	[6552] = 0x01, -- Pummel
+	[7922] = 0x01, -- Charge
+	[12323] = 0x01, -- Piercing Howl
+	[46968] = 0x01, -- Shockwave
+	[58357] = 0x01, -- Heroic Throw silence
+	-- Racials
+	[20549] = 0x01, -- War Stomp (Tauren)
+	[28730] = 0x40, -- Arcane Torrent (Bloodelf)
+	[47779] = 0x40, -- Arcane Torrent (Bloodelf)
+	[50613] = 0x40, -- Arcane Torrent (Bloodelf)
+	-- Engineering
+	[67890] = 0x04, -- Cobalt Frag Bomb
+}, {__index = ns.cc_spells})
