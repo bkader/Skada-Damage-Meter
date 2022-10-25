@@ -39,6 +39,29 @@ do
 end
 
 -------------------------------------------------------------------------------
+-- game version
+
+do
+	local _, _, _, WowBuild = GetBuildInfo()
+
+	local function IsTimewalk()
+		return (WowBuild < 40000)
+	end
+
+	local function IsWotLK()
+		return (WowBuild >= 30000 and WowBuild < 40000)
+	end
+
+	local function IsDragonflight()
+		return (WowBuild >= 100000)
+	end
+
+	Private.IsTimewalk = IsTimewalk
+	Private.IsWotLK = IsWotLK
+	Private.IsDragonflight = IsDragonflight
+end
+
+-------------------------------------------------------------------------------
 -- flags/bitmasks
 
 do
@@ -133,7 +156,7 @@ function Private.register_classes()
 	local classcolors, validclass = {}, {}
 	for class, info in pairs(CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS) do
 		classcolors[class] = {r = info.r, g = info.g, b = info.b, colorStr = info.colorStr}
-		classcolors[class].colorStr = classcolors[class].colorStr or Private.RGBPercToHex(info.r, info.g, info.b, true)
+		classcolors[class].colorStr = info.colorStr or Private.RGBPercToHex(info.r, info.g, info.b, true)
 		L[class] = LOCALIZED_CLASS_NAMES_MALE[class]
 		validclass[class] = true
 	end
@@ -208,6 +231,7 @@ function Private.register_classes()
 		SHAMAN = {64/512, 128/512, 64/512, 128/512},
 		WARLOCK = {192/512, 256/512, 64/512, 128/512},
 		WARRIOR = {0/512, 64/512, 0/512, 64/512},
+		EVOKER = {256/512, 320/512, 0/512, 64/512},
 		-- custom classes
 		BOSS = {320/512, 384/512, 0/512, 64/512},
 		ENEMY = {448/512, 512/512, 0/512, 64/512},
@@ -270,8 +294,16 @@ function Private.register_classes()
 		[269] = {64/512, 128/512, 448/512, 512/512}, --> Monk: Windwalker
 		[270] = {0/512, 64/512, 448/512, 512/512}, --> Monk: Mistweaver
 		[577] = {128/512, 192/512, 448/512, 512/512}, --> Demon Hunter: Havoc
-		[581] = {192/512, 256/512, 448/512, 512/512} --> Demon Hunter: Vengeance
+		[581] = {192/512, 256/512, 448/512, 512/512}, --> Demon Hunter: Vengeance
+		[1467] = {256/512, 320/512, 448/512, 512/512}, --> Evoker: Devastation
+		[1468] = {320/512, 384/512, 448/512, 512/512} --> Evoker: Preservation
 	}, speccoords_mt)
+
+	-- change few icons for classic
+	if Private.IsWotLK() then
+		ns.speccoords[259] = {320/512, 384/512, 128/512, 192/512} --> Rogue: Assassination
+		ns.speccoords[260] = {384/512, 448/512, 128/512, 192/512} --> Rogue: Combat
+	end
 
 	--------------------------
 	-- custom class options --
@@ -1161,6 +1193,17 @@ do
 		[56160] = [[Interface\ICONS\inv_glyph_majorpriest]], --> Glyph of Power Word: Shield
 		[61607] = [[Interface\ICONS\ability_hunter_rapidkilling]] --> Mark of Blood
 	}
+
+	if Private.IsWotLK() then
+		customIcons[20758] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[20759] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[20760] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[20761] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[27240] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[47882] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[54968] = [[Interface\ICONS\inv_glyph_majorpaladin]] --> Glyph of Holy Light
+		customIcons[57842] = [[Interface\ICONS\ability_warrior_focusedrage]] --> Killing Spree
+	end
 
 	function Private.spell_info(spellid)
 		if spellid then

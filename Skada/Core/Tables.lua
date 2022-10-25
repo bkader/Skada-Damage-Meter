@@ -380,3 +380,170 @@ ns.extra_cc_spells = setmetatable({
 	-- Engineering
 	[67890] = 0x04, -- Cobalt Frag Bomb
 }, {__index = ns.cc_spells})
+
+-------------------------------------------------------------------------------
+-- classic wrath stuff (leave at the bottom please)
+
+local Private = ns.Private
+if not Private.IsWotLK() then return end
+
+-- [[ first hit ignored spells ]] --
+
+ignored_spells.firsthit[14323] = true -- Hunter's Mark (rank 2)
+ignored_spells.firsthit[14324] = true -- Hunter's Mark (rank 3)
+ignored_spells.firsthit[14325] = true -- Hunter's Mark (rank 4)
+ignored_spells.firsthit[53338] = true -- Hunter's Mark (rank 5)
+
+-- [[ no active time spells ]] --
+
+-- Retribution Aura
+ignored_spells.activeTime[7294] = true -- Rank 1
+ignored_spells.activeTime[10298] = true -- Rank 2
+ignored_spells.activeTime[10299] = true -- Rank 3
+ignored_spells.activeTime[10300] = true -- Rank 4
+ignored_spells.activeTime[10301] = true -- Rank 5
+ignored_spells.activeTime[27150] = true -- Rank 6
+ignored_spells.activeTime[54043] = true -- Rank 7
+-- Molten Armor
+ignored_spells.activeTime[34913] = true -- Rank 1
+ignored_spells.activeTime[43043] = true -- Rank 2
+ignored_spells.activeTime[43044] = true -- Rank 3
+-- Lightning Shield
+ignored_spells.activeTime[26365] = true -- Rank 2
+ignored_spells.activeTime[26366] = true -- Rank 3
+ignored_spells.activeTime[26367] = true -- Rank 5
+ignored_spells.activeTime[26370] = true -- Rank 6
+ignored_spells.activeTime[26363] = true -- Rank 7
+ignored_spells.activeTime[26371] = true -- Rank 8
+ignored_spells.activeTime[26372] = true -- Rank 9
+ignored_spells.activeTime[49278] = true -- Rank 10
+ignored_spells.activeTime[49279] = true -- Rank 11
+-- Fire Shield
+ignored_spells.activeTime[2947] = true -- Rank 1
+ignored_spells.activeTime[8316] = true -- Rank 2
+ignored_spells.activeTime[8317] = true -- Rank 3
+ignored_spells.activeTime[11770] = true -- Rank 4
+ignored_spells.activeTime[11771] = true -- Rank 5
+ignored_spells.activeTime[27269] = true -- Rank 6
+ignored_spells.activeTime[47983] = true -- Rank 7
+
+-- [[ resurrect spells ]] --
+
+-- Rebirth
+ns.ress_spells[20739] = 0x08
+ns.ress_spells[20742] = 0x08
+ns.ress_spells[20747] = 0x08
+ns.ress_spells[20748] = 0x08
+ns.ress_spells[26994] = 0x08
+ns.ress_spells[48477] = 0x08
+-- Reincarnation
+ns.ress_spells[16184] = 0x08
+ns.ress_spells[16209] = 0x08
+ns.ress_spells[21169] = 0x08
+-- Use Soulstone
+ns.ress_spells[20758] = 0x01
+ns.ress_spells[20759] = 0x01
+ns.ress_spells[20760] = 0x01
+ns.ress_spells[20761] = 0x01
+ns.ress_spells[27240] = 0x01
+ns.ress_spells[47882] = 0x01
+
+-- [[ list of crowd control spells ]] --
+
+ns.cc_spells[9485] = 0x02 -- Shackle Undead (rank 2)
+ns.cc_spells[2070] = 0x01 -- Sap (rank 2)
+ns.cc_spells[10955] = 0x02 -- Shackle Undead (rank 3)
+ns.cc_spells[11297] = 0x01 -- Sap (rank 3)
+ns.cc_spells[12809] = 0x01 -- Concussion Blow
+ns.cc_spells[12824] = 0x40 -- Polymorph (rank 2)
+ns.cc_spells[12825] = 0x40 -- Polymorph (rank 3)
+ns.cc_spells[12826] = 0x40 -- Polymorph (rank 4)
+ns.cc_spells[14308] = 0x10 -- Freezing Trap Effect (rank 2)
+ns.cc_spells[14309] = 0x10 -- Freezing Trap Effect (rank 3)
+ns.cc_spells[18647] = 0x20 -- Banish (Rank 2)
+ns.cc_spells[18657] = 0x08 -- Hibernate (rank 2)
+ns.cc_spells[18658] = 0x08 -- Hibernate (rank 3)
+ns.cc_spells[53308] = 0x08 -- Entangling Roots
+ns.cc_spells[60210] = 0x10 -- Freezing Arrow (rank 1)
+
+-- [[ extended list of crowd control spells ]] --
+
+-- Death Knight
+ns.extra_cc_spells[49203] = 0x10 -- Hungering Cold
+-- Druid
+ns.extra_cc_spells[1062] = 0x08 -- Entangling Roots (rank 2)
+ns.extra_cc_spells[5195] = 0x08 -- Entangling Roots (rank 3)
+ns.extra_cc_spells[5196] = 0x08 -- Entangling Roots (rank 4)
+ns.extra_cc_spells[8983] = 0x01 -- Bash
+ns.extra_cc_spells[9852] = 0x08 -- Entangling Roots (rank 5)
+ns.extra_cc_spells[9853] = 0x08 -- Entangling Roots (rank 6)
+ns.extra_cc_spells[19970] = 0x08 -- Entangling Roots (Nature's Grasp rank 6)
+ns.extra_cc_spells[19971] = 0x08 -- Entangling Roots (Nature's Grasp rank 5)
+ns.extra_cc_spells[19972] = 0x08 -- Entangling Roots (Nature's Grasp rank 4)
+ns.extra_cc_spells[19973] = 0x08 -- Entangling Roots (Nature's Grasp rank 3)
+ns.extra_cc_spells[19974] = 0x08 -- Entangling Roots (Nature's Grasp rank 2)
+ns.extra_cc_spells[26989] = 0x08 -- Entangling Roots (rank 7)
+ns.extra_cc_spells[27010] = 0x08 -- Entangling Roots (Nature's Grasp rank 7)
+ns.extra_cc_spells[49802] = 0x01 -- Maim (rank 2)
+ns.extra_cc_spells[49803] = 0x01 -- Pounce
+ns.extra_cc_spells[53313] = 0x08 -- Entangling Roots (Nature's Grasp)
+-- Hunter
+ns.extra_cc_spells[24132] = 0x08 -- Wyvern Sting (rank 2)
+ns.extra_cc_spells[24133] = 0x08 -- Wyvern Sting (rank 3)
+ns.extra_cc_spells[27068] = 0x08 -- Wyvern Sting (rank 4)
+ns.extra_cc_spells[49011] = 0x08 -- Wyvern Sting (rank 5)
+ns.extra_cc_spells[49012] = 0x08 -- Wyvern Sting (rank 6)
+ns.extra_cc_spells[53543] = 0x01 -- Snatch (Bird of Prey)
+ns.extra_cc_spells[53548] = 0x01 -- Pin (Crab)
+ns.extra_cc_spells[53562] = 0x01 -- Ravage (Ravager)
+ns.extra_cc_spells[53568] = 0x08 -- Sonic Blast (Bat)
+ns.extra_cc_spells[53575] = 0x01 -- Tendon Rip (Hyena)
+ns.extra_cc_spells[53589] = 0x20 -- Nether Shock (Nether Ray)
+ns.extra_cc_spells[55492] = 0x10 -- Froststorm Breath (Chimaera)
+ns.extra_cc_spells[55509] = 0x08 -- Venom Web Spray (Silithid)
+-- Mage
+ns.extra_cc_spells[865] = 0x10 -- Frost Nova (rank 2)
+ns.extra_cc_spells[6131] = 0x10 -- Frost Nova (rank 3)
+ns.extra_cc_spells[10230] = 0x10 -- Frost Nova (rank 4)
+ns.extra_cc_spells[27088] = 0x10 -- Frost Nova (rank 5)
+ns.extra_cc_spells[42917] = 0x10 -- Frost Nova (rank 6)
+-- Paladin
+ns.extra_cc_spells[5588] = 0x02 -- Hammer of Justice (rank 2)
+ns.extra_cc_spells[5589] = 0x02 -- Hammer of Justice (rank 3)
+ns.extra_cc_spells[10308] = 0x02 -- Hammer of Justice (rank 4)
+ns.extra_cc_spells[10318] = 0x02 -- Holy Wrath (rank 2)
+ns.extra_cc_spells[27319] = 0x02 -- Holy Wrath (rank 3)
+ns.extra_cc_spells[48816] = 0x02 -- Holy Wrath (rank 4)
+ns.extra_cc_spells[48817] = 0x02 -- Holy Wrath (rank 5)
+-- Priest
+ns.extra_cc_spells[8124] = 0x20 -- Psychic Scream (rank 2)
+ns.extra_cc_spells[10888] = 0x20 -- Psychic Scream (rank 3)
+ns.extra_cc_spells[10890] = 0x20 -- Psychic Scream (rank 4)
+-- Rogue
+ns.extra_cc_spells[8643] = 0x01 -- Kidney Shot (rank 2)
+ns.extra_cc_spells[51724] = 0x01 -- Sap
+-- Shaman
+ns.extra_cc_spells[8037] = 0x10 -- Frostbrand Weapon (rank 2)
+ns.extra_cc_spells[8058] = 0x10 -- Frost Shock (rank 2)
+ns.extra_cc_spells[10458] = 0x10 -- Frostbrand Weapon (rank 3)
+ns.extra_cc_spells[10472] = 0x10 -- Frost Shock (rank 3)
+ns.extra_cc_spells[10473] = 0x10 -- Frost Shock (rank 4)
+ns.extra_cc_spells[16352] = 0x10 -- Frostbrand Weapon (rank 4)
+ns.extra_cc_spells[16353] = 0x10 -- Frostbrand Weapon (rank 5)
+ns.extra_cc_spells[25464] = 0x10 -- Frost Shock (rank 5)
+ns.extra_cc_spells[25501] = 0x10 -- Frostbrand Weapon (rank 6)
+ns.extra_cc_spells[39796] = 0x01 -- Stoneclaw Stun (Stoneclaw Totem)
+ns.extra_cc_spells[49235] = 0x10 -- Frost Shock (rank 6)
+ns.extra_cc_spells[49236] = 0x10 -- Frost Shock (rank 7)
+ns.extra_cc_spells[58797] = 0x10 -- Frostbrand Weapon (rank 7)
+ns.extra_cc_spells[58798] = 0x10 -- Frostbrand Weapon (rank 8)
+ns.extra_cc_spells[58799] = 0x10 -- Frostbrand Weapon (rank 9)
+-- Warlock
+ns.extra_cc_spells[6215] = 0x20 -- Fear
+ns.extra_cc_spells[17925] = 0x20 -- Death Coil (rank 2)
+ns.extra_cc_spells[17926] = 0x20 -- Death Coil (rank 3)
+ns.extra_cc_spells[27223] = 0x20 -- Death Coil (rank 4)
+ns.extra_cc_spells[47859] = 0x20 -- Death Coil (rank 5)
+ns.extra_cc_spells[47860] = 0x20 -- Death Coil (rank 6)
+-- Warrior
+ns.extra_cc_spells[47995] = 0x01 -- Intercept (Stun)--needs review

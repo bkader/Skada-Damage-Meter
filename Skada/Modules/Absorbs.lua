@@ -57,7 +57,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		local actor = Skada:GetPlayer(set, absorb.actorid, absorb.actorname)
 		if not actor then
 			return
-		elseif actor.role ~= "DAMAGER" and not passive_spells[absorb.spellid] and not nocount then
+		elseif actor.role ~= "DAMAGER" and not passive_spells[absorb.spell] and not nocount then
 			Skada:AddActiveTime(set, actor, absorb.dstName)
 		end
 
@@ -92,13 +92,24 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		if not nocount then
 			spell.count = (spell.count or 0) + 1
 
-			spell.n_num = (spell.n_num or 0) + 1
-			spell.n_amt = (spell.n_amt or 0) + absorb.amount
-			if not spell.n_max or absorb.amount > spell.n_max then
-				spell.n_max = absorb.amount
-			end
-			if not spell.n_min or absorb.amount < spell.n_min then
-				spell.n_min = absorb.amount
+			if absorb.critical then
+				spell.c_num = (spell.c_num or 0) + 1
+				spell.c_amt = (spell.c_amt or 0) + absorb.amount
+				if not spell.c_max or absorb.amount > spell.c_max then
+					spell.c_max = absorb.amount
+				end
+				if not spell.c_min or absorb.amount < spell.c_min then
+					spell.c_min = absorb.amount
+				end
+			else
+				spell.n_num = (spell.n_num or 0) + 1
+				spell.n_amt = (spell.n_amt or 0) + absorb.amount
+				if not spell.n_max or absorb.amount > spell.n_max then
+					spell.n_max = absorb.amount
+				end
+				if not spell.n_min or absorb.amount < spell.n_min then
+					spell.n_min = absorb.amount
+				end
 			end
 		end
 
@@ -122,10 +133,10 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 	local BITMASK_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
 
 	local function validate_shield(srcFlags, dstFlags)
-		local valid = band(srcFlags, dstFlags, BITMASK_CONTROL_PLAYER) ~= 0
-		valid = valid and (band(srcFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
-		valid = valid and (band(dstFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
-		valid = valid and (band(srcFlags, dstFlags, BITMASK_REACTION_MASK) ~= 0)
+		local valid = srcFlags and dstFlags and (band(srcFlags, dstFlags, BITMASK_CONTROL_PLAYER) ~= 0)
+		valid = valid and (srcFlags and band(srcFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
+		valid = valid and (dstFlags and band(dstFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
+		valid = valid and (srcFlags and dstFlags and band(srcFlags, dstFlags, BITMASK_REACTION_MASK) ~= 0)
 		return valid
 	end
 
@@ -156,32 +167,42 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
 			if not prev_amount then return end
 
-			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
+			absorb.actorid = t.srcGUID
+			absorb.actorname = t.srcName
+			absorb.actorflags = t.srcFlags
 			absorb.dstName = dstName
 
+			absorb.spell = t.spellid
 			absorb.spellid = t.spellstring
 			absorb.amount = 0
 			absorb.overheal = prev_amount
+			absorb.critical = nil
 
+			Skada:FixPets(absorb)
 			Skada:DispatchSets(log_absorb)
 			shields[dstName][t.spellid][t.srcName] = t.amount -- refresh amount
 
 		else
 			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
 			if prev_amount then
-				absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
+				absorb.actorid = t.srcGUID
+				absorb.actorname = t.srcName
+				absorb.actorflags = t.srcFlags
 				absorb.dstName = dstName
 
+				absorb.spell = t.spellid
 				absorb.spellid = t.spellstring
 				absorb.amount = 0
 				absorb.overheal = t.amount
+				absorb.critical = nil
 
+				Skada:FixPets(absorb)
 				Skada:DispatchSets(log_absorb)
-			end
 
-			shields[dstName][t.spellid][t.srcName] = del(shields[dstName][t.spellid][t.srcName]) -- remove shield
-			if next(shields[dstName][t.spellid]) == nil then
-				shields[dstName][t.spellid] = del(shields[dstName][t.spellid])
+				shields[dstName][t.spellid][t.srcName] = del(shields[dstName][t.spellid][t.srcName]) -- remove shield
+				if next(shields[dstName][t.spellid]) == nil then
+					shields[dstName][t.spellid] = del(shields[dstName][t.spellid])
+				end
 			end
 		end
 
@@ -189,18 +210,19 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 	end
 
 	local function spell_absorbed(t)
-		if band(t.srcFlags, BITMASK_CONTROL_PLAYER) == 0 or band(t.srcFlags, t.dstFlags, BITMASK_REACTION_MASK) == 0 then
-			return
-		end
-
-		if t.extraspellid and not ignored_spells[t.extraspellid] then
-			absorb.actorid, absorb.actorname, absorb.actorflags = Skada:FixMyPets(t.extraGUID, t.extraName, t.extraFlags)
+		if t.absorbSpellid and not ignored_spells[t.absorbSpellid] then
+			absorb.actorid = t.casterGUID
+			absorb.actorname = t.casterName
+			absorb.actorflags = t.casterFlags
 			absorb.dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
 
-			absorb.spellid = t.extrastring
-			absorb.amount = t.absorbed
+			absorb.spell = t.absorbSpellid
+			absorb.spellid = t.absorbSpellstring
+			absorb.amount = t.amount
 			absorb.overheal = 0
+			absorb.critical = t.critical
 
+			Skada:FixPets(absorb)
 			Skada:DispatchSets(log_absorb)
 		end
 	end
@@ -259,6 +281,19 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 			end
 			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.n_amt / spell.n_num), 1, 1, 1)
 		end
+
+		-- critical hits
+		if spell.c_num then
+			tooltip:AddLine(" ")
+			tooltip:AddDoubleLine(L["Critical Hits"], format(hits_perc, Skada:FormatNumber(spell.c_num), Skada:FormatPercent(spell.c_num, spell.count)))
+			if spell.c_min then
+				tooltip:AddDoubleLine(L["Minimum"], Skada:FormatNumber(spell.c_min), 1, 1, 1)
+			end
+			if spell.c_max then
+				tooltip:AddDoubleLine(L["Maximum"], Skada:FormatNumber(spell.c_max), 1, 1, 1)
+			end
+			tooltip:AddDoubleLine(L["Average"], Skada:FormatNumber(spell.c_amt / spell.c_num), 1, 1, 1)
+		end
 	end
 
 	function targetspellmod:Enter(win, id, label)
@@ -270,8 +305,8 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		win.title = L["actor absorb spells"](win.actorname or L["Unknown"], win.targetname or L["Unknown"])
 		if not set or not win.targetname then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		if not actor or enemy then return end -- unavailable for enemies yet
+		local actor = set:GetActor(win.actorname, win.actorid)
+		if not actor or actor.enemy then return end -- unavailable for enemies yet
 
 		local total = actor.absorb
 		local spells = (total and total > 0) and actor.absorbspells
@@ -305,8 +340,8 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		win.title = L["actor absorb spells"](win.actorname or L["Unknown"])
 		if not set or not win.actorname then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		if not actor or enemy then return end -- unavailable for enemies yet
+		local actor = set:GetActor(win.actorname, win.actorid)
+		if not actor or actor.enemy then return end -- unavailable for enemies yet
 
 		local total = actor.absorb
 		local spells = (total and total > 0) and actor.absorbspells
@@ -337,8 +372,8 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		win.title = uformat(L["%s's absorbed targets"], win.actorname)
 		if not set or not win.actorname then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
-		if not actor or enemy then return end -- unavailable for enemies yet
+		local actor = set:GetActor(win.actorname, win.actorid)
+		if not actor or actor.enemy then return end -- unavailable for enemies yet
 
 		local total = actor and actor.absorb or 0
 		local targets = (total > 0) and actor:GetAbsorbTargets(set)
@@ -392,7 +427,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 
 	do
 		local UnitGUID, UnitName = UnitGUID, UnitName
-		local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+		local UnitBuff, UnitIsDeadOrGhost = UnitBuff, UnitIsDeadOrGhost
 		local GroupIterator = Skada.GroupIterator
 
 		-- per-session spell strings cache
@@ -411,7 +446,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 
 			local dstGUID, dstName = UnitGUID(unit), UnitName(unit)
 			for i = 1, 40 do
-				local _, _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, amount = UnitBuff(unit, i)
+				local _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, _, _, amount = UnitBuff(unit, i)
 				if not spellid then
 					break -- nothing found
 				elseif not ignored_spells[spellid] and unitCaster and amount then
@@ -431,7 +466,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		end
 
 		function mod:CombatEnter(_, set)
-			if set and not set.stopped and not self.checked then
+			if not G.inCombat and set and not set.stopped and not self.checked then
 				GroupIterator(check_starting_shields)
 				self.checked = true
 			end
@@ -442,7 +477,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 
 			local dstGUID, dstName = UnitGUID(unit), UnitName(unit)
 			for i = 1, 40 do
-				local _, _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, amount = UnitBuff(unit, i)
+				local _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, _, _, amount = UnitBuff(unit, i)
 				if not spellid then
 					break -- nothing found
 				elseif not ignored_spells[spellid] and unitCaster and amount then
@@ -487,7 +522,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 			click2 = targetmod,
 			click4 = Skada.FilterClass,
 			click4_label = L["Toggle Class Filter"],
-			columns = {Absorbs = true, APS = true, Percent = true, sAPS = false, sPercent = true},
+			columns = {Absorbs = true, APS = false, Percent = true, sAPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_holy_devineaegis]]
 		}
 
@@ -656,7 +691,7 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		win.title = L["actor absorb and heal spells"](win.actorname or L["Unknown"], win.targetname or L["Unknown"])
 		if not set or not win.targetname then return end
 
-		local actor, enemy = set:GetActor(win.actorname, win.actorid)
+		local actor = set:GetActor(win.actorname, win.actorid)
 		local total = actor and actor:GetAbsorbHealOnTarget(win.targetname)
 
 		if not total or total == 0 or not (actor.healspells or actor.absorbspells) then
@@ -672,7 +707,7 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		if spells then
 			for spellid, spell in pairs(spells) do
 				local amount = spell.targets and spell.targets[win.targetname]
-				amount = enemy and amount or (amount and amount.amount)
+				amount = actor.enemy and amount or (amount and amount.amount)
 				if amount then
 					nr = nr + 1
 

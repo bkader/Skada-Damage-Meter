@@ -94,7 +94,7 @@ Skada:RegisterModule("CC Done", function(L, P, _, C)
 		for spellid, spell in pairs(spells) do
 			nr = nr + 1
 
-			local d = win:spell(nr, spellid)
+			local d = win:spell(nr, spellid, false)
 			d.value = spell.count
 			format_valuetext(d, mod_cols, total, win.metadata, true)
 		end
@@ -351,7 +351,7 @@ Skada:RegisterModule("CC Taken", function(L, P, _, C)
 		for spellid, spell in pairs(spells) do
 			nr = nr + 1
 
-			local d = win:spell(nr, spellid)
+			local d = win:spell(nr, spellid, false)
 			d.value = spell.count
 			format_valuetext(d, mod_cols, total, win.metadata, true)
 		end
@@ -636,7 +636,7 @@ Skada:RegisterModule("CC Breaks", function(L, P, _, C, M)
 		for spellid, spell in pairs(spells) do
 			nr = nr + 1
 
-			local d = win:spell(nr, spellid)
+			local d = win:spell(nr, spellid, false)
 			d.value = spell.count
 			format_valuetext(d, mod_cols, total, win.metadata, true)
 		end

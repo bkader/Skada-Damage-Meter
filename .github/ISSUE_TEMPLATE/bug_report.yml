@@ -1,0 +1,78 @@
+name: "Bug Report"
+description: Create a report to help us improve this addon
+labels: "🐛 Bug"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search for existing issues before creating a new one.
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: What did you expect to happen and what happened instead?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: flavor
+    attributes:
+      label: Version
+      description: What version did this occur on?
+      options:
+        - Wrath of the Lich King (Default)
+        - Cataclysm
+        - Mists of Pandaria
+        - Retail
+        - Classic Wrath
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: testing
+    attributes:
+      label: Tested with only this addon
+      description: Did you try having just this addon as the only enabled addon and everything else disabled?
+      options:
+        - label: "Yes"
+        - label: "No"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Lua Error
+      description: |
+        Do you have an error log of what happened? If you don't see any errors, make sure that error reporting is enabled (`/console scriptErrors 1`)
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Reproduction Steps
+      description: Please list out the steps to reproduce your bug.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Last Good Version
+      description: |
+        Was it working in a previous version? If yes, which update did it stop working? If you don't know, when was the last date you were aware it was working
+      placeholder: "MM/DD/YYYY"
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+      placeholder: Click here to attach your screenshots via the editor button in the top right.
+    validations:
+      required: false

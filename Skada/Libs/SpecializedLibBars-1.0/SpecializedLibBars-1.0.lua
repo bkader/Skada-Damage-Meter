@@ -385,8 +385,12 @@ do
 		list.buttons = {}
 
 		list:SetPoint("TOPLEFT", UIParent, "CENTER")
-		list:SetMinResize(80, 60)
-		list:SetMaxResize(500, 500)
+		if list.SetResizeBounds then -- WoW 10.0
+			list:SetResizeBounds(80, 60, 500, 500)
+		else
+			list:SetMinResize(80, 60)
+			list:SetMaxResize(500, 500)
+		end
 
 		list.showIcon = true
 		list.showLabel = true
@@ -910,7 +914,7 @@ do
 		btn:SetHeight(14)
 
 		btn:SetNormalTexture(normaltex)
-		btn:SetHighlightTexture(highlighttex or normaltex, 1.0)
+		btn:SetHighlightTexture(highlighttex or normaltex, "ADD")
 		btn.normalTex = btn:GetNormalTexture()
 		btn.highlightTex = btn:GetHighlightTexture()
 

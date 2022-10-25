@@ -1615,6 +1615,19 @@ do
 			args.amount = 0
 		end
 
+		-- absorbed melee winsg?
+		if args.event == "SPELL_ABSORBED" and not args.amount then
+			-- slide 3 args to the left
+			args.casterGUID, args.casterName, args.casterFlags,
+			args.casterRaidFlags, args.absorbSpellid, args.absorbSpellname,
+			args.absorbSpellschool, args.amount, args.critical = args.spellid, args.spellname,
+			args.spellschool, args.casterGUID, args.casterName, args.casterFlags,
+			args.casterRaidFlags, args.absorbSpellid, args.absorbSpellname
+
+			-- add melee stuff
+			args.spellid, args.spellname, args.spellschool = 6603, L["Melee"], 0x01
+		end
+
 		if args.spellid and args.spellschool then
 			args.spellstring = format((args.is_dot or args.is_hot) and "-%s.%s" or "%s.%s", args.spellid, args.spellschool)
 			if band(args.srcFlags, BITMASK_GROUP) ~= 0 or band(args.dstFlags, BITMASK_GROUP) ~= 0 then
@@ -1625,6 +1638,12 @@ do
 			args.extrastring = format("%s.%s", args.extraspellid, args.extraschool)
 			if band(args.srcFlags, BITMASK_GROUP) ~= 0 or band(args.dstFlags, BITMASK_GROUP) ~= 0 then
 				callbacks:Fire("Skada_SpellString", args, args.extraspellid, args.extrastring)
+			end
+		end
+		if args.absorbSpellid and args.absorbSpellschool then
+			args.absorbSpellstring = format("%s.%s", args.absorbSpellid, args.absorbSpellschool)
+			if band(args.srcFlags, BITMASK_GROUP) ~= 0 or band(args.dstFlags, BITMASK_GROUP) ~= 0 then
+				callbacks:Fire("Skada_SpellString", args, args.absorbSpellid, args.absorbSpellstring)
 			end
 		end
 
