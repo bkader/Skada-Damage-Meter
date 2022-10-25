@@ -11,7 +11,7 @@ local hits_perc = "%s (\124cffffffff%s\124r)"
 -- Absorbs module --
 -- ============== --
 
-Skada:RegisterModule("Absorbs", function(L, P)
+Skada:RegisterModule("Absorbs", function(L, P, G)
 	local mod = Skada:NewModule("Absorbs")
 	local spellmod = mod:NewModule("Absorb spell list")
 	local targetmod = mod:NewModule("Absorbed target list")
@@ -131,7 +131,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 
 	local shields = {}
 	local function handle_shield(t)
-		if not t.amount or not t.spellid or ignored_spells[t.spellid] then return end
+		if not t.amount or not t.spellid or ignored_spells[t.spellid] or not t.spellstring then return end
 
 		local dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
 
@@ -395,6 +395,17 @@ Skada:RegisterModule("Absorbs", function(L, P)
 		local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 		local GroupIterator = Skada.GroupIterator
 
+		-- per-session spell strings cache
+		local spellstrings = G.spellstrings or {}
+		G.spellstrings = spellstrings
+
+		local cache_events = {SPELL_AURA_APPLIED = true, SPELL_AURA_REFRESH = true}
+		Skada:RegisterCallback("Skada_SpellString", function(_, t, spellid, spellstring)
+			if cache_events[t.event] and t.auratype == "BUFF" and t.amount and not spellstrings[spellid] then
+				spellstrings[spellid] = spellstring
+			end
+		end)
+
 		local function check_starting_shields(unit)
 			if UnitIsDeadOrGhost(unit) then return end
 
@@ -411,6 +422,7 @@ Skada:RegisterModule("Absorbs", function(L, P)
 					t.dstGUID = dstGUID
 					t.dstName = dstName
 					t.spellid = spellid
+					t.spellstring = spellstrings[spellid]
 					t.amount = amount
 					t.__temp = true
 					handle_shield(t)
