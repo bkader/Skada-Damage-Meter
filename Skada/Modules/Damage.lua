@@ -29,7 +29,6 @@ Skada:RegisterModule("Damage", function(L, P)
 	local tdetailmod = targetmod:NewModule("Damage spell list")
 
 	local wipe = wipe
-	local GetSpellInfo = Private.spell_info or GetSpellInfo
 	local PercentToRGB = Private.PercentToRGB
 	local tooltip_school = Skada.tooltip_school
 	local ignored_spells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
