@@ -17,8 +17,8 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 	local targetmod = mod:NewModule("Absorbed target list")
 	local targetspellmod = targetmod:NewModule("Absorb spell list")
 	tooltip_school = tooltip_school or Skada.tooltip_school
-	local ignored_spells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
-	local passive_spells = Skada.dummyTable -- Edit Skada\Core\Tables.lua
+	local ignored_spells = Skada.ignored_spells.absorb -- Edit Skada\Core\Tables.lua
+	local passive_spells = Skada.ignored_spells.time -- Edit Skada\Core\Tables.lua
 
 	local COMBATLOG_OBJECT_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER or 0x00000100
 	local COMBATLOG_OBJECT_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
@@ -551,17 +551,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_ENTER", "CombatEnter")
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
 		Skada:AddMode(self, L["Absorbs and Healing"])
-
-		-- table of ignored spells:
-		if Skada.ignored_spells then
-			if Skada.ignored_spells.absorbs then
-				ignored_spells = setmetatable(ignored_spells, {__index = Skada.ignored_spells.absorbs})
-				ignored_spells = Skada.ignored_spells.absorbs
-			end
-			if Skada.ignored_spells.activeTime then
-				passive_spells = Skada.ignored_spells.activeTime
-			end
-		end
 	end
 
 	function mod:OnDisable()

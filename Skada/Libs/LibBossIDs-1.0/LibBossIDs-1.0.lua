@@ -1,7 +1,7 @@
 --[[
 Name: LibBossIDs-1.0
-Revision: $Revision: 96 $
-Author: Elsia
+Revision: $Revision: 116 $
+Author: Elsia, Kader
 Website: http://www.wowace.com/addons/libbossids-1-0/
 Documentation:
 SVN: svn://svn.wowace.com/wow/libbossids-1-0/mainline/trunk
@@ -10,7 +10,7 @@ Dependencies: LibStub
 License: Public Domain, Absolutely no Warranty.
 ]]
 
-local MAJOR, MINOR = "LibBossIDs-1.0", "$Revision: 96 $"
+local MAJOR, MINOR = "LibBossIDs-1.0", "$Revision: 116 $"
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end
@@ -521,20 +521,20 @@ local BossIDs = {
 	-- Hellfire Citadel (Draenor)
 	-------------------------------------------------------------------------------
 	-- Hellbreach
-	[95068]	= true,	-- Hellfire Assault - Siegemaster Mar'tak
+	[90019]	= true,	-- Hellfire Assault - Siegemaster Mar'tak
 	[90284]	= true,	-- Iron Reaver
-	[90776]	= true,	-- Kormrok
+	[90435]	= true,	-- Kormrok
 	-- Halls of Blood
 	[90378]	= true,	-- Kilrogg Deadeye
 	[92144]	= true,	-- Hellfire High Council - Dia Darkwhisper
 	[92146]	= true,	-- Hellfire High Council - Gurtogg Bloodboil
-	[93713]	= true,	-- Hellfire High Council - Blademaster Jubei'thos
+	[92142]	= true,	-- Hellfire High Council - Blademaster Jubei'thos
 	[91809]	= true,	-- Gorefiend
 	-- Bastion of Shadows
-	[95067]	= true,	-- Shadow-Lord Iskar
-	[90296]	= true,	-- Socrethar the Eternal - Soulbound Construct
-	[93439]	= true,	-- Tyrant Velhari
-	-- Destructor’s Rise
+	[90316]	= true,	-- Shadow-Lord Iskar
+	[92330]	= true,	-- Socrethar the Eternal - Soulbound Construct
+	[90269]	= true,	-- Tyrant Velhari
+	-- Destructor's Rise
 	[89890]	= true,	-- Fel Lord Zakuun
 	[93068]	= true,	-- Xhul'horac
 	[91349]	= true,	-- Mannoroth
@@ -1383,7 +1383,7 @@ local BossIDs = {
 	[42333]	= true,	-- High Priestess Azil
 
 	-------------------------------------------------------------------------------
-	-- The Violet Hold
+	-- The Violet Hold (Northrend)
 	-------------------------------------------------------------------------------
 	[29315]	= true,	-- Erekem
 	[29313]	= true,	-- Ichoron
@@ -1707,6 +1707,465 @@ local BossIDs = {
 	[52258]	= true,	-- Gri'lek
 	[52271]	= true,	-- Hazza'rah
 	[52286]	= true,	-- Wushoolay
+
+	-------------------------------------------------------------------------------
+	-- Assault on Violet Hold (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[101995] = true, -- Festerface
+	[101951] = true, -- Shivermaw
+	[102431] = true, -- Blood-Princess Thal'ena
+	[101950] = true, -- Mindflayer Kaahrj
+	[101976] = true, -- Millificent Manastorm
+	[102246] = true, -- Anub'esset
+	[102387] = true, -- Sael'orn
+	[102446] = true, -- Fel Lord Betrug
+
+	-------------------------------------------------------------------------------
+	-- Black Rook Hold (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[98542] = true, -- Amalgam of Souls
+	[98696] = true, -- Illysanna Ravencrest
+	[98949] = true, -- Smashspite the Hateful
+	[94923] = true, -- Lord Kur'talos Ravencrest
+
+	-------------------------------------------------------------------------------
+	-- Black Rook Hold (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[117193] = true, -- Agronox
+	[117194] = true, -- Thrashbite the Scornful
+	[119542] = true, -- Domatrax
+	[120793] = true, -- Mephistroth
+
+	-------------------------------------------------------------------------------
+	-- Court of Stars (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[104215] = true, -- Patrol Captain Gerdo
+	[104217] = true, -- Talixae Flamewreath
+	[104218] = true, -- Advisor Melandrus
+
+	-------------------------------------------------------------------------------
+	-- Darkheart Thicket (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[96512]  = true, -- Archdruid Glaidalis
+	[103344] = true, -- Oakheart
+	[99200]  = true, -- Dresaron
+	[99192]  = true, -- Shade of Xavius
+
+	-------------------------------------------------------------------------------
+	-- Eye of Azshara (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[91808] = true, -- Serpentrix
+	[91784] = true, -- Warlord Parjesh
+	[91789] = true, -- Lady Hatecoil
+	[91797] = true, -- King Deepbeard
+	[96028] = true, -- Wrath of Azshara
+
+	-------------------------------------------------------------------------------
+	-- Halls of Valor (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[94960] = true, -- Hymdall
+	[95833] = true, -- Hyrja
+	[95674] = true, -- Fenryr (Phase 1)
+	[99868] = true, -- Fenryr (Phase 2)
+	[95675] = true, -- God-King Skovald
+	[114263] = true, -- Odyn
+
+	-------------------------------------------------------------------------------
+	-- Maw of Souls (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[96756] = true, -- Ymiron, the Fallen King
+	[96754] = true, -- Harbaron
+	[96759] = true, -- Helya
+
+	-------------------------------------------------------------------------------
+	-- Neltharion's Lair (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[91003] = true, -- Rokmora
+	[91004] = true, -- Ularogg Cragshaper
+	[91005] = true, -- Naraxas
+	[91007] = true, -- Dargrul
+
+	-------------------------------------------------------------------------------
+	-- Return to Karazhan (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[114284] = true, -- Elfyra
+	[114251] = true, -- Galindre
+	[114260] = true, -- Mrrgria
+	[114261] = true, -- Toe Knee
+	[114328] = true, -- Coggleston
+	[113971] = true, -- Maiden of Virtue
+	[114262] = true, -- Attumen the Huntsman
+	[114312] = true, -- Moroes
+	[114247] = true, -- The Curator
+	[114350] = true, -- Shade of Medivh
+	[116494] = true, -- Mana Devourer
+	[114790] = true, -- Viz'aduum the Watcher
+
+	-------------------------------------------------------------------------------
+	-- Seat of the Triumvirate (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[122313] = true, -- Zuraal the Ascended
+	[122316] = true, -- Saprish
+	[124309] = true, -- Viceroy Nezhar
+	[122314] = true, -- L'ura
+
+	-------------------------------------------------------------------------------
+	-- The Arcway (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[98203] = true, -- Ivanyr
+	[98205] = true, -- Corstilax
+	[98206] = true, -- General Xakal
+	[98207] = true, -- Nal'tira
+	[98208] = true, -- Advisor Vandros
+
+	-------------------------------------------------------------------------------
+	-- Vault of the Wardens (Legion-Dungeon)
+	-------------------------------------------------------------------------------
+	[95885] = true, -- Tirathon Saltheril
+	[96015] = true, -- Inquisitor Tormentorum
+	[95886] = true, -- Ash'Golm
+	[99865] = true, -- Glazer
+	[95888] = true, -- Cordana Felsong
+
+	-------------------------------------------------------------------------------
+	-- Antorus, the Burning Throne (Legion-Raid 7.3)
+	-------------------------------------------------------------------------------
+	[123371] = true, -- Garothi Worldbreaker
+	[126916] = true, -- F'harg
+	[122367] = true, -- Admiral Svirax
+	[124393] = true, -- Portal Keeper Hasabel
+	[131561] = true, -- Essence of Eonar
+	[125055] = true, -- Imonar the Soulhunter
+	[125050] = true, -- Kin'garoth
+	[125075] = true, -- Varimathras
+	[122468] = true, -- Noura, Mother of Flames
+	[121975] = true, -- Aggramar
+	[124828] = true, -- Argus the Unmaker
+
+	-------------------------------------------------------------------------------
+	-- The Nighthold (Legion-Raid 7.0)
+	-------------------------------------------------------------------------------
+	-- Arcing Aqueducts (W1)
+	[102263] = true, -- Skorpyron
+	[104415] = true, -- Chronomatic Anomaly
+	[104288] = true, -- Trilliax
+
+	-- Royal Athenaeum
+	[107699] = true, -- Spellblade Aluriel
+	[103758] = true, -- Star Augur Etraeus
+	[104528] = true, -- High Botanist Tel'arn
+
+	-- Nightspire
+	[101002] = true, -- Krosus
+	[103685] = true, -- Tichondrius
+	[150013] = true, -- Elisande
+
+	-- Betrayer's Rise
+	[105503] = true, -- Gul'dan
+
+	-------------------------------------------------------------------------------
+	-- Tomb of Sargeras (Legion-Raid 7.2.5)
+	-------------------------------------------------------------------------------
+	-- The Gates of Hell
+	[115844] = true, -- Goroth
+	[116407] = true, -- Harjatan
+	[115767] = true, -- Mistress Sassz'ine
+
+	-- Wailing Halls
+	[120996] = true, -- Atrigan
+	[118523] = true, -- Huntress Kasparian
+	[118460] = true, -- Engine of Souls
+
+	-- Chamber of the Avatar
+	[118289] = true, -- Maiden of Vigilance
+	[120436] = true, -- Fallen Avatar
+
+	-- Deceiver's Fall
+	[117269] = true, -- Kil'jaeden
+
+	-------------------------------------------------------------------------------
+	-- The Emerald Nightmare (Legion-Raid 7.0)
+	-------------------------------------------------------------------------------
+	-- Darkbough
+	[102672] = true, -- Nythendra
+	[105393] = true, -- Il'gynoth
+	[105906] = true, -- Il'gynoth - Eye of Il'gynoth
+	[106087] = true, -- Elerethe Renferal
+
+	-- Tormented Guardians
+	[100497] = true, -- Ursoc
+	[102679] = true, -- Ysondre
+	[102682] = true, -- Lethon
+	[102681] = true, -- Taerar
+	[102683] = true, -- Emeriss
+	[104636] = true, -- Cenarius
+
+	-- Rift of Aln
+	[103769] = true, -- Xavius
+
+	-------------------------------------------------------------------------------
+	-- Trial of Valor (Legion-Raid 7.0)
+	-------------------------------------------------------------------------------
+	-- [114263] = true, -- Odyn
+	[114344] = true, -- Guarm
+	[114537] = true, -- Helya
+
+	-------------------------------------------------------------------------------
+	-- Operation: Mechagon (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[150159] = true, -- King Gobbamak
+	[150222] = true, -- Gunker
+	[155407] = true, -- Trixie Tazer
+	[155157] = true, -- HK-8 Aerial Oppression Unit
+	[144244] = true, -- The Platinum Pummeler
+	[144246] = true, -- K.U.-J.0.
+	[144248] = true, -- Head Machinist Sparkflux
+	[152619] = true, -- King Mechagon
+
+	-------------------------------------------------------------------------------
+	-- Atal'Dazar (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[129614] = true, -- Priestess Alun'za
+	[129399] = true, -- Vol'kaal
+	[143577] = true, -- Rezan
+	[129412] = true, -- Yazma
+
+	-------------------------------------------------------------------------------
+	-- Freehold (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[129732] = true, -- Skycap'n Kragg
+	[129431] = true, -- Captain Eudora
+	[129440] = true, -- Harlan Sweete
+	[126969] = true, -- Trothak -- needs review
+	[129412] = true, -- Yazma
+
+	-------------------------------------------------------------------------------
+	-- Shrine of the Storm (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[134056] = true, -- Aqu'sirr
+	[134058] = true, -- Galecaller Faye
+	[134063] = true, -- Brother Ironhull
+	[139737] = true, -- Lord Stormsong
+	[134069] = true, -- Vol'zith the Whisperer
+
+	-------------------------------------------------------------------------------
+	-- The MOTHERLODE!! (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[139904] = true, -- Coin-Operated Crowd Pummeler
+	[129227] = true, -- Azerokk
+	[139273] = true, -- Rixxa Fluxflame
+	[131227] = true, -- Mogul Razdunk
+
+	-------------------------------------------------------------------------------
+	-- Temple of Sethraliss (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[133379] = true, -- Adderis
+	[133384] = true, -- Merektha
+	[133389] = true, -- Galvazzt
+	[133392] = true, -- Avatar of Sethraliss
+
+	-------------------------------------------------------------------------------
+	-- The Underrot (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[131318] = true, -- Elder Leaxa
+	[131817] = true, -- Cragmaw the Infested
+	[131383] = true, -- Sporecaller Zancha
+	[133007] = true, -- Unbound Abomination
+
+	-------------------------------------------------------------------------------
+	-- Tol Dagor (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[134927] = true, -- The Sand Queen
+	[127484] = true, -- Jes Howlis
+	[130646] = true, -- Knight Captain Valyri
+	[127503] = true, -- Overseer Korgus
+
+	-------------------------------------------------------------------------------
+	-- Waycrest Manor (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[135360] = true, -- Sister Briar
+	[131667] = true, -- Soulbound Goliath
+	[131863] = true, -- Raal the Gluttonous
+	[131527] = true, -- Lord Waycrest
+	[144324] = true, -- Gorak Tul
+
+	-------------------------------------------------------------------------------
+	-- Kings' Rest (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[135322] = true, -- The Golden Serpent
+	[134993] = true, -- Mchimba the Embalmer
+	[135470] = true, -- Aka'ali the Conqueror
+	[136160] = true, -- King Dazar
+
+	-------------------------------------------------------------------------------
+	-- Siege of Boralus (BfA-Dungeon)
+	-------------------------------------------------------------------------------
+	[144160] = true, -- Chopper Redhook
+	[144158] = true, -- Sergeant Bainbridge
+	[129208] = true, -- Dread Captain Lockwood
+	[130836] = true, -- Hadal Darkfathom
+	[128652] = true, -- Viq'Goth
+
+	-------------------------------------------------------------------------------
+	-- Battle of Dazar'alor (BfA-Raid 8.1)
+	-------------------------------------------------------------------------------
+	-- Alliance
+	[144683] = true, -- Ra'wani Kanae
+	[148238] = true, -- Ma'ra Grimfang
+	[146100] = true, -- Anathos Firecaller
+	[144638] = true, -- Grong the Revenant
+	[145261] = true, -- Opulence
+	[144747] = true, -- Pa'ku's Aspect
+	[145616] = true, -- King Rastakhan
+
+	-- Horde
+	[144680] = true, -- Frida Ironbellows
+	[148117] = true, -- Grong
+	[146099] = true, -- Manceroy Flamefist
+	[144690] = true, -- Mestrah
+	[144796] = true, -- High Tinker Mekkatorque
+	[146256] = true, -- Laminaria
+	[165396] = true, -- Lady Jaina Proudmoore
+
+	-------------------------------------------------------------------------------
+	-- Ny'alotha, the Waking City (BfA-Raid 8.3)
+	-------------------------------------------------------------------------------
+	[156818] = true, -- Wrathion
+	[156523] = true, -- Maut
+	[161901] = true, -- Prophet Skitra
+	[156575] = true, -- Dark Inquisitor Xanesh
+	[157254] = true, -- Tek'ris
+	[157231] = true, -- Shad'har the Insatiable
+	[157602] = true, -- Drest'agath
+	[158328] = true, -- Il'gynoth
+	[157354] = true, -- Vexiona
+	[156866] = true, -- Ra-den
+	[157439] = true, -- Fury of N'Zoth
+	[158041] = true, -- N'Zoth the Corruptor
+
+	-------------------------------------------------------------------------------
+	-- Uldir (BfA-Raid 8.0)
+	-------------------------------------------------------------------------------
+	[137119] = true, -- Taloc
+	[140853] = true, -- MOTHER
+	[133298] = true, -- Fetid Devourer
+	[134445] = true, -- Zek'voz
+	[134442] = true, -- Vectis
+	[138967] = true, -- Zul
+	[136383] = true, -- Mythrax the Unraveler
+	[163405] = true, -- G'huun
+
+	-------------------------------------------------------------------------------
+	-- The Eternal Palace (BfA-Raid 8.2)
+	-------------------------------------------------------------------------------
+	[155144] = true, -- Abyssal Commander Sivara
+	[154986] = true, -- Blackwater Behemoth
+	[152364] = true, -- Radiance of Azshara
+	[153142] = true, -- Lady Ashvane
+	[152128] = true, -- Orgozoa
+	[152853] = true, -- Silivaz the Zealous
+	[150859] = true, -- Za'qul
+	[155126] = true, -- Queen Azshara
+
+	-------------------------------------------------------------------------------
+	-- Crucible of Storms (BfA-Raid 8.1)
+	-------------------------------------------------------------------------------
+	[146497] = true, -- Zaxasj the Speaker
+	[145371] = true, -- Uu'nat
+
+	-------------------------------------------------------------------------------
+	-- The Necrotic Wake (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[162691] = true, -- Blightbone
+	[163157] = true, -- Amarth
+	[166882] = true, -- Surgeon Stitchflesh
+	[166945] = true, -- Nalthor the Rimebinder
+
+	-------------------------------------------------------------------------------
+	-- Plaguefall (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[164255] = true, -- Globgrog
+	[164967] = true, -- Doctor Ickus
+	[164266] = true, -- Domina Venomblade
+	[164267] = true, -- Margrave Stradama
+
+	-------------------------------------------------------------------------------
+	-- Mists of Tirna Scithe (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[164567] = true, -- Ingra Maloch
+	[170217] = true, -- Ingra Maloch
+	[164517] = true, -- Tred'ova
+
+	-------------------------------------------------------------------------------
+	-- Halls of Atonement (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[165408] = true, -- Halkias
+	[156827] = true, -- Echelon
+	[165410] = true, -- High Adjudicator Aleez
+	[164218] = true, -- Lord Chamberlain
+
+	-------------------------------------------------------------------------------
+	-- De Other Side (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[166473] = true, -- Hakkar the Soulflayer
+	-- [101976] = true, -- Millificent Manastorm
+	[164450] = true, -- Dealer Xy'exa
+	[169769] = true, -- Mueh'zala
+
+	-------------------------------------------------------------------------------
+	-- Sanguine Depths (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[162100] = true, -- Kryxis the Voracious
+	[162103] = true, -- Executor Tarvold
+	[162102] = true, -- Grand Proctor Beryllia
+	[165318] = true, -- General Kaal
+
+	-------------------------------------------------------------------------------
+	-- Spires of Ascension (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[162059] = true, -- Kin-Tara
+	[162058] = true, -- Ventunax
+	[162060] = true, -- Oryphrion
+	[167410] = true, -- Devos
+
+	-------------------------------------------------------------------------------
+	-- Theater of Pain (Shadowlands-Dungeon)
+	-------------------------------------------------------------------------------
+	[164451] = true, -- Dessia the Decapitator
+	[164463] = true, -- Paceran the Virulent
+	[164461] = true, -- Sathel the Accursed
+	[162317] = true, -- Gorechop
+	[162329] = true, -- Xav the Unfallen
+	[162309] = true, -- Kul'tharok
+	[165946] = true, -- Mordretha, the Endless Empress
+
+	-------------------------------------------------------------------------------
+	-- Castle Nathria (Shadowlands-Raid)
+	-------------------------------------------------------------------------------
+	[172145] = true, -- Shriekwing
+	[165066] = true, -- Huntsman Altimor
+	[165759] = true, -- Kael'thas Sunstrider
+	[166644] = true, -- Artificer Xy'mox
+	[164261] = true, -- Hungering Destroyer
+	[167517] = true, -- Lady Inerva Darkvein
+	[166971] = true, -- Castellan Niklaus
+	[174733] = true, -- Sludgefist
+	[165318] = true, -- General Kaal
+	[168938] = true, -- Sire Denathrius
+
+	-------------------------------------------------------------------------------
+	-- Sanctum of Domination (Shadowlands-Raid)
+	-------------------------------------------------------------------------------
+	[152253] = true, -- The Tarragrue
+	[180018] = true, -- Eye of the Jailer
+	[178738] = true, -- Kyra
+	[175729] = true, -- Remnant of Ner'zhul
+	[175727] = true, -- Soulrender Dormazain
+	[176523] = true, -- Painsmith Raznal
+	[175731] = true, -- Guardian of the First Ones
+	[179390] = true, -- Fatescribe Roh-Kalo
+	[175559] = true, -- Kel'Thuzad
+	[175732] = true, -- Sylvanas Windrunner
 }
 
 lib.BossIDs = BossIDs
