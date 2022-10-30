@@ -1013,7 +1013,6 @@ end, "Absorbs", "Healing", "Absorbs and Healing")
 Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 	local mod = Skada:NewModule("Healing Done By Spell")
 	local sourcemod = mod:NewModule("Healing spell sources")
-	local GetSpellInfo = Private.spell_info or GetSpellInfo
 	local clear = Private.clearTable
 	local get_absorb_heal_spells = nil
 	local mod_cols = nil
