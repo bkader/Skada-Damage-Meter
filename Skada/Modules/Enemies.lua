@@ -657,7 +657,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		)
 
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
-		Skada:AddMode(self, L["Enemies"])
+		Skada:AddMode(self, "Enemies")
 	end
 
 	function mod:OnDisable()
@@ -1106,7 +1106,7 @@ Skada:RegisterModule("Enemy Damage Done", function(L, P, _, C)
 		)
 
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
-		Skada:AddMode(self, L["Enemies"])
+		Skada:AddMode(self, "Enemies")
 	end
 
 	function mod:OnDisable()
@@ -1381,7 +1381,7 @@ Skada:RegisterModule("Enemy Healing Done", function(L, P)
 		)
 
 		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
-		Skada:AddMode(self, L["Enemies"])
+		Skada:AddMode(self, "Enemies")
 	end
 
 	function mod:OnDisable()
