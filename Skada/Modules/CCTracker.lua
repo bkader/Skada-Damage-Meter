@@ -539,7 +539,7 @@ Skada:RegisterModule("CC Breaks", function(L, P, _, C, M)
 	local get_actor_cc_break_targets = nil
 	local mod_cols = nil
 
-	local UnitName, UnitInRaid, IsInRaid = UnitName, UnitInRaid, IsInRaid
+	local UnitName, UnitInRaid, IsInRaid = UnitName, UnitInRaid, Skada.IsInRaid
 	local GetPartyAssignment, UnitIterator = GetPartyAssignment, Skada.UnitIterator
 
 	local function log_ccbreak(set)

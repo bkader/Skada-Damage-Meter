@@ -4,14 +4,15 @@
 -- @author: Kader B (https://github.com/bkader/LibCompat-1.0)
 --
 
-local MAJOR, MINOR = "LibCompat-1.0-Skada", 35
+local MAJOR, MINOR = "LibCompat-1.0-Skada", 36
 local lib, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
 lib.embeds = lib.embeds or {}
 lib.EmptyFunc = Multibar_EmptyFunc
 
-local select, pairs, type, max = select, pairs, type, math.max
+local _G = _G
+local pairs, type, max = pairs, type, math.max
 local format, tonumber = format or string.format, tonumber
 local setmetatable, wipe = setmetatable, wipe
 local _
@@ -49,11 +50,11 @@ end
 -------------------------------------------------------------------------------
 
 do
-	local IsInGroup, IsInRaid = IsInGroup, IsInRaid
-	local GetNumGroupMembers, GetNumSubgroupMembers = GetNumGroupMembers, GetNumSubgroupMembers
-	local UnitExists, UnitAffectingCombat, UnitIsDeadOrGhost = UnitExists, UnitAffectingCombat, UnitIsDeadOrGhost
-	local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
-	local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
+	local UnitExists, UnitAffectingCombat, UnitIsDeadOrGhost = _G.UnitExists, _G.UnitAffectingCombat, _G.UnitIsDeadOrGhost
+	local UnitHealth, UnitHealthMax, UnitPower, UnitPowerMax = _G.UnitHealth, _G.UnitHealthMax, _G.UnitPower, _G.UnitPowerMax
+	local GetNumRaidMembers, GetNumPartyMembers = _G.GetNumRaidMembers, _G.GetNumPartyMembers
+	local GetNumGroupMembers, GetNumSubgroupMembers = _G.GetNumGroupMembers, _G.GetNumSubgroupMembers
+	local IsInGroup, IsInRaid = _G.IsInGroup, _G.IsInRaid
 
 	local function GetGroupTypeAndCount()
 		if IsInRaid() then
@@ -61,7 +62,7 @@ do
 		elseif IsInGroup() then
 			return "party", 0, GetNumSubgroupMembers()
 		else
-			return nil, 0, 0
+			return "solo", 0, 0
 		end
 	end
 
@@ -222,8 +223,11 @@ do
 	end
 
 	local function GetCreatureId(guid)
-		local id = guid and select(6, strsplit("-", guid)) or nil
-		return tonumber(id) or 0
+		if guid then
+			local _, _, _, _, _, id = strsplit("-", guid)
+			return tonumber(id) or 0
+		end
+		return 0
 	end
 
 	local unknownUnits = {[UKNOWNBEING] = true, [UNKNOWNOBJECT] = true}
@@ -252,6 +256,10 @@ do
 		return percent, power, maxpower
 	end
 
+	lib.IsInRaid = IsInRaid
+	lib.IsInGroup = IsInGroup
+	lib.GetNumGroupMembers = GetNumGroupMembers
+	lib.GetNumSubgroupMembers = GetNumSubgroupMembers
 	lib.GetGroupTypeAndCount = GetGroupTypeAndCount
 	lib.IsGroupDead = IsGroupDead
 	lib.IsGroupInCombat = IsGroupInCombat
@@ -330,8 +338,11 @@ local mixins = {
 	"Dispatch",
 	"QuickDispatch",
 	-- roster util
+	"IsInRaid",
+	"IsInGroup",
 	"IsInPvP",
 	"GetNumGroupMembers",
+	"GetNumSubgroupMembers",
 	"GetGroupTypeAndCount",
 	"IsGroupDead",
 	"IsGroupInCombat",

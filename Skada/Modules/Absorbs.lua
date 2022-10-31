@@ -454,6 +454,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 					t.event = "SPELL_AURA_APPLIED"
 					t.srcGUID = UnitGUID(unitCaster)
 					t.srcName = UnitName(unitCaster)
+					t.srcFlags = 0
 					t.dstGUID = dstGUID
 					t.dstName = dstName
 					t.spellid = spellid
@@ -485,6 +486,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 					t.event = "SPELL_AURA_REMOVED"
 					t.srcGUID = UnitGUID(unitCaster)
 					t.srcName = UnitName(unitCaster)
+					t.srcFlags = 0
 					t.dstGUID = dstGUID
 					t.dstName = dstName
 					t.spellid = spellid
