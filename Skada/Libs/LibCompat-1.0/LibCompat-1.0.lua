@@ -11,10 +11,8 @@ if not lib then return end
 lib.embeds = lib.embeds or {}
 lib.EmptyFunc = Multibar_EmptyFunc
 
-local _G = _G
-local pairs, type, max = pairs, type, math.max
+local _G, pairs, type, max = _G, pairs, type, math.max
 local format, tonumber = format or string.format, tonumber
-local setmetatable, wipe = setmetatable, wipe
 local _
 
 local Dispatch
@@ -50,6 +48,7 @@ end
 -------------------------------------------------------------------------------
 
 do
+	local setmetatable, rawset = setmetatable, rawset
 	local UnitExists, UnitAffectingCombat, UnitIsDeadOrGhost = _G.UnitExists, _G.UnitAffectingCombat, _G.UnitIsDeadOrGhost
 	local UnitHealth, UnitHealthMax, UnitPower, UnitPowerMax = _G.UnitHealth, _G.UnitHealthMax, _G.UnitPower, _G.UnitPowerMax
 	local GetNumRaidMembers, GetNumPartyMembers = _G.GetNumRaidMembers, _G.GetNumPartyMembers
@@ -230,7 +229,7 @@ do
 		return 0
 	end
 
-	local unknownUnits = {[UKNOWNBEING] = true, [UNKNOWNOBJECT] = true}
+	local unknownUnits = {[_G.UKNOWNBEING] = true, [_G.UNKNOWNOBJECT] = true}
 
 	local function UnitHealthInfo(unit, guid, filter)
 		unit = (unit and not unknownUnits[unit]) and unit or (guid and GetUnitIdFromGUID(guid, filter))
