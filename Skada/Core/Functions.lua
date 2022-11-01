@@ -9,7 +9,7 @@ local _
 
 local UnitClass, GetPlayerInfoByGUID = UnitClass, GetPlayerInfoByGUID
 local GetClassFromGUID = Skada.GetClassFromGUID
-local new, del = Private.newTable, Private.delTable
+local tablePool, new, del = Skada.tablePool, Private.newTable, Private.delTable
 local clear, copy = Private.clearTable, Private.tCopy
 local L, callbacks = Skada.Locale, Skada.callbacks
 local userName = Skada.userName
@@ -39,11 +39,7 @@ do
 	local tconcat = table.concat
 
 	local function module_table(...)
-		local args = new()
-		for i = 1, select("#", ...) do
-			args[i] = select(i, ...)
-		end
-
+		local args = tablePool.acquire(...)
 		if #args >= 2 then
 			-- name must always be first
 			local name = tremove(args, 1)
@@ -493,15 +489,10 @@ do
 				heal = random(250, 1500)
 			end
 
-			local actor = new()
-			actor.id = name
-			actor.name = name
-			actor.class = class
-			actor.role = role
-			actor.spec = spec
-			actor.damage = damage
-			actor.heal = heal
-			actor.absorb = absorb
+			local actor = tablePool.acquireHash(
+				"id", name, "name", name, "class", class, "role", role, "spec", spec,
+				"damage", damage, "heal", heal, "absorb", absorb
+			)
 			fakeSet.actors[#fakeSet.actors + 1] = actor
 
 			fakeSet.damage = fakeSet.damage + damage
@@ -524,18 +515,18 @@ do
 				if actor.role == "HEALER" then
 					damage = coef * random(0, 1500)
 					if actor.spec == 256 then
-						heal = coef * random(500, 10000)
-						absorb = coef * random(7500, 13000)
+						heal = coef * random(500, 1500)
+						absorb = coef * random(2500, 20000)
 					else
-						heal = coef * random(8000, 23000)
+						heal = coef * random(2500, 15000)
 						absorb = coef * random(0, 150)
 					end
 				elseif actor.role == "TANK" then
-					damage = coef * random(5000, 18000)
+					damage = coef * random(1000, 10000)
 					heal = coef * random(500, 1500)
 					absorb = coef * random(1000, 1500)
 				else
-					damage = coef * random(16000, 35000)
+					damage = coef * random(8000, 18000)
 					heal = coef * random(150, 1500)
 				end
 
@@ -1523,11 +1514,10 @@ do
 	local function create_extra_attack(args)
 		if ext_attacks[args.srcName] then return end
 
-		ext_attacks[args.srcName] = new()
-		ext_attacks[args.srcName].proc_id = args.spellid
-		ext_attacks[args.srcName].proc_name = args.spellname
-		ext_attacks[args.srcName].proc_amount = args.amount
-		ext_attacks[args.srcName].proc_time = GetTime()
+		ext_attacks[args.srcName] = tablePool.acquireHash(
+			"proc_id", args.spellid, "proc_name", args.spellname,
+			"proc_amount", args.amount, "proc_time", GetTime()
+		)
 	end
 
 	local function check_extra_attack(args)
@@ -1547,8 +1537,10 @@ do
 				return
 			end
 
+			local spellid = args.spellid -- to generate spellstring
 			args.spellid = ext_attacks[args.srcName].proc_id
 			args.spellname = format("%s (%s)", ext_attacks[args.srcName].spellname, ext_attacks[args.srcName].proc_name)
+			args.spellstring = format("%s.%s.%s", args.spellid, args.spellschool, spellid)
 
 			ext_attacks[args.srcName].proc_amount = ext_attacks[args.srcName].proc_amount - 1
 			if ext_attacks[args.srcName].proc_amount == 0 then
@@ -1611,7 +1603,7 @@ do
 			args.amount = 0
 		end
 
-		-- absorbed melee winsg?
+		-- absorbed melee swing?
 		if args.event == "SPELL_ABSORBED" and not args.amount then
 			-- slide 3 args to the left
 			args.casterGUID, args.casterName, args.casterFlags,
@@ -1624,19 +1616,21 @@ do
 			args.spellid, args.spellname, args.spellschool = 6603, L["Melee"], 0x01
 		end
 
-		if args.spellid and args.spellschool then
+		if args.spellid and args.spellschool and not args.spellstring then
 			args.spellstring = format((args.is_dot or args.is_hot) and "-%s.%s" or "%s.%s", args.spellid, args.spellschool)
 			if self:InGroup(args.srcFlags) or self:InGroup(args.dstFlags) then
 				callbacks:Fire("Skada_SpellString", args, args.spellid, args.spellstring)
 			end
 		end
-		if args.extraspellid and args.extraschool then
+
+		if args.extraspellid and args.extraschool and not args.extrastring then
 			args.extrastring = format("%s.%s", args.extraspellid, args.extraschool)
 			if self:InGroup(args.srcFlags) or self:InGroup(args.dstFlags) then
 				callbacks:Fire("Skada_SpellString", args, args.extraspellid, args.extrastring)
 			end
 		end
-		if args.absorbSpellid and args.absorbSpellschool then
+
+		if args.absorbSpellid and args.absorbSpellschool and not args.absorbSpellstring then
 			args.absorbSpellstring = format("%s.%s", args.absorbSpellid, args.absorbSpellschool)
 			if self:InGroup(args.srcFlags) or self:InGroup(args.dstFlags) then
 				callbacks:Fire("Skada_SpellString", args, args.absorbSpellid, args.absorbSpellstring)
