@@ -169,7 +169,7 @@ local function check_set_name(set)
 	end
 
 	if P.setnumber then
-		setname = prevent_duplicate(setname, Skada.char.sets, "name")
+		setname = prevent_duplicate(setname, Skada.sets, "name")
 	end
 
 	set.name = setname
@@ -208,7 +208,7 @@ local function process_set(set, curtime, mobname)
 			-- do you want to do something?
 			callbacks:Fire("Skada_SetComplete", set, curtime)
 
-			tinsert(Skada.char.sets, 1, set)
+			tinsert(Skada.sets, 1, set)
 			Skada:Debug("Segment Saved:", set.name)
 		end
 	end
@@ -223,7 +223,7 @@ end
 local function clean_sets(force)
 	local numsets = 0
 	local maxsets = 0
-	local sets = Skada.char.sets
+	local sets = Skada.sets
 
 	for i = 1, #sets do
 		local set = sets[i]
@@ -248,7 +248,7 @@ local function clean_sets(force)
 	-- the amount of segments kept can grow big, so we make sure to keep
 	-- the player reasonable, otherwise they'll encounter memory issues.
 	while maxsets > Skada.maxsets and sets[maxsets] do
-		del(tremove(Skada.char.sets, maxsets), true)
+		del(tremove(Skada.sets, maxsets), true)
 		maxsets = maxsets - 1
 	end
 end
@@ -617,7 +617,7 @@ function Window:UpdateDisplay()
 		d.label = L["Current"]
 		d.value = 1
 
-		local sets = Skada.char.sets
+		local sets = Skada.sets
 		for i = 1, #sets do
 			local set = sets[i]
 			if set then
@@ -840,7 +840,7 @@ end
 
 function Window:SetSelectedSet(set, step)
 	if step ~= nil then
-		local count = #Skada.char.sets
+		local count = #Skada.sets
 		if count > 0 then
 			if type(self.selectedset) == "number" then
 				set = self.selectedset + step
@@ -951,7 +951,7 @@ do
 		if settime == "current" or settime == "total" then
 			self.selectedset = settime
 		else
-			local sets = Skada.char.sets
+			local sets = Skada.sets
 			for i = 1, #sets do
 				local set = sets[i]
 				if set and tostring(set.starttime) == settime then
@@ -1190,7 +1190,7 @@ end
 function restore_view(win, theset, themode)
 	if theset and type(theset) == "string" and (theset == "current" or theset == "total" or theset == "last") then
 		win.selectedset = theset
-	elseif theset and type(theset) == "number" and theset <= #Skada.char.sets then
+	elseif theset and type(theset) == "number" and theset <= #Skada.sets then
 		win.selectedset = theset
 	else
 		win.selectedset = "current"
@@ -1323,7 +1323,7 @@ do
 			verify_set(mode, self.current)
 		end
 
-		local sets = self.char.sets
+		local sets = self.sets
 		for i = 1, #sets do
 			verify_set(mode, sets[i])
 		end
@@ -1368,7 +1368,7 @@ end
 
 -- deletes a set
 function Skada:DeleteSet(set, index)
-	local sets = self.char.sets
+	local sets = self.sets
 
 	if not (set and index) then
 		for i = 1, #sets do
@@ -1797,11 +1797,11 @@ end
 -- slash commands
 
 local function generate_total()
-	local sets = Skada.char.sets
+	local sets = Skada.sets
 	if not sets or #sets == 0 then return end
 
-	Skada.char.total = create_set(L["Total"], Skada.char.total)
-	Skada.total = Skada.char.total
+	Skada.sets[0] = create_set(L["Total"], Skada.sets[0])
+	Skada.total = Skada.sets[0]
 
 	local total = Skada.total
 	total.starttime = nil
@@ -2130,20 +2130,9 @@ function Skada:PLAYER_ENTERING_WORLD()
 		Skada:ScheduleTimer("UpdateRoster", 1)
 	end
 
-	-- account-wide addon version
-	local version = convert_version(self.version)
-	if version ~= G.version then
-		callbacks:Fire("Skada_UpdateCore", G.version, version)
-		G.version = version
-	end
-
-	-- character-specific addon version
-	if version ~= self.char.version then
-		if (version - self.char.version) >= 3 or (version - self.char.version) <= -3 then
-			self:Reset(true)
-		end
-		callbacks:Fire("Skada_UpdateData", self.char.version, version)
-		self.char.version = version
+	-- force reset for old structure
+	if self.sets.sets then
+		self:Reset(true)
 	end
 end
 
@@ -2340,7 +2329,7 @@ function Skada:CanReset()
 		return true
 	end
 
-	local sets = self.char.sets
+	local sets = self.sets
 	for i = 1, #sets do
 		local set = sets[i]
 		if set and not set.keep then
@@ -2355,8 +2344,7 @@ function Skada:Reset(force)
 	if self.testMode then return end
 
 	if force then
-		wipe(self.char.sets)
-		self.char.total = nil
+		wipe(self.sets)
 	elseif not self:CanReset() then
 		self:Wipe()
 		self:UpdateDisplay(true)
@@ -2373,7 +2361,7 @@ function Skada:Reset(force)
 
 	if self.total ~= nil then
 		self.total = create_set(L["Total"], self.total)
-		self.char.total = self.total
+		self.sets[0] = self.total
 	end
 
 	self.last = nil
@@ -2682,7 +2670,7 @@ function Private.reload_settings()
 
 	Skada:ClearAllIndexes()
 	Private.refresh_button()
-	Skada.total = Skada.char.total
+	Skada.total = Skada.sets[0]
 	Skada:ApplySettings()
 end
 
@@ -2738,10 +2726,7 @@ function Skada:OnInitialize()
 	P.setslimit = min(25, max(0, P.setslimit or 0))
 	P.timemesure = min(2, max(1, P.timemesure or 0))
 	P.totalflag = P.totalflag or 0x10
-	G.revision = nil
-
-	-- store the version
-	G.version = G.version or 0
+	G.version, G.revision = nil, nil
 
 	-- sets limit
 	self.maxsets = P.setstokeep + P.setslimit
@@ -2756,17 +2741,7 @@ function Skada:OnInitialize()
 end
 
 function Skada:SetupStorage()
-	self.char = self.char or SkadaCharDB
-	self.char.sets = self.char.sets or {}
-
-	-- remove old stuff.
-	if self.char.improvement then
-		self.char.improvement = nil
-	end
-	if self.char.revision then
-		self.char.revision = nil
-	end
-	self.char.version = self.char.version or 0
+	self.sets = self.sets or _G.SkadaCharDB
 end
 
 function Skada:OnEnable()
@@ -2847,11 +2822,11 @@ end
 function Skada:GetSet(s)
 	local set = nil
 	if s == "current" then
-		set = self.current or self.last or self.char.sets[1]
+		set = self.current or self.last or self.sets[1]
 	elseif s == "total" then
 		set = self.total
 	else
-		set = self.char.sets[s]
+		set = self.sets[s]
 	end
 
 	return setPrototype:Bind(set)
@@ -3202,7 +3177,7 @@ do
 
 		if Skada.total == nil then
 			Skada.total = create_set(L["Total"])
-			Skada.char.total = Skada.total
+			Skada.sets[0] = Skada.total
 		end
 
 		for i = 1, #windows do
