@@ -588,6 +588,10 @@ L["Debuff source list"] = true
 L["actor debuffs"] = function(n1, n2) return ((not n2 or n1 == n2) and "%s's debuffs" or "%s's debuffs on %s"):format(n1, n2) end
 L["%s's <%s> targets"] = true
 L["%s's <%s> sources"] = true
+L["Sunder Counter"] = true
+L["Sunder target list"] = true
+L["Sunder source list"] = true
+L["Number of seconds after application to count refreshs."] = true
 L["Enemy Buffs"] = true
 L["Enemy Debuffs"] = true
 -- CC Tracker Module --
@@ -802,6 +806,9 @@ L["Custom Colors"] = true
 L["Arena Teams"] = true
 L["Are you sure you want to reset all colors?"] = true
 L["Announce %s"] = true
+L["Announces how long it took to apply %d stacks of %s and announces when it drops."] = true
+L["%s dropped from %s!"] = true
+L["%s stacks of %s applied on %s in %s sec!"] = true
 L["My Spells"] = true
 -- total data options
 L["Total Segment"] = true

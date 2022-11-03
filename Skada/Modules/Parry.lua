@@ -1,5 +1,6 @@
 local _, Skada = ...
 local Private = Skada.Private
+if not Private.IsWotLK() then return end
 Skada:RegisterModule("Parry-Haste", function(L, P, _, _, M)
 	local mod = Skada:NewModule("Parry-Haste")
 	local targetmod = mod:NewModule("Parry target list")
@@ -104,12 +105,11 @@ Skada:RegisterModule("Parry-Haste", function(L, P, _, _, M)
 		local nr = 0
 		local actors = set.actors
 
-		for i = 1, #actors do
-			local actor = actors[i]
+		for actorname, actor in pairs(actors) do
 			if win:show_actor(actor, set, true) and actor.parry then
 				nr = nr + 1
 
-				local d = win:actor(nr, actor, actor.enemy)
+				local d = win:actor(nr, actor, actor.enemy, actorname)
 				d.value = actor.parry
 				format_valuetext(d, mod_cols, total, win.metadata)
 			end

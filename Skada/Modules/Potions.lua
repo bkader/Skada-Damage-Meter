@@ -196,12 +196,11 @@ Skada:RegisterModule("Potions", function(L, P, _, C)
 		local nr = 0
 		local actors = set.actors
 
-		for i = 1, #actors do
-			local actor = actors[i]
+		for actorname, actor in pairs(actors) do
 			if win:show_actor(actor, set, true) and actor.potion then
 				nr = nr + 1
 
-				local d = win:actor(nr, actor, actor.enemy)
+				local d = win:actor(nr, actor, actor.enemy, actorname)
 				d.value = actor.potion
 				format_valuetext(d, mod_cols, total, win.metadata)
 			end
@@ -334,6 +333,8 @@ Skada:RegisterModule("Potions", function(L, P, _, C)
 		potion_ids[67489] = "41166" -- Runic Healing Injector
 		potion_ids[67490] = "42545" -- Runic Mana Injector
 
+		if Private.IsWotLK() then return end
+
 		--[[ Cataclysm ]]--
 		potion_ids[78992] = "57193" -- Mighty Rejuvenation Potion
 		potion_ids[78993] = "57194" -- Potion of Concentration
@@ -440,17 +441,16 @@ Skada:RegisterModule("Potions", function(L, P, _, C)
 		tbl = clear(tbl or C)
 
 		local actors = self.actors
-		for i = 1, #actors do
-			local a = actors[i]
-			if a and a.potionspells and a.potionspells[potionid] and (not class or class == a.class) then
+		for aname, a in pairs(actors) do
+			if a.potionspells and a.potionspells[potionid] and (not class or class == a.class) then
 				total = total + a.potionspells[potionid]
-				tbl[a.name] = new()
-				tbl[a.name].id = a.id
-				tbl[a.name].class = a.class
-				tbl[a.name].role = a.role
-				tbl[a.name].spec = a.spec
-				tbl[a.name].enemy = a.enemy
-				tbl[a.name].count = a.potionspells[potionid]
+				tbl[aname] = new()
+				tbl[aname].id = a.id
+				tbl[aname].class = a.class
+				tbl[aname].role = a.role
+				tbl[aname].spec = a.spec
+				tbl[aname].enemy = a.enemy
+				tbl[aname].count = a.potionspells[potionid]
 			end
 		end
 

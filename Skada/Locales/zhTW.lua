@@ -538,6 +538,10 @@ L["Debuff source list"] = "減益的來源列表"
 L["actor debuffs"] = function(n1, n2) return ((not n2 or n1 == n2) and "%s的減益" or "%s 對 %s 的減益"):format(n1, n2) end
 L["%s's <%s> targets"] = "%s的<%s>目標"
 L["%s's <%s> sources"] = "%s的<%s>的來源"
+L["Sunder Counter"] = "破甲統計"
+L["Sunder target list"] = "破甲目標列表"
+L["Sunder source list"] = "破甲的來源列表"
+L["Number of seconds after application to count refreshs."] = "應用後，在計算刷新前要等待多少秒。"
 L["Enemy Buffs"] = "敵人增益"
 L["Enemy Debuffs"] = "敵人減益"
 -- CC Tracker Module --
@@ -732,6 +736,9 @@ L["Custom Colors"] = "定制色彩"
 L["Arena Teams"] = "競技場隊伍"
 L["Are you sure you want to reset all colors?"] = "确定要重置所有颜色？"
 L["Announce %s"] = "宣布：%s"
+L["Announces how long it took to apply %d stacks of %s and announces when it drops."] = "宣布應用 %d 堆 %s 所用的時間，並宣布它何時到期。"
+L["%s dropped from %s!"] = "%s 已於 %s 過期！"
+L["%s stacks of %s applied on %s in %s sec!"] = "%4$s 秒內將 %1$s 疊 %2$s 塗抹在 %3$s 上！"
 L["My Spells"] = "我的法術"
 -- total data options
 L["Total Segment"] = "總段" -- needs review

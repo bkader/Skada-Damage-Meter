@@ -540,6 +540,10 @@ L["Debuff source list"] = "디버프의 근원"
 L["actor debuffs"] = function(n1, n2) return ((not n2 or n1 == n2) and "%s 디버프" or "%s - %s의 대상"):format(n1, n2) end
 L["%s's <%s> targets"] = "%s - %s의 대상"
 -- L["%s's <%s> sources"] = ""
+-- L["Sunder Counter"] = ""
+-- L["Sunder target list"] = ""
+-- L["Sunder source list"] = ""
+-- L["Number of seconds after application to count refreshs."] = ""
 -- L["Enemy Buffs"] = ""
 -- L["Enemy Debuffs"] = ""
 -- CC Tracker Module --
@@ -735,6 +739,9 @@ L["Custom Colors"] = "맞춤 색상"
 L["Arena Teams"] = "투기장 팀"
 L["Are you sure you want to reset all colors?"] = "모든 색상을 재설정하시겠습니까?"
 L["Announce %s"] = "발표: %s"
+L["Announces how long it took to apply %d stacks of %s and announces when it drops."] = "%d 스택(%s)을 적용하는 데 걸린 시간을 알리고 언제 드롭되는지 알립니다."
+L["%s dropped from %s!"] = "%s 는 %s 에 만료!"
+L["%s stacks of %s applied on %s in %s sec!"] = "%4$s초 만에 %3$s에 %2$s %1$s중첩 적용!"
 L["My Spells"] = "내 주문"
 -- total data options
 L["Total Segment"] = "총 세그먼트" -- needs review
