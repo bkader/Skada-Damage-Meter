@@ -54,7 +54,6 @@ if not L then return end
 -- L["The width of %s."] = ""
 -- L["Height"] = ""
 -- L["The height of %s."] = ""
--- L["More Details"] = ""
 -- L["Active Time"] = ""
 -- L["Segment Time"] = ""
 -- L["Click for \124cff00ff00%s\124r"] = ""

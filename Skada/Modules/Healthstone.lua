@@ -1,11 +1,11 @@
 local _, Skada = ...
 Skada:RegisterModule("Healthstones", function(L)
-	local mod = Skada:NewModule("Healthstones")
+	local mode = Skada:NewModule("Healthstones")
 	local stonespell = 6262
 	local stonename = GetSpellInfo(stonespell)
 
 	local format = string.format
-	local mod_cols = nil
+	local mode_cols = nil
 
 	local function format_valuetext(d, columns, total, metadata)
 		d.valuetext = Skada:FormatValueCols(
@@ -32,7 +32,7 @@ Skada:RegisterModule("Healthstones", function(L)
 		end
 	end
 
-	function mod:Update(win, set)
+	function mode:Update(win, set)
 		win.title = win.class and format("%s (%s)", L["Healthstones"], L[win.class]) or L["Healthstones"]
 
 		local total = set and set:GetTotal(win.class, nil, "healthstone")
@@ -51,17 +51,17 @@ Skada:RegisterModule("Healthstones", function(L)
 
 				local d = win:actor(nr, actor, actor.enemy, actorname)
 				d.value = actor.healthstone
-				format_valuetext(d, mod_cols, total, win.metadata)
+				format_valuetext(d, mode_cols, total, win.metadata)
 			end
 		end
 	end
 
-	function mod:GetSetSummary(set, win)
+	function mode:GetSetSummary(set, win)
 		if not set then return end
 		return set:GetTotal(win and win.class, nil, "healthstone") or 0
 	end
 
-	function mod:OnEnable()
+	function mode:OnEnable()
 		stonename = stonename or GetSpellInfo(47874)
 		self.metadata = {
 			showspots = true,
@@ -72,13 +72,13 @@ Skada:RegisterModule("Healthstones", function(L)
 			icon = [[Interface\Icons\inv_stone_04]]
 		}
 
-		mod_cols = self.metadata.columns
+		mode_cols = self.metadata.columns
 
 		Skada:RegisterForCL(stone_used, {src_is_interesting_nopets = true}, "SPELL_CAST_SUCCESS")
 		Skada:AddMode(self)
 	end
 
-	function mod:OnDisable()
+	function mode:OnDisable()
 		Skada:RemoveMode(self)
 	end
 end)

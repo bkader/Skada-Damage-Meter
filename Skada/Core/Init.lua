@@ -833,17 +833,12 @@ end
 
 do
 	-- we a fake frame/fontstring to escape the string
-	local escapeFrame = nil
+	local escape_fs = nil
 	function Private.EscapeStr(str)
-		if not escapeFrame then
-			escapeFrame = CreateFrame("Frame")
-			escapeFrame.fs = escapeFrame:CreateFontString(nil, "ARTWORK", "ChatFontNormal")
-			escapeFrame:Hide()
-		end
-
-		escapeFrame.fs:SetText(str)
-		str = escapeFrame.fs:GetText()
-		escapeFrame.fs:SetText("")
+		escape_fs = escape_fs or UIParent:CreateFontString(nil, "ARTWORK", "ChatFontNormal")
+		escape_fs:SetText(str)
+		str = escape_fs:GetText()
+		escape_fs:SetText("")
 		return str
 	end
 
@@ -1493,6 +1488,13 @@ do
 		end
 	end
 
+	-- returns unit's full name
+	local function UnitFullName(unit)
+		local name, realm = UnitName(unit)
+		return realm and realm ~= "" and format("%s-%s", name, realm) or name
+	end
+	Private.UnitFullName = UnitFullName
+
 	-- adds a combatant
 	function Private.add_combatant(unit, ownerUnit)
 		local guid = UnitGUID(unit)
@@ -1501,9 +1503,7 @@ do
 		elseif guid then
 			local _, class = UnitClass(unit)
 			guidToClass[guid] = class
-
-			local name, realm = UnitName(unit)
-			guidToName[guid] = realm and realm ~= "" and format("%s-%s", name, realm) or name
+			guidToName[guid] = UnitFullName(unit)
 		end
 	end
 end
