@@ -70,6 +70,11 @@
 --   lib:GroupUnits ()
 --     Returns an array with the set of unit ids for the current group.
 --]]
+
+local WOW_PROJECT_ID = _G.WOW_PROJECT_ID
+local WOW_PROJECT_MAINLINE = _G.WOW_PROJECT_MAINLINE
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then return end
+
 local MAJOR, MINOR = "LibGroupInSpecT-1.1", 100
 
 if not LibStub then
@@ -98,10 +103,6 @@ local INSPECT_DELAY = 1.5
 local INSPECT_TIMEOUT = 10 -- If we get no notification within 10s, give up on unit
 
 local MAX_ATTEMPTS = 2
-
-local WOW_PROJECT_ID = _G.WOW_PROJECT_ID
-local WOW_PROJECT_MAINLINE = _G.WOW_PROJECT_MAINLINE
-local IS_RETAIL = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 
 function lib.events:OnUsed(target, eventname)
 	if eventname == INSPECT_READY_EVENT then
@@ -155,6 +156,7 @@ function lib:NotifyInspect(unit)
 end
 
 -- Get local handles on the key API functions
+local UNKNOWN = _G.UNKNOWN
 local CanInspect = _G.CanInspect
 local ClearInspectPlayer = _G.ClearInspectPlayer
 local GetNumSubgroupMembers = _G.GetNumSubgroupMembers
@@ -173,38 +175,11 @@ local GetInspectSpecialization = _G.GetInspectSpecialization
 local GetSpecializationRoleByID = _G.GetSpecializationRoleByID
 local GetNumSpecializationsForClassID = _G.GetNumSpecializationsForClassID
 local GetSpecializationInfoForClassID = _G.GetSpecializationInfoForClassID
-local GetInspectSelectedPvpTalent = _G.Multibar_EmptyFunc
-local GetPvpTalentSlotInfo = _G.Multibar_EmptyFunc
+local GetInspectSelectedPvpTalent = _G.C_SpecializationInfo.GetInspectSelectedPvpTalent
+local GetPvpTalentSlotInfo = _G.C_SpecializationInfo.GetPvpTalentSlotInfo
 local GetActiveSpecGroup = _G.GetActiveSpecGroup
 local MAX_TALENT_TIERS = _G.MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = _G.NUM_TALENT_COLUMNS
-
-if IS_RETAIL then
-	GetInspectSelectedPvpTalent = _G.C_SpecializationInfo.GetInspectSelectedPvpTalent
-	GetPvpTalentSlotInfo = _G.C_SpecializationInfo.GetPvpTalentSlotInfo
-	MAX_TALENT_TIERS = _G.MAX_TALENT_TIERS
-	NUM_TALENT_COLUMNS = _G.NUM_TALENT_COLUMNS
-else
-	local _L = LibStub("LibClassicSpecs")
-
-	-- localize class names
-	local LOCALIZED_CLASS_NAMES_MALE = _G.LOCALIZED_CLASS_NAMES_MALE
-	for _, class in pairs(_L.Class) do
-		class.displayName = LOCALIZED_CLASS_NAMES_MALE[class.name] or class.displayName
-	end
-
-	GetNumClasses = GetNumClasses or _L.GetNumClasses
-	GetClassInfo = GetClassInfo or _L.GetClassInfo
-	GetSpecialization = GetSpecialization or _L.GetSpecialization
-	GetSpecializationInfo = GetSpecializationInfo or _L.GetSpecializationInfo
-	GetInspectSpecialization = GetInspectSpecialization or _L.GetInspectSpecialization
-	GetSpecializationRoleByID = GetSpecializationRoleByID or _L.GetSpecializationRoleByID
-	GetNumSpecializationsForClassID = GetNumSpecializationsForClassID or _L.GetNumSpecializationsForClassID
-	GetSpecializationInfoForClassID = GetSpecializationInfoForClassID or _L.GetSpecializationInfoForClassID
-	GetActiveSpecGroup = GetActiveSpecGroup or _L.GetActiveSpecGroup
-	MAX_TALENT_TIERS = 7
-	NUM_TALENT_COLUMNS = 4
-end
 
 local UnitExists = _G.UnitExists
 local UnitGUID = _G.UnitGUID
@@ -298,7 +273,7 @@ function lib:PLAYER_LOGIN()
 	frame:RegisterEvent("UNIT_NAME_UPDATE")
 	frame:RegisterEvent("UNIT_AURA")
 	frame:RegisterEvent("CHAT_MSG_ADDON")
-	frame:RegisterEvent(IS_RETAIL and "PLAYER_SPECIALIZATION_CHANGED" or "PLAYER_TALENT_UPDATE")
+	frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 	RegisterAddonMessagePrefix(COMMS_PREFIX)
 
 	local guid = UnitGUID("player")
@@ -608,14 +583,14 @@ function lib:BuildInfo(unit)
 		end
 
 		wipe(info.pvp_talents)
-		if IS_RETAIL and is_inspect then
+		if is_inspect then
 			for index = 1, NUM_PVP_TALENT_SLOTS do
 				local talent_id = GetInspectSelectedPvpTalent(unit, index)
 				if talent_id then
 					info.pvp_talents[talent_id] = self:GetCachedPvpTalentInfoByID(talent_id)
 				end
 			end
-		elseif IS_RETAIL then
+		else
 			-- C_SpecializationInfo.GetAllSelectedPvpTalentIDs will sometimes return a lot of extra talents
 			for index = 1, NUM_PVP_TALENT_SLOTS do
 				local slot_info = GetPvpTalentSlotInfo(index)
@@ -855,18 +830,12 @@ function lib:PLAYER_TALENT_UPDATE()
 	self:DoPlayerUpdate()
 end
 
-if IS_RETAIL then
-	function lib:PLAYER_SPECIALIZATION_CHANGED(unit)
-		--  This event seems to fire a lot, and for no particular reason *sigh*
-		--  if UnitInRaid (unit) or UnitInParty (unit) then
-		--    self:Refresh (unit)
-		--  end
-		if unit and UnitIsUnit(unit, "player") then
-			self:DoPlayerUpdate()
-		end
-	end
-else
-	function lib:PLAYER_TALENT_UPDATE()
+function lib:PLAYER_SPECIALIZATION_CHANGED(unit)
+	--  This event seems to fire a lot, and for no particular reason *sigh*
+	--  if UnitInRaid (unit) or UnitInParty (unit) then
+	--    self:Refresh (unit)
+	--  end
+	if unit and UnitIsUnit(unit, "player") then
 		self:DoPlayerUpdate()
 	end
 end
