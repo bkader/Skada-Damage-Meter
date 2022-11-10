@@ -440,9 +440,7 @@ end
 
 function lib:Refresh(unit)
 	local guid = UnitGUID(unit)
-	if not guid then
-		return
-	end
+	if not guid then return end
 
 	if not self.state.mainq[guid] then
 		self.state.staleq[guid] = 1
@@ -522,9 +520,7 @@ end
 
 function lib:BuildInfo(unit)
 	local guid = UnitGUID(unit)
-	if not guid then
-		return
-	end
+	if not guid then return end
 
 	local cache = self.cache
 	local info = cache[guid] or {}
@@ -731,9 +727,7 @@ msg_idx.pvp_talents = msg_idx.end_talents + 1
 msg_idx.end_pvp_talents = msg_idx.pvp_talents + NUM_PVP_TALENT_SLOTS - 1
 
 function lib:CHAT_MSG_ADDON(prefix, datastr, scope, sender)
-	if prefix ~= COMMS_PREFIX or scope ~= self.commScope then
-		return
-	end
+	if prefix ~= COMMS_PREFIX or scope ~= self.commScope then return end
 	--[===[@debug@
   debug ("Incoming LGIST update from "..(scope or "nil").."/"..(sender or "nil")..": "..(datastr:gsub(COMMS_DELIM,";") or "nil")) --@end-debug@]===]
 
@@ -886,7 +880,7 @@ end
 function lib:QueuedInspections()
 	local q = {}
 	for guid in pairs(self.state.mainq) do
-		table.insert(q, guid)
+		q[#q + 1] = guid
 	end
 	return q
 end
@@ -894,7 +888,7 @@ end
 function lib:StaleInspections()
 	local q = {}
 	for guid in pairs(self.state.staleq) do
-		table.insert(q, guid)
+		q[#q + 1] = guid
 	end
 	return q
 end
@@ -946,10 +940,10 @@ local unitstrings = {
 	player = {"player"}
 }
 for i = 1, 40 do
-	table.insert(unitstrings.raid, "raid" .. i)
+	unitstrings.raid[#unitstrings.raid + 1] = ("raid%d"):format(i)
 end
 for i = 1, 4 do
-	table.insert(unitstrings.party, "party" .. i)
+	unitstrings.party[#unitstrings.party + 1] = ("party%d"):format(i)
 end
 
 -- Returns an array with the set of unit ids for the current group

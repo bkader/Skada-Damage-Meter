@@ -64,7 +64,7 @@ Skada:RegisterModule("Damage", function(L, P)
 	end
 
 	local dmg = {}
-	local function log_damage(set, isdot)
+	local function log_damage(set)
 		if not dmg.amount then return end
 
 		local actor = Skada:GetActor(set, dmg.actorid, dmg.actorname, dmg.actorflags)
@@ -121,13 +121,12 @@ Skada:RegisterModule("Damage", function(L, P)
 			spell = actor.damagespells[dmg.spellid]
 		end
 
-		-- start casts count for non DoTs.
-		if dmg.spellid ~= 6603 and not isdot then
-			spell.casts = spell.casts or 1
-		end
-
 		spell.count = (spell.count or 0) + 1
 		spell.amount = spell.amount + dmg.amount
+
+		if dmg.spell ~= 6603 and not dmg.is_dot then
+			spell.casts = spell.casts or 1
+		end
 
 		if spell.total then
 			spell.total = spell.total + dmg.amount + absorbed
@@ -217,6 +216,7 @@ Skada:RegisterModule("Damage", function(L, P)
 
 			dmg.spell = t.spellid
 			dmg.spellid = t.spellstring
+			dmg.is_dot = t.is_dot
 
 			dmg.amount = t.amount
 			dmg.overkill = t.overkill
@@ -229,7 +229,7 @@ Skada:RegisterModule("Damage", function(L, P)
 			dmg.misstype = t.misstype
 
 			Skada:FixPets(dmg)
-			Skada:DispatchSets(log_damage, t.is_dot)
+			Skada:DispatchSets(log_damage)
 		end
 	end
 

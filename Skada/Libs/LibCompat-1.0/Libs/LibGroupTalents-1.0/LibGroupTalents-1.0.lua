@@ -114,7 +114,7 @@ end
 local frame = lib.frame or CreateFrame("Frame", "LibGroupTalents_Frame")
 lib.frame = frame
 frame:UnregisterAllEvents()
-frame:RegisterEvent("RAID_ROSTER_UPDATE")
+frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 frame:RegisterEvent("UNIT_NAME_UPDATE")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
@@ -237,12 +237,11 @@ function lib:PLAYER_LOGIN()
 	lib.PLAYER_LOGIN = nil
 end
 
--- RAID_ROSTER_UPDATE
-function lib:RAID_ROSTER_UPDATE()
+-- GROUP_ROSTER_UPDATE
+function lib:GROUP_ROSTER_UPDATE()
 	self.raidRosterUpdate = true
 	frame:Show()
 end
-lib.GROUP_ROSTER_UPDATE = lib.RAID_ROSTER_UPDATE
 
 -- UNIT_NAME_UPDATE
 function lib:UNIT_NAME_UPDATE(unit)

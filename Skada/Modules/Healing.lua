@@ -850,8 +850,8 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		win.title = uformat(L["%s's heal sources"], win.actorname)
 		if not set or not win.actorname then return end
 
-		local actor = set:GetActor(win.actorid, win.actorname, true)
-		if not actor or actor.enemy then return end -- unavailable for enemies
+		local actor = set:GetActor(win.actorid, win.actorname)
+		if not actor then return end
 
 		local sources, total = get_actor_heal_sources(actor, set)
 		if not sources or total == 0 then
@@ -881,8 +881,8 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		win.title = L["actor heal spells"](win.actorname or L["Unknown"])
 		if not set or not win.actorname then return end
 
-		local actor = set:GetActor(win.actorid, win.actorname, true)
-		if not actor or actor.enemy then return end -- unavailable for enemies
+		local actor = set:GetActor(win.actorid, win.actorname)
+		if not actor then return end
 
 		local spells, total = get_actor_healed_spells(actor, set)
 		if not spells or total == 0 then
@@ -913,7 +913,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		if not set or not win.actorname then return end
 
 		local actor = set:GetActor(win.targetid, win.targetname)
-		if not actor or actor.enemy then return end -- unavailable for enemies yet
+		if not actor then return end
 
 		local total = actor and actor:GetAbsorbHealOnTarget(win.actorname)
 		if not total or total == 0 then
@@ -962,7 +962,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		win.title = uformat(L["%s's <%s> sources"], win.actorname, win.spellname)
 		if not set or not win.actorname or not win.spellid then return end
 
-		local actor = set:GetActor(win.actorid, win.actorname, true)
+		local actor = set:GetActor(win.actorid, win.actorname)
 		if not actor or actor.enemy then return end
 
 		local sources, total = get_actor_heal_spell_sources(actor, set, win.spellid)

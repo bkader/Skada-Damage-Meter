@@ -795,37 +795,80 @@ end
 -- instance difficulty
 
 do
-	local GetRaidDifficulty = GetRaidDifficulty
-	local GetDungeonDifficulty = GetDungeonDifficulty
+	local GetInstanceInfo = GetInstanceInfo
+	local C_Garrison = _G.C_Garrison
 
 	function Skada:GetInstanceDiff()
-		local _, insType, diff, _, count, dynDiff, isDynamic = GetInstanceInfo()
-		if insType == "none" then
-			return diff == 1 and "wb" or "NaN" -- World Boss
-		elseif insType == "raid" and isDynamic then
-			if diff == 1 or diff == 3 then
-				return (dynDiff == 0) and "10n" or (dynDiff == 1) and "10h" or "NaN"
-			elseif diff == 2 or diff == 4 then
-				return (dynDiff == 0) and "25n" or (dynDiff == 1) and "25h" or "NaN"
-			end
-		elseif insType then
-			if diff == 1 then
-				local comp_diff = GetRaidDifficulty()
-				if diff ~= comp_diff and (comp_diff == 2 or comp_diff == 4) then
-					return "tw" -- timewalker
-				else
-					return count and format("%dn", count) or "10n"
-				end
-			else
-				return diff == 2 and "25n" or diff == 3 and "10h" or diff == 4 and "25h" or "NaN"
-			end
-		elseif insType == "party" then
-			if diff == 1 then
-				return "5n"
-			elseif diff == 2 then
-				local comp_diff = GetDungeonDifficulty()
-				return comp_diff == 3 and "mc" or "5h" -- mythic or heroic 5man
-			end
+		local _, insType, diff, diffName, _, _, _, _, groupSize = GetInstanceInfo()
+
+		if diff == 0 or diff == 172 or (diff == 1 and insType == "none") or (C_Garrison and C_Garrison:IsOnGarrisonMap()) then
+			return "wb"
+		elseif diff == 1 or diff == 173 or diff == 184 or diff == 150 then --5man nm
+			return "5n"
+		elseif diff == 2 or diff == 174 then -- 5man hc
+			return "5h"
+		elseif diff == 3 or diff == 175 then -- legacy 10man nm
+			return "10n"
+		elseif diff == 4 or diff == 176 then -- legacy 25man nm
+			return "25n"
+		elseif diff == 5 or diff == 193 then -- legacy 10man hc
+			return "10h"
+		elseif diff == 6 or diff == 194 then -- legacy 25man hc
+			return "25h"
+		elseif diff == 7 then -- legacy 25man LFR
+			return "25lfr"
+		elseif diff == 8 then -- dungeon, mythic+
+			return "5c"
+		elseif diff == 9 or diff == 186 then -- legacy 40man raids
+			return "40n"
+		elseif diff == 11 then -- heroic scenario
+			return "hcs"
+		elseif diff == 12 or diff == 152 then -- normal scenario
+			return "nms"
+		elseif diff == 14 then -- flexible normal raid
+			return "nm"
+		elseif diff == 15 then -- flexible heroic raid
+			return "hc"
+		elseif diff == 16 then -- mythic 20man raid
+			return "mc"
+		elseif diff == 17 or diff == 151 then -- flexible lfr
+			return "lfr"
+		elseif diff == 18 then -- special event 40 player lfr
+			return "40e"
+		elseif diff == 19 then -- special event 5 player
+			return "5e"
+		elseif diff == 20 then -- special event 20 player lfr
+			return "20e"
+		elseif diff == 23 then -- mythic 5man dungeon
+			return "5m"
+		elseif diff == 24 or diff == 33 then -- timewalking dungeon, timewalking raid
+			return "tw"
+		elseif diff == 38 then -- normal bfa island expedition
+			return "ni"
+		elseif diff == 39 then -- heroic bfa island expedition
+			return "hi"
+		elseif diff == 40 then -- mythic bfa island expedition
+			return "mi"
+		elseif diff == 147 then -- normal bfa warfront
+			return "nw"
+		elseif diff == 148 or diff == 185 then -- 20man classic raid
+			return "20n"
+		elseif diff == 149 then --heroic bfa warfront
+			return "hw"
+		elseif diff == 152 or diff == 167 then -- visions of nzoth (bfa), torghast (shadowlands)
+			return "pc"
+		elseif diff == 153 then ---teaming bfa? island expedition
+			return "ti"
+		elseif diff == 168 then -- path of ascention (shadowlands)
+			return "cos"
+		elseif diff == 169 then -- path of ascention (shadowlands)
+			return "los"
+		elseif diff == 170 then -- path of ascention (shadowlands)
+			return "wis"
+		elseif diff == 171 then -- path of ascention (shadowlands)
+			return "hus"
+		else
+			return "NaN"
 		end
 	end
 end

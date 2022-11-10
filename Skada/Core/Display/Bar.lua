@@ -551,6 +551,7 @@ Skada:RegisterDisplay("Bar Display", "mod_bar_desc", function(L, P, G)
 			if Skada.testMode then return end
 
 			local win, id, label = bar.win, bar.id, bar.text
+			if not win then return end
 
 			if button == self.db.button then
 				self:ScrollStart(win)
