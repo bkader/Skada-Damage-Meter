@@ -156,6 +156,11 @@ do
 	function ns:IsNone(flags)
 		return HasFlag(flags, BITMASK_NONE)
 	end
+
+	------------------------------------------------------
+	-- default flags used mainly for scan
+	------------------------------------------------------
+	Private.DEFAULT_FLAGS = 0x00000417
 end
 
 -------------------------------------------------------------------------------
@@ -1370,6 +1375,7 @@ do
 		customIcons[27240] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
 		customIcons[47882] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
 		customIcons[54968] = [[Interface\ICONS\inv_glyph_majorpaladin]] --> Glyph of Holy Light
+		customIcons[67545] = [[Interface\ICONS\spell_fire_flamebolt]] --> Empowered Fire
 	end
 
 	function Private.spell_info(spellid)
