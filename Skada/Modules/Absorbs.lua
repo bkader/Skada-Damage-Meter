@@ -13,9 +13,9 @@ local hits_perc = "%s (\124cffffffff%s\124r)"
 
 Skada:RegisterModule("Absorbs", function(L, P, G)
 	local mode = Skada:NewModule("Absorbs")
-	local mode_spell = mode:NewModule("Absorb spell list")
-	local mode_target = mode:NewModule("Absorbed target list")
-	local mode_target_spell = mode_target:NewModule("Absorb spell list")
+	local mode_spell = mode:NewModule("Spell List")
+	local mode_target = mode:NewModule("Target List")
+	local mode_target_spell = mode_target:NewModule("Spell List")
 	tooltip_school = tooltip_school or Skada.tooltip_school
 	local ignored_spells = Skada.ignored_spells.absorb -- Edit Skada\Core\Tables.lua
 	local passive_spells = Skada.ignored_spells.time -- Edit Skada\Core\Tables.lua
@@ -205,8 +205,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 				end
 			end
 		end
-
-		if t.__temp then t = del(t) end
 	end
 
 	local function spell_absorbed(t)
@@ -462,6 +460,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 					t.amount = amount
 					t.__temp = true
 					handle_shield(t)
+					t = del(t)
 				end
 			end
 		end
@@ -494,6 +493,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 					t.amount = amount
 					t.__temp = true
 					handle_shield(t)
+					t = del(t)
 				end
 			end
 		end
@@ -580,9 +580,9 @@ end)
 
 Skada:RegisterModule("Absorbs and Healing", function(L, P)
 	local mode = Skada:NewModule("Absorbs and Healing")
-	local mode_spell = mode:NewModule("Absorbs and healing spells")
-	local mode_target = mode:NewModule("Absorbed and healed targets")
-	local mode_target_spell = mode_target:NewModule("Absorbs and healing spells")
+	local mode_spell = mode:NewModule("Spell List")
+	local mode_target = mode:NewModule("Target List")
+	local mode_target_spell = mode_target:NewModule("Spell List")
 	tooltip_school = tooltip_school or Skada.tooltip_school
 	local mode_cols = nil
 
@@ -1001,7 +1001,7 @@ end, "Absorbs", "Healing", "Absorbs and Healing")
 
 Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 	local mode = Skada:NewModule("Healing Done By Spell")
-	local mode_source = mode:NewModule("Healing spell sources")
+	local mode_source = mode:NewModule("Source List")
 	local clear = Private.clearTable
 	local get_absorb_heal_spells = nil
 	local mode_cols = nil

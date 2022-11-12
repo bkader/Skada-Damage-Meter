@@ -3,7 +3,7 @@ local Private = Skada.Private
 if not Private.IsWotLK() then return end
 Skada:RegisterModule("Parry-Haste", function(L, P, _, _, M)
 	local mode = Skada:NewModule("Parry-Haste")
-	local mode_target = mode:NewModule("Parry target list")
+	local mode_target = mode:NewModule("Target List")
 	local pairs, format, uformat = pairs, string.format, Private.uformat
 	local mode_cols = nil
 
