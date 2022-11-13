@@ -150,7 +150,7 @@ do
 		end
 	end
 	function del(t)
-		if t then
+		if type(t) == "table" then
 			wipe(t)
 			t[""] = true
 			t[""] = nil

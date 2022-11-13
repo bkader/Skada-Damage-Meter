@@ -241,7 +241,7 @@ end
 do
 	local function anchorOnMouseDown(self, button)
 		local p = self:GetParent()
-		if p.locked or button == "MiddleButton" then
+		if (button == "LeftButton" and p.locked) or button == "MiddleButton" then
 			stretchOnMouseDown(p.stretcher, "LeftButton")
 		elseif button == "LeftButton" and not p.locked and not p.isMoving then
 			p.isMoving = true
@@ -255,7 +255,7 @@ do
 
 	local function anchorOnMouseUp(self, button)
 		local p = self:GetParent()
-		if p.locked or button == "MiddleButton" then
+		if (button == "LeftButton" and p.locked) or button == "MiddleButton" then
 			stretchOnMouseUp(p.stretcher, "LeftButton")
 		elseif button == "LeftButton" and not p.locked and p.isMoving then
 			p.isMoving = nil

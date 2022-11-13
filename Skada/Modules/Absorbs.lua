@@ -40,18 +40,9 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		end
 	end
 
-	local function log_spellcast(set, actorid, actorname, actorflags, spellid)
-		if not set or (set == Skada.total and not P.totalidc) then return end
-
-		local actor = Skada:FindActor(set, actorid, actorname, actorflags)
-		if actor and actor.absorbspells and actor.absorbspells[spellid] then
-			actor.absorbspells[spellid].casts = (actor.absorbspells[spellid].casts or 1) + 1
-		end
-	end
-
 	local absorb = {}
 	local function log_absorb(set, nocount)
-		local amount = max(0, absorb.amount - absorb.overheal)
+		local amount = absorb.amount
 		if amount == 0 then return end
 
 		local actor = Skada:GetActor(set, absorb.actorid, absorb.actorname, absorb.actorflags)
@@ -65,11 +56,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		actor.absorb = (actor.absorb or 0) + amount
 		set.absorb = (set.absorb or 0) + amount
 
-		if absorb.overheal then
-			actor.overheal = (actor.overheal or 0) + absorb.overheal
-			set.overheal = (set.overheal or 0) + absorb.overheal
-		end
-
 		-- saving this to total set may become a memory hog deluxe.
 		if set == Skada.total and not P.totalidc then return end
 
@@ -81,13 +67,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 			spell = actor.absorbspells[absorb.spellid]
 		end
 		spell.amount = spell.amount + amount
-
-		if absorb.overheal then
-			spell.o_amt = (spell.o_amt or 0) + absorb.overheal
-		end
-
-		-- start cast counter.
-		spell.casts = spell.casts or 1
 
 		if not nocount then
 			spell.count = (spell.count or 0) + 1
@@ -122,89 +101,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 			target = spell.targets[absorb.dstName]
 		end
 		target.amount = target.amount + amount
-
-		if absorb.overheal then
-			target.o_amt = (target.o_amt or 0) + amount
-		end
-	end
-
-	local BITMASK_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER or 0x00000100
-	local BITMASK_REACTION_MASK = COMBATLOG_OBJECT_REACTION_MASK or 0x000000F0
-	local BITMASK_AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER or 0x00000008
-
-	local function validate_shield(srcFlags, dstFlags)
-		local valid = srcFlags and dstFlags and (band(srcFlags, dstFlags, BITMASK_CONTROL_PLAYER) ~= 0)
-		valid = valid and (srcFlags and band(srcFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
-		valid = valid and (dstFlags and band(dstFlags, BITMASK_AFFILIATION_OUTSIDER) == 0)
-		valid = valid and (srcFlags and dstFlags and band(srcFlags, dstFlags, BITMASK_REACTION_MASK) ~= 0)
-		return valid
-	end
-
-	local shields = {}
-	local function handle_shield(t)
-		if not t.amount or not t.spellid or ignored_spells[t.spellid] or not t.spellstring then return end
-
-		local dstName = Skada:FixPetsName(t.dstGUID, t.dstName, t.dstFlags)
-
-		if t.event == "SPELL_AURA_APPLIED" then
-			if not validate_shield(t.srcFlags, t.dstFlags) then return end
-
-			local shield = shields[dstName] and shields[dstName][t.spellid]
-			if not shield then
-				shields[dstName] = shields[dstName] or new()
-				shields[dstName][t.spellid] = new()
-				shield = shields[dstName][t.spellid]
-			end
-			shield[t.srcName] = t.amount
-
-			-- record spell cast (ignore pre-shields)
-			if not t.__temp then
-				local srcGUID, srcName, srcFlags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
-				Skada:DispatchSets(log_spellcast, srcGUID, srcName, srcFlags, t.spellstring)
-			end
-
-		elseif t.event == "SPELL_AURA_REFRESH" then
-			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
-			if not prev_amount then return end
-
-			absorb.actorid = t.srcGUID
-			absorb.actorname = t.srcName
-			absorb.actorflags = t.srcFlags
-			absorb.dstName = dstName
-
-			absorb.spell = t.spellid
-			absorb.spellid = t.spellstring
-			absorb.amount = 0
-			absorb.overheal = prev_amount
-			absorb.critical = nil
-
-			Skada:FixPets(absorb)
-			Skada:DispatchSets(log_absorb)
-			shields[dstName][t.spellid][t.srcName] = t.amount -- refresh amount
-
-		else
-			local prev_amount = shields[dstName] and shields[dstName][t.spellid] and shields[dstName][t.spellid][t.srcName]
-			if prev_amount then
-				absorb.actorid = t.srcGUID
-				absorb.actorname = t.srcName
-				absorb.actorflags = t.srcFlags
-				absorb.dstName = dstName
-
-				absorb.spell = t.spellid
-				absorb.spellid = t.spellstring
-				absorb.amount = 0
-				absorb.overheal = t.amount
-				absorb.critical = nil
-
-				Skada:FixPets(absorb)
-				Skada:DispatchSets(log_absorb)
-
-				shields[dstName][t.spellid][t.srcName] = del(shields[dstName][t.spellid][t.srcName]) -- remove shield
-				if next(shields[dstName][t.spellid]) == nil then
-					shields[dstName][t.spellid] = del(shields[dstName][t.spellid])
-				end
-			end
-		end
 	end
 
 	local function spell_absorbed(t)
@@ -253,10 +149,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 
 		tooltip:AddLine(actor.name .. " - " .. label)
 		tooltip_school(tooltip, id)
-
-		if spell.casts and spell.casts > 0 then
-			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
-		end
 
 		if not spell.count or spell.count == 0 then return end
 
@@ -422,90 +314,6 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		end
 	end
 
-	do
-		local UnitGUID, UnitName = UnitGUID, UnitName
-		local UnitBuff, UnitIsDeadOrGhost = UnitBuff, UnitIsDeadOrGhost
-		local GroupIterator = Skada.GroupIterator
-
-		-- per-session spell strings cache
-		local spellstrings = G.spellstrings or {}
-		G.spellstrings = spellstrings
-
-		local cache_events = {SPELL_AURA_APPLIED = true, SPELL_AURA_REFRESH = true}
-		Skada:RegisterCallback("Skada_SpellString", function(_, t, spellid, spellstring)
-			if cache_events[t.event] and t.auratype == "BUFF" and t.amount and not spellstrings[spellid] then
-				spellstrings[spellid] = spellstring
-			end
-		end)
-
-		local function check_starting_shields(unit)
-			if UnitIsDeadOrGhost(unit) then return end
-
-			local dstGUID, dstName = UnitGUID(unit), UnitName(unit)
-			for i = 1, 40 do
-				local _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, _, _, amount = UnitBuff(unit, i)
-				if not spellid then
-					break -- nothing found
-				elseif not ignored_spells[spellid] and unitCaster and amount then
-					local t = new()
-					t.event = "SPELL_AURA_APPLIED"
-					t.srcGUID = UnitGUID(unitCaster)
-					t.srcName = UnitName(unitCaster)
-					t.srcFlags = 0
-					t.dstGUID = dstGUID
-					t.dstName = dstName
-					t.dstFlags = 0
-					t.spellid = spellid
-					t.spellstring = spellstrings[spellid]
-					t.amount = amount
-					t.__temp = true
-					handle_shield(t)
-					t = del(t)
-				end
-			end
-		end
-
-		function mode:CombatEnter(_, set)
-			if not G.inCombat and set and not set.stopped and not self.checked then
-				GroupIterator(check_starting_shields)
-				self.checked = true
-			end
-		end
-
-		local function check_remaining_shields(unit)
-			if UnitIsDeadOrGhost(unit) then return end
-
-			local dstGUID, dstName = UnitGUID(unit), UnitName(unit)
-			for i = 1, 40 do
-				local _, _, _, _, _, _, unitCaster, _, _, spellid, _, _, _, _, _, amount = UnitBuff(unit, i)
-				if not spellid then
-					break -- nothing found
-				elseif not ignored_spells[spellid] and unitCaster and amount then
-					local t = new()
-					t.event = "SPELL_AURA_REMOVED"
-					t.srcGUID = UnitGUID(unitCaster)
-					t.srcName = UnitName(unitCaster)
-					t.srcFlags = 0
-					t.dstGUID = dstGUID
-					t.dstName = dstName
-					t.dstFlags = 0
-					t.spellid = spellid
-					t.amount = amount
-					t.__temp = true
-					handle_shield(t)
-					t = del(t)
-				end
-			end
-		end
-
-		function mode:CombatLeave()
-			GroupIterator(check_remaining_shields)
-			self.checked = nil
-			wipe(absorb)
-			clear(shields)
-		end
-	end
-
 	function mode:GetSetSummary(set, win)
 		local aps, amount = set:GetAPS(win and win.class)
 		local valuetext = Skada:FormatValueCols(
@@ -535,29 +343,11 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		mode_spell.nototal = true
 		mode_target.nototal = true
 
-		local flags_src = {src_is_interesting = true}
-
-		Skada:RegisterForCL(
-			handle_shield,
-			flags_src,
-			"SPELL_AURA_APPLIED",
-			"SPELL_AURA_REFRESH",
-			"SPELL_AURA_REMOVED"
-		)
-
-		Skada:RegisterForCL(
-			spell_absorbed,
-			{dst_is_interesting = true},
-			"SPELL_ABSORBED"
-		)
-
-		Skada.RegisterMessage(self, "COMBAT_PLAYER_ENTER", "CombatEnter")
-		Skada.RegisterMessage(self, "COMBAT_PLAYER_LEAVE", "CombatLeave")
+		Skada:RegisterForCL(spell_absorbed, {dst_is_interesting = true}, "SPELL_ABSORBED")
 		Skada:AddMode(self, "Absorbs and Healing")
 	end
 
 	function mode:OnDisable()
-		Skada.UnregisterAllMessages(self)
 		Skada:RemoveMode(self)
 	end
 
@@ -630,10 +420,6 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 
 		tooltip:AddLine(actor.name .. " - " .. label)
 		tooltip_school(tooltip, id)
-
-		if spell.casts and spell.casts > 0 then
-			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
-		end
 
 		if not spell.count or spell.count == 0 then return end
 
@@ -1028,10 +814,6 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 		if not spell then return end
 
 		tooltip:AddLine(label .. " - " .. win.spellname)
-
-		if spell.casts then
-			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
-		end
 
 		if spell.count then
 			tooltip:AddDoubleLine(L["Count"], spell.count, 1, 1, 1)

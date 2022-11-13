@@ -34,18 +34,6 @@ Skada:RegisterModule("Healing", function(L, P)
 	local wipe, del = wipe, Private.delTable
 	local mode_cols = nil
 
-	local function log_spellcast(set, actorid, actorname, spellid)
-		if not set or (set == Skada.total and not P.totalidc) then return end
-
-		local actor = Skada:FindActor(set, actorid, actorname, true)
-		if actor and actor.healspells and actor.healspells[spellid] then
-			-- because some HoTs don't have an initial amount
-			-- we start from 1 and not from 0 if casts wasn't
-			-- previously set. Otherwise we just increment.
-			actor.healspells[spellid].casts = (actor.healspells[spellid].casts or 1) + 1
-		end
-	end
-
 	local heal = {}
 	local function log_heal(set, ishot)
 		if not heal.amount then return end
@@ -123,13 +111,6 @@ Skada:RegisterModule("Healing", function(L, P)
 		end
 	end
 
-	local function spell_cast(t)
-		if t.srcGUID and t.dstGUID and t.spellid and not ignored_spells[t.spellid] then
-			local srcGUID, srcName, srcFlags = Skada:FixMyPets(t.srcGUID, t.srcName, t.srcFlags)
-			Skada:DispatchSets(log_spellcast, srcGUID, srcName, t.spellstring)
-		end
-	end
-
 	local function spell_heal(t)
 		if not t.spellid or ignored_spells[t.spellid] then return end
 
@@ -176,10 +157,6 @@ Skada:RegisterModule("Healing", function(L, P)
 
 		tooltip:AddLine(actor.name .. " - " .. label)
 		tooltip_school(tooltip, id)
-
-		if spell.casts and spell.casts > 0 then
-			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
-		end
 
 		if not spell.count or spell.count == 0 then return end
 
@@ -369,14 +346,6 @@ Skada:RegisterModule("Healing", function(L, P)
 		mode_target.nototal = true
 
 		local flags_src = {src_is_interesting = true}
-
-		Skada:RegisterForCL(
-			spell_cast,
-			flags_src,
-			"SPELL_CAST_START",
-			"SPELL_CAST_SUCCESS"
-		)
-
 		Skada:RegisterForCL(
 			spell_heal,
 			flags_src,
@@ -623,11 +592,6 @@ Skada:RegisterModule("Total Healing", function(L)
 		if not spell.count or spell.count == 0 then return end
 
 		tooltip:AddLine(" ")
-
-		-- spell casts
-		if spell.casts then
-			tooltip:AddDoubleLine(L["Casts"], spell.casts, 1, 1, 1)
-		end
 
 		-- hits and average
 		tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)

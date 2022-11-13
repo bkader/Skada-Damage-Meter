@@ -522,6 +522,101 @@ ns.extra_cc_spells = extra_cc_spells
 ns.deathlog_tracked_buff = deathlog_tracked_buff
 
 -------------------------------------------------------------------------------
+-- grouped and custom units
+
+do
+	------------------------------------------------------
+	-- grouped units (fake)
+	------------------------------------------------------
+	--
+	-- holds the units to which the damage done is collected
+	-- into a single standalone fake unit.
+	--
+	-- table structure:
+	-- option #1:	[creature id] = "Group Name"
+	-- option #2:	[creature name] = "Group Name"
+	--
+
+	local grouped_units = {}
+
+	------------------------------------------------------
+	-- custom units (fake)
+	------------------------------------------------------
+	--
+	-- holds units that should craete a fake unit at certain
+	-- health or power percentage.
+	-- Useful in case you want to collect stuff done to units
+	-- at certain encounter phases for example.
+	--
+	-- table structure
+	-- 	name: 		name of the fake unit (optional)
+	-- 	text: 		text to use *format()* with (optional)
+	-- 	start: 		when to start collecting (1 = 100%)
+	-- 	stop: 		when to stop collecting (0.5 = 50%)
+	-- 	diff: 		table of allowed difficulties (omit for all)
+	-- 	power: 		which type of power to trach (omit for health)
+	-- 	values: 	table of difficulties to max health (optional)
+	--
+	-- **optional** fields will be generated and cached by the addon.
+	--
+
+	local custom_units = {}
+
+	------------------------------------------------------
+	-- Wrath of the Lich King Classic
+	------------------------------------------------------
+	if IS_WRATH then
+		-- ------------- --
+		-- custom groups
+		-- ------------- --
+
+		-- The Lich King: Important targets
+		grouped_units[36597] = L["Important targets"] -- The Lich King
+		grouped_units[36609] = L["Important targets"] -- Val'kyr Shadowguard
+		grouped_units[36633] = L["Important targets"] -- Ice Sphere
+		grouped_units[36701] = L["Important targets"] -- Raging Spirit
+		grouped_units[39190] = L["Important targets"] -- Wicked Spirit
+		-- Professor Putricide: Oozes
+		grouped_units[37562] = L["Oozes"] -- Gas Cloud (Red Ooze)
+		grouped_units[37697] = L["Oozes"] -- Volatile Ooze (Green Ooze)
+		-- Blood Prince Council: Princes overkilling
+		grouped_units[37970] = L["Princes overkilling"] -- Prince Valanar
+		grouped_units[37972] = L["Princes overkilling"] -- Prince Keleseth
+		grouped_units[37973] = L["Princes overkilling"] -- Prince Taldaram
+		-- Lady Deathwhisper: Adds
+		grouped_units[37949] = L["Adds"] -- Cult Adherent
+		grouped_units[38136] = L["Adds"] -- Empowered Adherent
+		grouped_units[38010] = L["Adds"] -- Reanimated Adherent
+		grouped_units[37890] = L["Adds"] -- Cult Fanatic
+		grouped_units[38135] = L["Adds"] -- Deformed Fanatic
+		grouped_units[38009] = L["Adds"] -- Reanimated Fanatic
+		grouped_units[38472] = L["Adds"] -- Darnavan
+		-- Halion: Halion and Inferno
+		grouped_units[39863] = L["Halion and Inferno"] -- Halion
+		grouped_units[40681] = L["Halion and Inferno"] -- Living Inferno
+
+		-- ------------ --
+		-- custom units --
+		-- ------------ --
+
+		-- Icecrown Citadel
+		custom_units[36855] = {text = L["%s - Phase 2"], start = 0, power = 0} -- Lady Deathwhisper
+		custom_units[36678] = {text = L["%s - Phase 3"], start = 0.35} -- Professor Putricide
+		custom_units[36853] = {text = L["%s - Phase 2"], start = 0.35} -- Sindragosa
+		custom_units[36597] = {text = L["%s - Phase 3"], start = 0.4, stop = 0.1} -- The Lich King
+		custom_units[36609] = {name = L["Valkyrs overkilling"], start = 0.5, useful = true, diff = {["10h"] = true, ["25h"] = true}} -- Valkyrs overkilling
+
+		-- Trial of the Crusader
+		custom_units[34564] = {text = L["%s - Phase 2"], start = 0.3} -- Anub'arak
+	end
+
+	------------------------------------------------------
+
+	ns.grouped_units = grouped_units
+	ns.custom_units = custom_units
+end
+
+-------------------------------------------------------------------------------
 -- DO NOT EDIT THE CODE BELOW (unless you know what you're doing)
 -------------------------------------------------------------------------------
 
