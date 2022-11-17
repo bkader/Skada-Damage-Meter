@@ -24,7 +24,7 @@
 ## X-Category: Combat
 ## X-License: MIT/X
 ## X-Email: bkader@mail.com
-## X-Website: https://github.com/bkader/Skada/tree/retail
+## X-Website: https://github.com/bkader/Skada-Damage-Meter
 ## X-Discord: https://discord.gg/a8z5CyS3eW
 
 Libs\Load.xml
