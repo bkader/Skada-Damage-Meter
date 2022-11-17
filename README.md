@@ -11,14 +11,9 @@ Skada is a modular damage meter with various viewing modes, segmented fights and
 <p align="center"><img src="https://user-images.githubusercontent.com/4732702/193599485-4a72ad9b-8de0-417b-a274-15d0681487ae.png" alt="Skada WotlK"></p>
 
 _**FOR PRIVATE SERVERS**_:
-
-* _[Wrath of the Lich King](https://github.com/bkader/Skada/tree/main)_
-* _[Cataclysm](https://github.com/bkader/Skada/tree/cataclysm)_
-* _[Mists of Pandaria](https://github.com/bkader/Skada/tree/pandaria)_
-
-_**FOR OFFICIAL SERVERS**_:
-
-* _[Classic](https://github.com/bkader/Skada/tree/classic)_
+* _[Wrath of the Lich King](https://github.com/bkader/Skada-WoTLK)_
+* _[Cataclysm](https://github.com/bkader/Skada-Cata)_
+* _[Mists of Pandaria](https://github.com/bkader/Skada-MoP)_
 
 ## IMPORTANT: How to install
 
