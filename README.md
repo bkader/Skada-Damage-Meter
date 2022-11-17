@@ -1,8 +1,8 @@
 # Skada Damage Meter (_Revisited - v1.8.82_)
 
 ![Discord](https://img.shields.io/discord/795698054371868743?label=discord)
-![GitHub last commit](https://img.shields.io/github/last-commit/bkader/Skada)
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/bkader/Skada?label=version)
+![GitHub last commit](https://img.shields.io/github/last-commit/bkader/Skada-Damage-Meter)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/bkader/Skada-Damage-Meter?label=version)
 
 _This version is a total **Rewrite** of Skada `r301` for `3.3.5` and not a **Backport** like some believe._
 
@@ -18,8 +18,8 @@ _**FOR PRIVATE SERVERS**_:
 ## IMPORTANT: How to install
 
 1. If you used the default on **Skada** before, please make sure to delete all its files from `Interface\AddOns` folder as well as all its _SavedVariables_ from `WTF` folder (_just delete all `Skada.lua` and `Skada.lua.bak` for this folder. Use the search box for quick delete_). If you are new, skip this step.
-2. [Download the package](https://github.com/bkader/Skada/archive/refs/heads/retail.zip).
-3. Open the Zip package inside which you will find a single folder named `Skada-retail`.
+2. [Download the package](https://github.com/bkader/Skada-Damage-Meter/archive/refs/heads/main.zip).
+3. Open the Zip package inside which you will find a single folder named `Skada-Damage-Meter-main`.
 4. Extract or drag and drop the unique folder `Skada` into your `Interface\AddOns` folder.
 5. If you want to use `SkadaImprovement` and/or `SkadaStorage` modules, drop them there as well.
 
