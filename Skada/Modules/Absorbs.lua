@@ -147,7 +147,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		local spell = actor and actor.absorbspells and actor.absorbspells[id]
 		if not spell then return end
 
-		tooltip:AddLine(actor.name .. " - " .. label)
+		tooltip:AddLine(uformat("%s - %s", win.actorname, label))
 		tooltip_school(tooltip, id)
 
 		if not spell.count or spell.count == 0 then return end
@@ -328,11 +328,10 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		mode_target.metadata = {showspots = true, click1 = mode_target_spell}
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			post_tooltip = absorb_tooltip,
 			click1 = mode_spell,
 			click2 = mode_target,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			columns = {Absorbs = true, APS = false, Percent = true, sAPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_holy_devineaegis]]
 		}
@@ -418,7 +417,7 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		local spell = actor.healspells and actor.healspells[id] or actor.absorbspells and actor.absorbspells[id]
 		if not spell then return end
 
-		tooltip:AddLine(actor.name .. " - " .. label)
+		tooltip:AddLine(uformat("%s - %s", win.actorname, label))
 		tooltip_school(tooltip, id)
 
 		if not spell.count or spell.count == 0 then return end
@@ -672,10 +671,9 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 	function mode:OnInitialize()
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			click1 = mode_spell,
 			click2 = mode_target,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			post_tooltip = hps_tooltip,
 			columns = {Healing = true, HPS = true, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_holy_healingfocus]]
@@ -713,7 +711,7 @@ Skada:RegisterModule("HPS", function(L, P)
 		local activetime = actor:GetTime(set, true)
 		local hps, amount = actor:GetAHPS(set)
 
-		tooltip:AddLine(actor.name .. " - " .. L["HPS"])
+		tooltip:AddLine(uformat("%s - %s", label, L["HPS"]))
 		tooltip:AddDoubleLine(L["Segment Time"], Skada:FormatTime(set:GetTime()), 1, 1, 1)
 		tooltip:AddDoubleLine(L["Active Time"], Skada:FormatTime(activetime), 1, 1, 1)
 		tooltip:AddDoubleLine(L["Absorbs and Healing"], Skada:FormatNumber(amount), 1, 1, 1)
@@ -758,9 +756,8 @@ Skada:RegisterModule("HPS", function(L, P)
 	function mode:OnEnable()
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			tooltip = hps_tooltip,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			columns = {HPS = true, Percent = true},
 			icon = [[Interface\Icons\spell_nature_rejuvenation]]
 		}
@@ -813,7 +810,7 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 		spell = spell or actor.absorbspells and actor.absorbspells[win.spellid]
 		if not spell then return end
 
-		tooltip:AddLine(label .. " - " .. win.spellname)
+		tooltip:AddLine(uformat("%s - %s", label, win.spellname))
 
 		if spell.count then
 			tooltip:AddDoubleLine(L["Count"], spell.count, 1, 1, 1)

@@ -155,7 +155,7 @@ Skada:RegisterModule("Healing", function(L, P)
 		local spell = actor and actor.healspells and actor.healspells[id]
 		if not spell then return end
 
-		tooltip:AddLine(actor.name .. " - " .. label)
+		tooltip:AddLine(uformat("%s - %s", win.actorname, label))
 		tooltip_school(tooltip, id)
 
 		if not spell.count or spell.count == 0 then return end
@@ -330,11 +330,10 @@ Skada:RegisterModule("Healing", function(L, P)
 		mode_target.metadata = {showspots = true, click1 = mode_target_spell}
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			post_tooltip = healing_tooltip,
 			click1 = mode_spell,
 			click2 = mode_target,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			columns = {Healing = true, HPS = true, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_nature_healingtouch]]
 		}
@@ -537,10 +536,9 @@ Skada:RegisterModule("Overhealing", function(L)
 		mode_target.metadata = {click1 = mode_target_spell}
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			click1 = mode_spell,
 			click2 = mode_target,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			columns = {Overhealing = true, HPS = true, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_holy_holybolt]]
 		}
@@ -577,7 +575,7 @@ Skada:RegisterModule("Total Healing", function(L)
 		local spell = actor and actor.healspells and actor.healspells[id]
 		if not spell then return end
 
-		tooltip:AddLine(actor.name .. " - " .. label)
+		tooltip:AddLine(uformat("%s - %s", win.actorname, label))
 		tooltip_school(tooltip, id)
 
 		local total = spell.amount + (spell.o_amt or 0)
@@ -764,10 +762,9 @@ Skada:RegisterModule("Total Healing", function(L)
 		mode_spell.metadata = {tooltip = mode_spell_tooltip}
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			click1 = mode_spell,
 			click2 = mode_target,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			columns = {Healing = true, HPS = true, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_holy_flashheal]]
 		}
@@ -964,7 +961,7 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		local settime = set:GetTime()
 
 		for actorname, actor in pairs(actors) do
-			if not win.class or win.class == actor.class then
+			if win:show_actor(actor, set) then
 				nr = nr + 1
 
 				local d = win:actor(nr, actor, actor.enemy, actorname)
@@ -980,10 +977,9 @@ Skada:RegisterModule("Healing Taken", function(L, P)
 		mode_spell.metadata = {click1 = mode_spell_source}
 		self.metadata = {
 			showspots = true,
+			filterclass = true,
 			click1 = mode_source,
 			click2 = mode_spell,
-			click4 = Skada.FilterClass,
-			click4_label = L["Toggle Class Filter"],
 			columns = {Healing = true, HPS = true, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\Icons\spell_nature_resistnature]]
 		}
