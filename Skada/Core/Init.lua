@@ -1384,8 +1384,11 @@ do
 		customIcons[20760] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
 		customIcons[20761] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
 		customIcons[27240] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[31786] = [[Interface\ICONS\spell_holy_revivechampion]] --> Spiritual Attunement
 		customIcons[47882] = [[Interface\ICONS\spell_shadow_soulgem]] --> Use Soulstone
+		customIcons[49088] = [[Interface\ICONS\spell_shadow_antimagicshell]] --> Anti-Magic Shell
 		customIcons[54968] = [[Interface\ICONS\inv_glyph_majorpaladin]] --> Glyph of Holy Light
+		customIcons[58362] = [[Interface\ICONS\inv_glyph_majorwarrior]] --> Glyph of Heroic Strike
 		customIcons[67545] = [[Interface\ICONS\spell_fire_flamebolt]] --> Empowered Fire
 	end
 
@@ -1550,7 +1553,12 @@ do
 	end
 
 	-- returns unit's full name
-	local function UnitFullName(unit, ownerUnit)
+	local function UnitFullName(unit, ownerUnit, fmt)
+		if ownerUnit and fmt then
+			local name, realm = UnitName(ownerUnit)
+			return format("%s <%s>", UnitName(unit), realm and realm ~= "" and format("%s-%s", name, realm) or name)
+		end
+
 		local name, realm = UnitName(unit)
 		return not ownerUnit and realm and realm ~= "" and format("%s-%s", name, realm) or name
 	end
@@ -1840,8 +1848,8 @@ do
 				return d
 			end
 
-			d.id = actor.id or actor.name or actorname
-			d.label = actor.name or actorname or L["Unknown"]
+			d.id = actor.id or actorname
+			d.label = actorname or L["Unknown"]
 
 			-- speed up things if it's a pet/enemy.
 			if strmatch(d.label, "%<(%a+)%>") then
@@ -1862,7 +1870,7 @@ do
 			d.spec = actor.spec
 
 			if actor.id and ns.validclass[d.class] then
-				d.text = ns:FormatName(actor.name or actorname, actor.id)
+				d.text = ns:FormatName(actorname, actor.id)
 			end
 		end
 		return d

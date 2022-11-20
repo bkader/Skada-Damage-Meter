@@ -18,8 +18,8 @@ Skada:RegisterModule("Healthstones", function(L)
 		end
 	end
 
-	local function log_healthstone(set, actorid, actorname, actorflags)
-		local actor = Skada:GetActor(set, actorid, actorname, actorflags)
+	local function log_healthstone(set, actorname, actorid, actorflags)
+		local actor = Skada:GetActor(set, actorname, actorid, actorflags)
 		if actor then
 			actor.healthstone = (actor.healthstone or 0) + 1
 			set.healthstone = (set.healthstone or 0) + 1
@@ -28,7 +28,7 @@ Skada:RegisterModule("Healthstones", function(L)
 
 	local function stone_used(t)
 		if (t.spellid and t.spellid == stonespell) or (t.spellname and t.spellname == stonename) then
-			Skada:DispatchSets(log_healthstone, t.srcGUID, t.srcName, t.srcFlags)
+			Skada:DispatchSets(log_healthstone, t.srcName, t.srcGUID, t.srcFlags)
 		end
 	end
 
