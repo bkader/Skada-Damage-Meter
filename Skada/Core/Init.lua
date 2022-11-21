@@ -2,8 +2,7 @@ local folder, ns = ...
 
 local GetAddOnMetadata = GetAddOnMetadata
 ns.version = GetAddOnMetadata(folder, "Version")
-ns.website = GetAddOnMetadata(folder, "X-Website")
-ns.discord = GetAddOnMetadata(folder, "X-Discord")
+ns.website = "https://github.com/bkader/Skada-Damage-Meter"
 ns.logo = [[Interface\ICONS\spell_lightning_lightningbolt01]]
 ns.revisited = true -- Skada-Revisited flag
 ns.Private = {} -- holds private stuff
@@ -154,6 +153,25 @@ do
 
 	function ns:IsNone(flags)
 		return (band(flags or 0, BITMASK_NONE) ~= 0)
+	end
+
+	------------------------------------------------------
+	-- masks used for ownership
+	------------------------------------------------------
+	do
+		local BITMASK_AFFILIATION = COMBATLOG_OBJECT_AFFILIATION_MASK or 0x0000000F
+		local BITMASK_REACTION = COMBATLOG_OBJECT_REACTION_MASK or 0x000000F0
+		local BITMASK_CONTROL = COMBATLOG_OBJECT_CONTROL_MASK or 0x00000300
+		local BITMASK_OWNERSHIP = bit_bor(BITMASK_AFFILIATION, BITMASK_REACTION, BITMASK_CONTROL)
+		local BITMASK_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER or 0x00000100
+
+		function ns:GetOwnerFlags(flags)
+			local ownerFlags = band(flags or 0, BITMASK_OWNERSHIP)
+			if band(ownerFlags, BITMASK_CONTROL_PLAYER) ~= 0 then
+				return bit_bor(ownerFlags, BITMASK_PLAYER)
+			end
+			return bit_bor(ownerFlags, BITMASK_NPC)
+		end
 	end
 
 	------------------------------------------------------
@@ -1729,7 +1747,7 @@ do
 	ns.Window = Window
 
 	-- yet another recycle bin
-	local window_bin = setmetatable({}, {__mode = "k"})
+	local window_bin = Private.WeakTable()
 
 	-- creates a new window
 	local new = Private.newTable
@@ -1883,7 +1901,7 @@ do
 			return false
 		elseif self.class and actor.class ~= self.class then
 			return false
-		elseif strict and (actor.fake or actor.class == "PET") then
+		elseif strict and actor.fake then
 			return false
 		elseif strict and actor.enemy and not set.arena then
 			return false
