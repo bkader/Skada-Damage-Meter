@@ -1806,10 +1806,6 @@ do
 		self.LastEvent = args
 		return self:OnCombatEvent(args)
 	end
-
-	function Skada:OnCombatEvent(args)
-		return self:CombatLogEvent(args)
-	end
 end
 
 -------------------------------------------------------------------------------

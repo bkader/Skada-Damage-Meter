@@ -3017,7 +3017,7 @@ do
 		tentative = nil
 	end
 
-	function Skada:CombatLogEvent(t)
+	function Skada:OnCombatEvent(t)
 		-- ignored combat event?
 		if (not t.event or ignored_events[t.event]) and not (spellcast_events[t.event] and self.current) then return end
 
