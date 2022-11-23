@@ -305,7 +305,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 				if amount > 0 then
 					nr = nr + 1
 
-					local d = win:actor(nr, actor, actor.enemy)
+					local d = win:actor(nr, actor, actor.enemy, actorname)
 					d.value = amount
 					format_valuetext(d, mode_cols, total, aps, win.metadata)
 					win:color(d, set, actor.enemy)
@@ -602,7 +602,7 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 				if amount > 0 then
 					nr = nr + 1
 
-					local d = win:actor(nr, actor, actor.enemy)
+					local d = win:actor(nr, actor, actor.enemy, actorname)
 					d.value = amount
 					format_valuetext(d, mode_cols, total, hps, win.metadata)
 					win:color(d, set, actor.enemy)
@@ -739,7 +739,7 @@ Skada:RegisterModule("HPS", function(L, P)
 				if amount > 0 then
 					nr = nr + 1
 
-					local d = win:actor(nr, actor, actor.enemy)
+					local d = win:actor(nr, actor, actor.enemy, actorname)
 					d.value = amount
 					format_valuetext(d, mode_cols, total, win.metadata)
 					win:color(d, set, actor.enemy)
