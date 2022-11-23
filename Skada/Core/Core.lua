@@ -1838,31 +1838,20 @@ end
 
 do
 	local UnitExists, UnitHasVehicleUI = UnitExists, UnitHasVehicleUI
-	local ignoredUnits = {target = true, focus = true, npc = true, NPC = true, mouseover = true}
-
-	local function get_pet_from_owner(owner)
-		if owner == "player" then
-			return "pet"
-		elseif strfind(owner, "raid") then
-			return gsub(owner, "raid", "raidpet")
-		elseif strfind(owner, "party") then
-			return gsub(owner, "party", "partypet")
-		else
-			return nil
-		end
-	end
+	local groupUnits = Skada.Units.group
 
 	function Skada:UNIT_PET(owners)
 		for owner in pairs(owners) do
-			local unit = not ignoredUnits[owner] and get_pet_from_owner(owner)
-			if unit and UnitExists(unit) then
-				guidToClass[UnitGUID(unit)] = UnitGUID(owner)
+			local unit = groupUnits[owner] and format("%spet", owner)
+			local guid = unit and UnitGUID(unit)
+			if guid then
+				guidToClass[guid] = UnitGUID(owner)
 			end
 		end
 	end
 
-	local function process_check_vehicle(unit)
-		local guid = unit and not ignoredUnits[unit] and UnitGUID(unit)
+	local function CheckVehicle(unit)
+		local guid = unit and UnitGUID(unit)
 		if not guid or not guidToName[guid] then
 			return
 		elseif UnitHasVehicleUI(unit) then
@@ -1880,7 +1869,9 @@ do
 
 	function Skada:CheckVehicle(units)
 		for unit in pairs(units) do
-			process_check_vehicle(unit)
+			if groupUnits[unit] then
+				CheckVehicle(unit)
+			end
 		end
 	end
 end
