@@ -432,6 +432,7 @@ if not L then return end
 -- L["Skada: %s for %s:"] = ""
 -- L["Self"] = ""
 -- L["Whisper Target"] = ""
+L["Copy & Paste"] = "Copiar e Colar"
 L["[General]"] = "Geral"
 L["[LocalDefense]"] = "DefesaLocal"
 L["[LookingForGroup]"] = "ProcurandoGrupo"

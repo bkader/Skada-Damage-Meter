@@ -1471,6 +1471,7 @@ end
 do
 	local ipairs, strmatch, uformat = ipairs, strmatch, Private.uformat
 	local UnitName, GetRealmName, collectgarbage = UnitName, GetRealmName, collectgarbage
+	local serialize, deserialize = Private.serialize, Private.deserialize
 	local copy, open_window = Private.tCopy, Private.ImportExport
 	local serialize_profile = nil
 
@@ -1508,7 +1509,7 @@ do
 		wipe(temp)
 		copy(temp, Skada.db, "modeclicks")
 		temp.__name = Skada.data:GetCurrentProfile()
-		return Private.serialize(true, format("%s profile", temp.__name), temp)
+		return serialize(false, temp)
 	end
 
 	local function import_profile(data, name)
@@ -1517,7 +1518,7 @@ do
 			return false
 		end
 
-		local success, profile = Private.deserialize(data, true)
+		local success, profile = deserialize(data)
 		if not success or profile.numbersystem == nil then -- sanity check!
 			Skada:Print("Import profile failed!")
 			return false
