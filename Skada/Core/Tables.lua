@@ -213,23 +213,17 @@ local deathlog_tracked_buff = {
 	[spellnames[23920]] = true, -- Spell Reflection
 	-- Death Knight
 	[spellnames[42650]] = true, -- Army of the Dead
-	[spellnames[45529]] = true, -- Blood Tap
 	[spellnames[48707]] = true, -- Anti-Magic Shell
 	[spellnames[48792]] = true, -- Icebound Fortitude
-	[spellnames[48982]] = true, -- Rune Tap
 	[spellnames[49039]] = true, -- Lichborne
-	[spellnames[49222]] = true, -- Bone Shield
 	[spellnames[51052]] = true, -- Anti-Magic Zone
 	[spellnames[51271]] = true, -- Pillar of Frost
-	[spellnames[54223]] = true, -- Shadow of Death
 	[spellnames[55233]] = true, -- Vampiric Blood
-	[spellnames[70654]] = true, -- Blood Armor
 	-- Paladin
 	[spellnames[498]] = true, -- Divine Protection
 	[spellnames[633]] = true, -- Lay on Hands
 	[spellnames[642]] = true, -- Divine Shield
 	[spellnames[1022]] = true, -- Hand of Protection
-	[spellnames[1038]] = true, -- Hand of Salvation
 	[spellnames[1044]] = true, -- Hand of Freedom
 	[spellnames[6940]] = true, -- Hand of Sacrifice
 	[spellnames[20925]] = true, -- Sacred Shield
@@ -243,15 +237,11 @@ local deathlog_tracked_buff = {
 	[spellnames[33206]] = true, -- Pain Suppression
 	[spellnames[47585]] = true, -- Dispersion
 	[spellnames[47788]] = true, -- Guardian Spirit
-	-- Shaman
-	[spellnames[30823]] = true, -- Shamanistic Rage
 	-- Druid
 	[spellnames[5487]] = true, -- Bear Form
 	[spellnames[22812]] = true, -- Barkskin
 	[spellnames[22842]] = true, -- Frenzied Regeneration
 	[spellnames[61336]] = true, -- Survival Instincts
-	[spellnames[62606]] = true, -- Savage Defense
-	[spellnames[70725]] = true, -- Enraged Defense
 	-- Rogue
 	[spellnames[1856]] = true, -- Vanish
 	[spellnames[1966]] = true, -- Feint
@@ -264,8 +254,6 @@ local deathlog_tracked_buff = {
 	[spellnames[11426]] = true, -- Ice Barrier
 	[spellnames[45438]] = true, -- Ice Block
 	[spellnames[55342]] = true, -- Mirror Image
-	-- Warlock
-	[spellnames[6229]] = true, -- Twilight Ward
 	-- Hunter
 	[spellnames[781]] = true, -- Disengage
 	[spellnames[5384]] = true, -- Feign Death
@@ -460,8 +448,14 @@ if IS_WRATH then -- classic wrath
 	-- Warrior
 	deathlog_tracked_buff[spellnames[58374]] = true -- Glyph of Blocking
 	-- Death Knight
+	deathlog_tracked_buff[spellnames[45529]] = true -- Blood Tap
+	deathlog_tracked_buff[spellnames[48982]] = true -- Rune Tap
 	deathlog_tracked_buff[spellnames[49182]] = true -- Blade Barrier
+	deathlog_tracked_buff[spellnames[49222]] = true -- Bone Shield
+	deathlog_tracked_buff[spellnames[54223]] = true -- Shadow of Death
+	deathlog_tracked_buff[spellnames[70654]] = true -- Blood Armor
 	-- Paladin
+	deathlog_tracked_buff[spellnames[1038]] = true -- Hand of Salvation
 	deathlog_tracked_buff[spellnames[19752]] = true -- Divine Intervention
 	deathlog_tracked_buff[spellnames[64205]] = true -- Divine Sacrifice
 	deathlog_tracked_buff[spellnames[70940]] = true -- Divine Guardian
@@ -469,20 +463,25 @@ if IS_WRATH then -- classic wrath
 	deathlog_tracked_buff[spellnames[14893]] = true -- Inspiration
 	-- Shaman
 	deathlog_tracked_buff[spellnames[16177]] = true -- Ancestral Fortitude
+	deathlog_tracked_buff[spellnames[30823]] = true -- Shamanistic Rage
 	-- Druid
 	deathlog_tracked_buff[spellnames[8998]] = true -- Cower
 	deathlog_tracked_buff[spellnames[9634]] = true  -- Dire Bear Form
+	deathlog_tracked_buff[spellnames[62606]] = true -- Savage Defense
+	deathlog_tracked_buff[spellnames[70725]] = true -- Enraged Defense
 	-- Mage
 	deathlog_tracked_buff[spellnames[543]] = true -- Fire Ward
 	deathlog_tracked_buff[spellnames[6143]] = true -- Frost Ward
+	-- Warlock
+	deathlog_tracked_buff[spellnames[6229]] = true -- Twilight Ward
 
 else -- retail?
 
 	-- [[ deathlog tracked buffs ]] --
 
 	-- Warrior
-	deathlog_tracked_buff[spellnames[112048]] = true -- Shield Barrier
-	deathlog_tracked_buff[spellnames[114028]] = true -- Mass Spell Reflection
+	-- deathlog_tracked_buff[spellnames[112048]] = true -- Shield Barrier
+	-- deathlog_tracked_buff[spellnames[114028]] = true -- Mass Spell Reflection
 	deathlog_tracked_buff[spellnames[114030]] = true -- Vigilance
 	deathlog_tracked_buff[spellnames[114030]] = true -- Vigilance
 	deathlog_tracked_buff[spellnames[118038]] = true -- Die by the Sword
@@ -490,7 +489,7 @@ else -- retail?
 	deathlog_tracked_buff[spellnames[86659]] = true -- Guardian of Ancient Kings
 	-- Monk
 	deathlog_tracked_buff[spellnames[115176]] = true -- Zen Meditation
-	deathlog_tracked_buff[spellnames[115213]] = true -- Avert Harm
+	-- deathlog_tracked_buff[spellnames[115213]] = true -- Avert Harm
 	deathlog_tracked_buff[spellnames[115295]] = true -- Guard
 	deathlog_tracked_buff[spellnames[115308]] = true -- Elusive Brew
 	deathlog_tracked_buff[spellnames[116844]] = true -- Ring of Peace
@@ -506,14 +505,14 @@ else -- retail?
 	deathlog_tracked_buff[spellnames[108281]] = true -- Ancestral Guidance
 	-- Druid
 	deathlog_tracked_buff[spellnames[102342]] = true -- Ironbark
-	deathlog_tracked_buff[spellnames[106922]] = true -- Might of Ursoc
+	-- deathlog_tracked_buff[spellnames[106922]] = true -- Might of Ursoc
 	-- Rogue
 	deathlog_tracked_buff[spellnames[76577]] = true -- Smoke Bomb
 	-- Warlock
 	deathlog_tracked_buff[spellnames[104773]] = true -- Unending Resolve
 	deathlog_tracked_buff[spellnames[108359]] = true -- Dark Regeneration
 	deathlog_tracked_buff[spellnames[108416]] = true -- Sacrificial Pact
-	deathlog_tracked_buff[spellnames[110913]] = true -- Dark Bargain
+	-- deathlog_tracked_buff[spellnames[110913]] = true -- Dark Bargain
 end
 
 ns.ress_spells = ress_spells
