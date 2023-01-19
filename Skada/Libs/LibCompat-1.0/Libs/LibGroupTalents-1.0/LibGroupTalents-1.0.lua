@@ -115,7 +115,6 @@ local frame = lib.frame or CreateFrame("Frame", "LibGroupTalents_Frame")
 lib.frame = frame
 frame:UnregisterAllEvents()
 frame:RegisterEvent("GROUP_ROSTER_UPDATE")
-frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 frame:RegisterEvent("UNIT_NAME_UPDATE")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterEvent("UNIT_LEVEL")
