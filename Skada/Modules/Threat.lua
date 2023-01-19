@@ -242,7 +242,7 @@ Skada:RegisterModule("Threat", function(L, P, _, _, M)
 					if alpha < 0.15 then
 						self:SetAlpha(alpha / 0.15)
 					elseif alpha < 0.9 then
-						self:SetAlpha(1 - (alpha - 0.15) / 0.6)
+						self:SetAlpha(1 - (alpha - 0.15) / 0.75)
 					else
 						self:SetAlpha(0)
 					end
