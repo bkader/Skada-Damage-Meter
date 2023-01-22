@@ -1242,6 +1242,9 @@ function Skada:BigWigs(_, _, event, message)
 
 			self:Debug("COMBAT_BOSS_DEFEATED: BigWigs")
 			self:SendMessage("COMBAT_BOSS_DEFEATED", self.current)
+
+			self:StopSegment(L["Smart Stop"])
+			self:SetModes()
 		end
 	end
 end
@@ -1267,6 +1270,9 @@ function Skada:DBM(_, mod, wipe)
 
 			self:Debug("COMBAT_BOSS_DEFEATED: DBM")
 			self:SendMessage("COMBAT_BOSS_DEFEATED", set)
+
+			self:StopSegment(L["Smart Stop"])
+			self:SetModes()
 		end
 	end
 end
