@@ -865,9 +865,10 @@ end
 
 -- prevents duplicates in a table to format strings
 function Private.CheckDuplicate(value, tbl, key)
-	local num = 0
 	if type(tbl) == "table" then
+		local num = 0
 		local is_array = (#tbl > 0)
+
 		for k, v in pairs(tbl) do
 			local val = is_array and v[key] or k
 			if val == value and num == 0 then
@@ -879,10 +880,12 @@ function Private.CheckDuplicate(value, tbl, key)
 				end
 			end
 		end
+
 		if num > 0 then
 			value = format("%s (%d)", value, num + 1)
 		end
 	end
+
 	return value
 end
 
@@ -1114,7 +1117,7 @@ do
 
 		local values = {al = 0x10, rb = 0x01, rt = 0x02, db = 0x04, dt = 0x08}
 		local disabled = function()
-			return (band(ns.db.totalflag, values.al) ~= 0)
+			return (band(ns.db.totalflag or 0, values.al) ~= 0)
 		end
 
 		total_opt = {
@@ -1129,14 +1132,14 @@ do
 					inline = true,
 					order = 10,
 					get = function(i)
-						return (band(ns.db.totalflag, values[i[#i]]) ~= 0)
+						return (band(ns.db.totalflag or 0, values[i[#i]]) ~= 0)
 					end,
 					set = function(i, val)
 						local v = values[i[#i]]
-						if val and band(ns.db.totalflag, v) == 0 then
-							ns.db.totalflag = ns.db.totalflag + v
-						elseif not val and band(ns.db.totalflag, v) ~= 0 then
-							ns.db.totalflag = ns.db.totalflag - v
+						if val and band(ns.db.totalflag or 0, v) == 0 then
+							ns.db.totalflag = (ns.db.totalflag or 0) + v
+						elseif not val and band(ns.db.totalflag or 0, v) ~= 0 then
+							ns.db.totalflag = max(0, (ns.db.totalflag or 0) - v)
 						end
 					end,
 					args = {
