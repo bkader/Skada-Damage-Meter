@@ -6,3 +6,4 @@ Makefile
 *.sublime-project
 *.sublime-workspace
 *.todolist
+release.json
