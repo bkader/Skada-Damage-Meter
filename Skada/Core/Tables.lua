@@ -547,14 +547,23 @@ do
 	-- Useful in case you want to collect stuff done to units
 	-- at certain encounter phases for example.
 	--
-	-- table structure
+	-- table structure (all fields are optional and will be generated and cached by the addon)
+	--	start: 		when to start collecting (0.01 = 1%, default: 100%)
+	--	stop:		when to stop collecting (0.01 = 1%, default: 0%)
+	--	power:		whether to track the speficied power or health
+	--		0 - Mana
+	--		1 - Rage
+	--		2 - Focus
+	--		3 - Energy
+	--		4 - Happiness
+	--		5 - Runes
+	--		6 - Runic Power
+	--
 	-- 	name: 		name of the fake unit (optional)
 	-- 	text: 		text to use *format()* with (optional)
-	-- 	start: 		when to start collecting (1 = 100%)
-	-- 	stop: 		when to stop collecting (0.5 = 50%)
-	-- 	diff: 		table of allowed difficulties (omit for all)
-	-- 	power: 		which type of power to trach (omit for health)
 	-- 	values: 	table of difficulties to max health (optional)
+	-- 	diff: 		table of whitelisted difficulties (optional, default: all)
+	--		{["10h"] = true, ["25h"] = true}
 	--
 	-- **optional** fields will be generated and cached by the addon.
 	--
@@ -593,13 +602,19 @@ do
 		-- Halion: Halion and Inferno
 		grouped_units[39863] = L["Halion and Inferno"] -- Halion
 		grouped_units[40681] = L["Halion and Inferno"] -- Living Inferno
+		-- Anub'arak: Adds
+		grouped_units[34605] = L["Adds"] -- Swarm Scarab
+		grouped_units[34607] = L["Adds"] -- Nerubian Burrower
 
 		-- ------------ --
 		-- custom units --
 		-- ------------ --
 
 		-- Icecrown Citadel
-		custom_units[36855] = {text = L["%s - Phase 2"], start = 0, power = 0} -- Lady Deathwhisper
+		custom_units[36855] = { -- Lady Deathwhisper
+			{text = L["%s - Phase 1"], start = 1, power = 0},
+			{text = L["%s - Phase 2"], start = 1}
+		}
 		custom_units[36678] = {text = L["%s - Phase 3"], start = 0.35} -- Professor Putricide
 		custom_units[36853] = {text = L["%s - Phase 2"], start = 0.35} -- Sindragosa
 		custom_units[36597] = {text = L["%s - Phase 3"], start = 0.4, stop = 0.1} -- The Lich King
@@ -607,6 +622,9 @@ do
 
 		-- Trial of the Crusader
 		custom_units[34564] = {text = L["%s - Phase 2"], start = 0.3} -- Anub'arak
+
+		-- The Ruby Sanctum
+		custom_units[39751] = {text = L["%s (Main Boss)"]} -- Baltharus the Warborn
 	end
 
 	------------------------------------------------------

@@ -1608,11 +1608,12 @@ end
 do
 	local values = {}
 
+	local tostring = tostring
 	local function sortFunc(a, b)
 		local apct, bpct = a.value / a.maxValue, b.value / b.maxValue
 		if apct == bpct then
 			if a.maxValue == b.maxValue then
-				return a.name > b.name
+				return tostring(a.name) > tostring(b.name)
 			else
 				return a.maxValue > b.maxValue
 			end
