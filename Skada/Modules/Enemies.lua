@@ -22,7 +22,6 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	local mode_cols = nil
 
 	local GetUnitIdFromGUID, GetCreatureId = Skada.GetUnitIdFromGUID, Skada.GetCreatureId
-	local UnitHealthInfo, UnitPowerInfo = Skada.UnitHealthInfo, Skada.UnitPowerInfo
 	local UnitExists, UnitGUID = UnitExists, UnitGUID
 	local UnitHealthMax, UnitPowerMax = UnitHealthMax, UnitPowerMax
 	local del = Private.delTable
@@ -33,13 +32,13 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	local ignored_units = {}
 
 	-- table of acceptable/trackable instance difficulties
-	-- uncomments those you want to use or add custom ones.
+	-- uncomment those you want to use or add custom ones.
 	local allowed_diffs = {
-		["5n"] = false, -- 5man Normal
-		["5h"] = false, -- 5man Heroic
-		["mc"] = false, -- Mythic Dungeons
-		["tw"] = false, -- Time Walker
-		["wb"] = false, -- World Boss
+		-- ["5n"] = false, -- 5man Normal
+		-- ["5h"] = false, -- 5man Heroic
+		-- ["mc"] = false, -- Mythic Dungeons
+		-- ["tw"] = false, -- Time Walker
+		-- ["wb"] = false, -- World Boss
 		["10n"] = true, -- 10man Normal
 		["10h"] = true, -- 10man Heroic
 		["25n"] = true, -- 25man Normal
@@ -65,20 +64,42 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		return instanceDiff
 	end
 
-	local function get_custom_unit_maxval(guid, unit)
-		local diff = get_instance_diff()
-		local maxval = unit.values and unit.values[diff]
-		if not maxval then
-			local uid = GetUnitIdFromGUID(guid)
-			if uid then
-				maxval = (unit.power ~= nil) and UnitPowerMax(uid, unit.power) or UnitHealthMax(uid)
-			end
+	local function get_custom_unit_maxval(guid, tracking_power)
+		local cid = GetCreatureId(guid)
+		local unit = user_units[cid]
+		if not unit then return end -- no user-defined custom unit?
 
-			if maxval then
-				unit.values = unit.values or {}
-				unit.values[diff] = maxval
-			end
+		local diff = get_instance_diff()
+		local maxval = nil
+
+		-- already cached power?
+		if tracking_power and unit.maxPower and unit.maxPower[diff] then
+			return unit.maxPower[diff]
 		end
+
+		-- already cached health?
+		if unit.maxHealth and unit.maxHealth[diff] then
+			return unit.maxHealth[diff]
+		end
+
+		-- try to grab UnitID
+		local uid = GetUnitIdFromGUID(guid)
+		if not uid then return end
+
+		-- get the maxval (power or health)
+		maxval = tracking_power and UnitPowerMax(uid, unit.power) or UnitHealthMax(uid)
+		if not maxval then return end
+
+		if tracking_power then
+			Skada:Debug(format('[%s] \124cffffbb00Max Power\124r: %s (diff: %s)', cid, maxval, diff))
+			unit.maxPower = unit.maxPower or {}
+			unit.maxPower[diff] = maxval
+			return maxval
+		end
+
+		unit.maxHealth = unit.maxHealth or {}
+		unit.maxHealth[diff] = maxval
+		Skada:Debug(format('[%s] \124cffffbb00Max Health\124r: %s (diff: %s)', cid, maxval, diff))
 		return maxval
 	end
 
@@ -129,7 +150,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		end
 
 		-- get the unit max value.
-		local maxval = get_custom_unit_maxval(guid, unit)
+		local maxval = get_custom_unit_maxval(guid, unit.power ~= nil)
 		if not maxval or maxval == 0 then
 			ignored_units[guid] = true
 			return false
@@ -233,7 +254,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		local start = next_unit.start or 1
 		local stop = next_unit.stop or 0
 
-		local maxval = get_custom_unit_maxval(guid, next_unit)
+		local maxval = get_custom_unit_maxval(guid, next_unit.power ~= nil)
 
 		local t = custom_units[guid]
 		t.index = index
@@ -258,8 +279,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		if custom_groups[id] then return end -- a custom unit with useful damage.
 
 		if group_name == L["Princes overkilling"] then
-			log_custom_unit(set, group_name, playername, spellid, overkill, absorbed)
-			return
+			amount = overkill
 		end
 		log_custom_unit(set, group_name, playername, spellid, amount, absorbed)
 	end
@@ -272,8 +292,8 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		local absorbed = dmg.absorbed or 0
 		if (amount + absorbed) == 0 then return end
 
-		local actorid = dmg.actorid
-		local e = Skada:GetActor(set, dmg.actorname, actorid, dmg.actorflags)
+		local actorid, actorname = dmg.actorid, dmg.actorname
+		local e = Skada:GetActor(set, actorname, actorid, dmg.actorflags)
 		if not e then return end
 
 		e.damaged = (e.damaged or 0) + amount
@@ -314,7 +334,7 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		end
 
 		-- damage source.
-		srcName = dmg.srcName
+		local srcName = dmg.srcName
 		if not srcName then return end
 
 		-- the source
@@ -341,9 +361,9 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		if not allowed_diffs[get_instance_diff()] then return end
 
 		-- custom groups
-		log_custom_group(set, dmg.actorname, actorid, srcName, spellid, amount, overkill, absorbed)
+		log_custom_group(set, actorname, actorid, srcName, spellid, amount, overkill, absorbed)
 
-		local unit = is_custom_unit(actorid, dmg.actorname, amount, overkill) and custom_units[actorid]
+		local unit = is_custom_unit(actorid, actorname, amount, overkill) and custom_units[actorid]
 		if not unit then -- not a custom unit or ignored?
 			return
 		elseif unit.full then -- started with less than max?

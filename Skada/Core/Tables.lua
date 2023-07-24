@@ -822,9 +822,10 @@ ns.ignored_events = {
 -- events used to start combat in aggressive combat detection
 -- mode as well as boss encounter detection.
 ns.trigger_events = {
-	RANGE_DAMAGE = true,
-	SPELL_BUILDING_DAMAGE = true,
+	SWING_DAMAGE = true,
 	SPELL_DAMAGE = true,
+	RANGE_DAMAGE = true,
 	SPELL_PERIODIC_DAMAGE = true,
-	SWING_DAMAGE = true
+    DAMAGE_SHIELD = true,
+	SPELL_BUILDING_DAMAGE = true
 }
