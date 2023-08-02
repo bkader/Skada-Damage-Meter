@@ -12,6 +12,7 @@ lib.embeds = lib.embeds or {}
 lib.EmptyFunc = Multibar_EmptyFunc
 
 local _G, pairs, type, max = _G, pairs, type, math.max
+local setmetatable, rawset = setmetatable, rawset
 local format, tonumber = format or string.format, tonumber
 local _
 
@@ -127,7 +128,6 @@ end
 -------------------------------------------------------------------------------
 
 do
-	local setmetatable, rawset = setmetatable, rawset
 	local UnitExists, UnitAffectingCombat, UnitIsDeadOrGhost = _G.UnitExists, _G.UnitAffectingCombat, _G.UnitIsDeadOrGhost
 	local UnitHealth, UnitHealthMax, UnitPower, UnitPowerMax = _G.UnitHealth, _G.UnitHealthMax, _G.UnitPower, _G.UnitPowerMax
 	local GetNumRaidMembers, GetNumPartyMembers = _G.GetNumRaidMembers, _G.GetNumPartyMembers
@@ -283,13 +283,18 @@ do
 	end
 
 	local GetCreatureId = setmetatable({}, {
+		__mode = "kv", -- make it weak
 		__index = function(self, guid)
 			if guid then
 				local _, _, _, _, _, id = strsplit("-", guid)
-				self[guid] = tonumber(id) or 0 -- cache it
+				id = tonumber(id) or 0
+				rawset(self, guid, id) -- cache it
 				return id
 			end
 			return 0
+		end,
+		__newindex = function(self, guid, id)
+			rawset(self, guid, id)
 		end,
 		__call = function(self, guid)
 			return self[guid]
