@@ -2007,23 +2007,26 @@ do
 			args.spellid, args.spellname, args.spellschool = 6603, L["Melee"], 0x01
 		end
 
+		-- the event happens within the group?
+		args.inside_event = args:SourceInGroup() or args:DestInGroup()
+
 		if args.spellid and args.spellschool and not args.spellstring then
 			args.spellstring = format((args.is_dot or args.is_hot) and "-%s.%s" or "%s.%s", args.spellid, args.spellschool)
-			if args:SourceInGroup() or args:DestInGroup() then
+			if args.inside_event then
 				callbacks:Fire("Skada_SpellString", args, args.spellid, args.spellstring)
 			end
 		end
 
 		if args.extraspellid and args.extraschool and not args.extrastring then
 			args.extrastring = format("%s.%s", args.extraspellid, args.extraschool)
-			if args:SourceInGroup() or args:DestInGroup() then
+			if args.inside_event then
 				callbacks:Fire("Skada_SpellString", args, args.extraspellid, args.extrastring)
 			end
 		end
 
 		if args.absorbSpellid and args.absorbSpellschool and not args.absorbSpellstring then
 			args.absorbSpellstring = format("%s.%s", args.absorbSpellid, args.absorbSpellschool)
-			if args:SourceInGroup() or args:DestInGroup() then
+			if args.inside_event then
 				callbacks:Fire("Skada_SpellString", args, args.absorbSpellid, args.absorbSpellstring)
 			end
 		end
