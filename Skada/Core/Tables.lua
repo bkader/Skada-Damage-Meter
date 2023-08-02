@@ -7,7 +7,7 @@ local setmetatable = setmetatable
 local IS_WRATH = ns.Private.IsWotLK()
 
 -------------------------------------------------------------------------------
--- ingoredSpells
+-- ingored spells
 -- a table of spells that are ignored per module.
 -- entries should be like so: [spellid] = true
 
@@ -83,6 +83,24 @@ local ignored_spells = {
 		[26364] = true, -- Lightning Shield
 		[35916] = true, -- Molten Armor
 	}
+}
+
+-------------------------------------------------------------------------------
+-- ignored creautre ids (use creature ID: [cretureID] = true)
+-- a list of creature IDs of which CLEU <<DAMAGE>> events are ignored.
+
+local ignored_creatures = {
+	-- Vault of the Incarnates: Volatile Spark (10.0.0.46313)
+	[194999] = true,
+
+	-- Demon Hunter: Havoc Talent - Fodder of the Flame (10.0.0.46247)
+	[168932] = true, -- Doomguard <Condemned Demon>
+	[169421] = true, -- Felguard <Condemned Demon>
+	[169425] = true, -- Felhound <Condemned Demon>
+	[169426] = true, -- Infernal <Condemned Demon>
+	[169428] = true, -- Wrathguard <Condemned Demon>
+	[169429] = true, -- Shivarra <Condemned Demon>
+	[169430] = true, -- Ur'zul <Condemned Demon>
 }
 
 -------------------------------------------------------------------------------
@@ -784,9 +802,13 @@ if LBI then setmetatable(ns.creature_to_boss, {__index = LBI.BossIDs}) end
 -------------------------------------------------------------------------------
 
 -- ignored spells table
+local dummyTable = ns.dummyTable
 ns.ignored_spells = setmetatable(ignored_spells, {__index = function(t, key)
-	return ns.dummyTable
+	return dummyTable
 end})
+
+-- ignored creatures table
+ns.ignored_creatures = ignored_creatures
 
 -- miss type to table key
 ns.missTypes = {
