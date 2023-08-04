@@ -16258,6 +16258,8 @@ globals = {
 	"GameTime_GetTime",
 	"GameTime_UpdateTooltip",
 	"GameTooltip",
+	"C_TooltipInfo",
+	"TooltipUtil",
 	"GameTooltipHeader",
 	"GameTooltipHeaderText",
 	"GameTooltipStatusBar",
