@@ -4,7 +4,7 @@ local Private = Skada.Private
 local select, pairs, type = select, pairs, type
 local tonumber, format, gsub = tonumber, string.format, string.gsub
 local setmetatable, wipe = setmetatable, wipe
-local next, time, GetTime = next, time, GetTime
+local next, time, GetTime, UnitGUID = next, time, GetTime, UnitGUID
 local _
 
 local tablePool, TempTable = Skada.tablePool, Private.TempTable
@@ -1504,66 +1504,62 @@ do
 	local guidToClass = Private.guidToClass
 	local guidToName = Private.guidToName
 	do
+		local C_TooltipInfo = _G.C_TooltipInfo
+		local TooltipUtil = _G.TooltipUtil
+		local Enum_UnitOwner = 16 -- _G.Enum.TooltipDataLineType.UnitOwner
+
 		local GetPetOwnerFromTooltip
 		do
-			local pettooltip = CreateFrame("GameTooltip", format("%sPetTooltip", folder), nil, "GameTooltipTemplate")
-
-			local ValidatePetOwner
-			do
-				local ownerPatterns = {}
-				do
-					local i = 1
-					local title = _G["UNITNAME_SUMMON_TITLE" .. i]
-					while (title and title ~= "%s" and find(title, "%s")) do
-						ownerPatterns[#ownerPatterns + 1] = title
-						i = i + 1
-						title = _G["UNITNAME_SUMMON_TITLE" .. i]
-					end
+			local function FindPetOwner(guid, actors)
+				-- found in cache?
+				if guidToName[guid] then
+					return guid, guidToName[guid]
 				end
 
-				local EscapeStr = Private.EscapeStr
-				function ValidatePetOwner(text, name)
-					for i = 1, #ownerPatterns do
-						local pattern = ownerPatterns[i]
-						if pattern and EscapeStr(format(pattern, name)) == text then
-							return true
-						end
-					end
-					return false
-				end
-			end
-
-			-- attempts to find the player guid on Russian clients.
-			local GetNumDeclensionSets, DeclineName = GetNumDeclensionSets, DeclineName
-			local function FindNameDeclension(text, actorname)
-				for gender = 2, 3 do
-					for decset = 1, GetNumDeclensionSets(actorname, gender) do
-						local ownerName = DeclineName(actorname, gender, decset)
-						if ValidatePetOwner(text, ownerName) or find(text, ownerName) then
-							return true
-						end
-					end
-				end
-				return false
-			end
-
-			-- attempt to get the pet's owner from tooltip
-			function GetPetOwnerFromTooltip(guid)
-				local set = guid and Skada.current
-				local actors = set and set.actors
+				-- otherwise, search among actors.
 				if not actors then return end
+				for actorname, actor in pairs(actors) do
+					if actor.id == guid then
+						return actor.id, actorname
+					end
+				end
+			end
 
-				pettooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
-				pettooltip:ClearLines()
-				pettooltip:SetHyperlink(format("unit:%s", guid))
+			function GetPetOwnerFromTooltip(guid)
+				local data = guid and C_TooltipInfo.GetHyperlink(format("unit:%s", guid))
+				if not data then return end
 
-				-- we only need to scan the 2nd line.
-				local text = _G["SkadaPetTooltipTextLeft2"] and _G["SkadaPetTooltipTextLeft2"]:GetText()
-				if text and text ~= "" then
-					for actorname, actor in pairs(actors) do
-						local name = not actor.enemy and gsub(actorname, "%-.*", "")
-						if name and ((LOCALE_ruRU and FindNameDeclension(text, name)) or ValidatePetOwner(text, name)) then
-							return actor.id, actorname
+				-- list of actors used to search for owner.
+				local actors = Skada.current and Skada.current.actors
+
+				-- the following should be enough for most cases.
+				for _, line in next, data.lines do
+					TooltipUtil.SurfaceArgs(line)
+					if line.type == Enum_UnitOwner and line.guid then
+						return FindPetOwner(line.guid, actors)
+					end
+				end
+
+				-- Rogue's Secrect Technique: Akaari's Soul
+				-- data.guid seems to point to the owner.
+				if data.guid and find(data.guid, "^P") then
+					local ownerGUID, ownerName = FindPetOwner(data.guid, actors)
+					if ownerGUID and ownerName then
+						return ownerGUID, ownerName
+					end
+				end
+
+				-- last hope, we use line.unitToken that seems to
+				-- exist when the pet belongs to the "player".
+				local ownerGUID, ownerName
+				for _, line in next, data.lines do
+					if line.unitToken then
+						ownerGUID = UnitGUID(line.unitToken)
+						if ownerGUID and find(ownerGUID, "^P") then
+							ownerGUID, ownerName = FindPetOwner(ownerGUID, actors)
+							if ownerGUID and ownerName then
+								return ownerGUID, ownerName
+							end
 						end
 					end
 				end
@@ -1579,7 +1575,7 @@ do
 			end
 		end
 
-		local UnitGUID, UnitFullName = UnitGUID, Private.UnitFullName
+		local UnitFullName = Private.UnitFullName
 		local function FixPetsHandler(guid, flag)
 			local guidOrClass = guid and guidToClass[guid]
 			if guidOrClass and guidToName[guidOrClass] then
@@ -2045,7 +2041,7 @@ end
 -- group buffs scanner
 
 do
-	local UnitGUID, UnitIsDeadOrGhost, UnitBuff = UnitGUID, UnitIsDeadOrGhost, UnitBuff
+	local UnitIsDeadOrGhost, UnitBuff = UnitIsDeadOrGhost, UnitBuff
 	local UnitIterator, UnitFullName = Skada.UnitIterator, Private.UnitFullName
 	local guidToClass, guidToName = Private.guidToClass, Private.guidToName
 	local actorflags = Private.DEFAULT_FLAGS
