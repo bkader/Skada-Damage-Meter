@@ -1,39 +1,35 @@
-name: "Bug Report"
-description: Create a report to help us improve this addon
-labels: "🐛 Bug"
+name: "🪲 Bug Report"
+description: Create a report to help us improve this project
+title: "[Bug]: "
+labels: ["type: bug"]
+assignees:
+  - bkader
 body:
   - type: markdown
     attributes:
       value: |
         Please search for existing issues before creating a new one.
 
-  - type: textarea
+  - type: checkboxes
     attributes:
-      label: Description
-      description: What did you expect to happen and what happened instead?
+      label: Are you using the latest version of the addon?
+      options:
+        - label: "Yes"
+        - label: "No"
     validations:
       required: true
 
-  - type: dropdown
-    id: flavor
+  - type: input
     attributes:
-      label: Version
-      description: What version did this occur on?
-      options:
-        - Wrath of the Lich King (Default)
-        - Cataclysm
-        - Mists of Pandaria
-        - Retail
-        - Classic Wrath
-        - Other
+      label: Addon Version
+      description: "`/skada version` to check your current version (including the date and time)."
+      placeholder: "Version: 1.8.84 - Date: 2023-02-21 @ 22:03 UTC"
     validations:
       required: true
 
   - type: checkboxes
-    id: testing
     attributes:
-      label: Tested with only this addon
-      description: Did you try having just this addon as the only enabled addon and everything else disabled?
+      label: Did you try having only this addon enabled?
       options:
         - label: "Yes"
         - label: "No"
@@ -42,9 +38,22 @@ body:
 
   - type: textarea
     attributes:
+      label: Current Behavior
+      description: A concise description of what you're experiencing.
+    validations:
+        required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
       label: Lua Error
-      description: |
-        Do you have an error log of what happened? If you don't see any errors, make sure that error reporting is enabled (`/console scriptErrors 1`)
+      description: "Paste your LUA error if you have any (enable error reporting: `/console scriptErrors 1`)"
     validations:
       required: false
 
@@ -53,10 +62,10 @@ body:
       label: Reproduction Steps
       description: Please list out the steps to reproduce your bug.
       placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
+        1. Go to...
+        2. With this config...
+        3. Click on '...'
+        4. See error...
     validations:
       required: true
 
