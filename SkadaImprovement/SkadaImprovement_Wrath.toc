@@ -1,4 +1,4 @@
-## Interface: 30400
+## Interface: 30402
 ## Title: Skada: |cff7fff7fImprovement|r
 ## Title-deDE: Skada: |cff7fff7fVerbesserung|r
 ## Title-esES: Skada: |cff7fff7fMejora|r
@@ -21,6 +21,7 @@
 ## SavedVariablesPerCharacter: SkadaImprovementDB
 ## DefaultState: disabled
 ## Author: Kader (|cff808080bkader#5341|r)
+## IconTexture: Interface\ICONS\spell_lightning_lightningbolt01
 
 Locales.lua
 SkadaImprovement.lua

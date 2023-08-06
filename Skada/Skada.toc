@@ -1,4 +1,4 @@
-## Interface: 100002
+## Interface: 100105
 ## Title: Skada
 ## Notes: Modular damage meter.
 ## Notes-deDE: Ein Damage-Meter.
@@ -18,7 +18,8 @@
 ## DefaultState: enabled
 ## Author: Kader (|cff808080bkader#5341|r)
 ## Version: 1.8.85
-## X-Date: 2023-08-04 @ 20:04 |cff808080UTC|r
+## IconTexture: Interface\ICONS\spell_lightning_lightningbolt01
+## X-Date: 2023-08-06 @ 10:39 |cff808080UTC|r
 ## X-Credits: Zarnivoop
 ## X-Curse-Project-ID: 623633
 ## X-Category: Combat

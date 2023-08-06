@@ -1,4 +1,4 @@
-## Interface: 90205
+## Interface: 100105
 ## Title: Skada: |cff7fff7fStorage|r
 ## Title-deDE: Skada: |cff7fff7fLagerung|r
 ## Title-esES: Skada: |cff7fff7fAlmacenamiento|r
@@ -21,5 +21,6 @@
 ## SavedVariablesPerCharacter: SkadaStorageDB
 ## DefaultState: disabled
 ## Author: Kader (|cff808080bkader#5341|r)
+## IconTexture: Interface\ICONS\spell_lightning_lightningbolt01
 
 SkadaStorage.lua
