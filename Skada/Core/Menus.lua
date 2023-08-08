@@ -1067,8 +1067,8 @@ do
 	local channellist
 	local build_report_channels
 	do
-		local IsInGuild, IsInRaid = IsInGuild, Skada.IsInRaid
-		local GetNumSubgroupMembers = Skada.GetNumSubgroupMembers
+		local IsInGuild, IsInRaid = IsInGuild, IsInRaid
+		local GetNumSubgroupMembers = GetNumSubgroupMembers
 		local GetChannelList = GetChannelList
 		local TempTable = Private.TempTable
 

@@ -327,10 +327,6 @@ do
 		return percent, power, maxpower
 	end
 
-	lib.IsInRaid = IsInRaid
-	lib.IsInGroup = IsInGroup
-	lib.GetNumGroupMembers = GetNumGroupMembers
-	lib.GetNumSubgroupMembers = GetNumSubgroupMembers
 	lib.GetGroupTypeAndCount = GetGroupTypeAndCount
 	lib.IsGroupDead = IsGroupDead
 	lib.IsGroupInCombat = IsGroupInCombat
@@ -562,11 +558,7 @@ local mixins = {
 	"Dispatch",
 	"QuickDispatch",
 	-- roster util
-	"IsInRaid",
-	"IsInGroup",
 	"IsInPvP",
-	"GetNumGroupMembers",
-	"GetNumSubgroupMembers",
 	"GetGroupTypeAndCount",
 	"IsGroupDead",
 	"IsGroupInCombat",

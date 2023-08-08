@@ -17,9 +17,9 @@
 ## SavedVariablesPerCharacter: SkadaCharDB
 ## DefaultState: enabled
 ## Author: Kader (|cff808080bkader#5341|r)
-## Version: 1.8.85
 ## IconTexture: Interface\ICONS\spell_lightning_lightningbolt01
-## X-Date: 2023-08-07 @ 00:31 |cff808080UTC|r
+## Version: 1.8.85
+## X-Date: 2023-08-08 @ 12:50 |cff808080UTC|r
 ## X-Credits: Zarnivoop
 ## X-Curse-Project-ID: 623633
 ## X-Category: Combat

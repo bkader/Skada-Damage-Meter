@@ -17,8 +17,8 @@ local InCombatLockdown, IsGroupInCombat, IsGroupDead = InCombatLockdown, Skada.I
 local UnitGUID, GameTooltip, ReloadUI = UnitGUID, GameTooltip, ReloadUI
 local IsShiftKeyDown, IsControlKeyDown = IsShiftKeyDown, IsControlKeyDown
 local SecondsToTime, time, GetTime = SecondsToTime, time, GetTime
-local IsInGroup, IsInRaid, IsInPvP = Skada.IsInGroup, Skada.IsInRaid, Skada.IsInPvP
-local GetNumGroupMembers, CheckDuplicate = Skada.GetNumGroupMembers, Private.CheckDuplicate
+local IsInGroup, IsInRaid, IsInPvP = IsInGroup, IsInRaid, Skada.IsInPvP
+local CheckDuplicate = Private.CheckDuplicate
 local L, callbacks, O = Skada.Locale, Skada.callbacks, Skada.options.args
 local P, G, _
 
@@ -2710,6 +2710,7 @@ do
 		end
 	end
 
+	local GetNumGroupMembers = GetNumGroupMembers
 	function combat_start()
 		Skada._time = time()
 
