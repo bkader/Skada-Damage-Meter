@@ -1,7 +1,7 @@
 local _, Skada = ...
 local Private = Skada.Private
 if not Private.IsWotLK() then return end
-Skada:RegisterModule("Parry-Haste", function(L, P, _, _, M)
+Skada:RegisterModule("Parry-Haste", function(L, P, _, _, M, O)
 	local mode = Skada:NewModule("Parry-Haste")
 	local mode_target = mode:NewModule("Target List")
 	local pairs, format, uformat = pairs, string.format, Private.uformat
@@ -158,7 +158,7 @@ Skada:RegisterModule("Parry-Haste", function(L, P, _, _, M)
 	function mode:OnInitialize()
 		M.parrychannel = M.parrychannel or "AUTO"
 
-		Skada.options.args.modules.args.Parry = {
+		O.modules.args.Parry = {
 			type = "group",
 			name = self.localeName,
 			desc = format(L["Options for %s."], self.localeName),
