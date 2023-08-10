@@ -1500,12 +1500,75 @@ end
 
 do
 	do
-		local C_TooltipInfo = _G.C_TooltipInfo
-		local TooltipUtil = _G.TooltipUtil
-		local Enum_UnitOwner = 16 -- _G.Enum.TooltipDataLineType.UnitOwner
 
 		local GetPetOwnerFromTooltip
-		do
+		if Private.IsWotLK() then
+			local pettooltip = CreateFrame("GameTooltip", format("%sPetTooltip", folder), nil, "GameTooltipTemplate")
+
+			local ValidatePetOwner
+			do
+				local ownerPatterns = {}
+				do
+					local i = 1
+					local title = _G["UNITNAME_SUMMON_TITLE" .. i]
+					while (title and title ~= "%s" and find(title, "%s")) do
+						ownerPatterns[#ownerPatterns + 1] = title
+						i = i + 1
+						title = _G["UNITNAME_SUMMON_TITLE" .. i]
+					end
+				end
+
+				local EscapeStr = Private.EscapeStr
+				ValidatePetOwner = function(text, name)
+					for i = 1, #ownerPatterns do
+						local pattern = ownerPatterns[i]
+						if pattern and EscapeStr(format(pattern, name)) == text then
+							return true
+						end
+					end
+					return false
+				end
+			end
+
+			-- attempts to find the player guid on Russian clients.
+			local GetNumDeclensionSets, DeclineName = GetNumDeclensionSets, DeclineName
+			local function FindNameDeclension(text, actorname)
+				for gender = 2, 3 do
+					for decset = 1, GetNumDeclensionSets(actorname, gender) do
+						local ownerName = DeclineName(actorname, gender, decset)
+						if ValidatePetOwner(text, ownerName) or find(text, ownerName) then
+							return true
+						end
+					end
+				end
+				return false
+			end
+
+			GetPetOwnerFromTooltip = function(guid)
+				local set = guid and Skada.current
+				local actors = set and set.actors
+				if not actors then return end
+
+				pettooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+				pettooltip:ClearLines()
+				pettooltip:SetHyperlink(format("unit:%s", guid))
+
+				-- we only need to scan the 2nd line.
+				local text = _G["SkadaPetTooltipTextLeft2"] and _G["SkadaPetTooltipTextLeft2"]:GetText()
+				if text and text ~= "" then
+					for actorname, actor in pairs(actors) do
+						local name = not actor.enemy and gsub(actorname, "%-.*", "")
+						if name and ((LOCALE_ruRU and FindNameDeclension(text, name)) or ValidatePetOwner(text, name)) then
+							return actor.id, actorname
+						end
+					end
+				end
+			end
+		else
+			local C_TooltipInfo = _G.C_TooltipInfo
+			local TooltipUtil = _G.TooltipUtil
+			local Enum_UnitOwner = 16 -- _G.Enum.TooltipDataLineType.UnitOwner
+
 			local function FindPetOwner(guid, actors)
 				-- found in cache?
 				if guidToName[guid] then
@@ -1521,7 +1584,7 @@ do
 				end
 			end
 
-			function GetPetOwnerFromTooltip(guid)
+			GetPetOwnerFromTooltip = function (guid)
 				local data = guid and C_TooltipInfo.GetHyperlink(format("unit:%s", guid))
 				if not data then return end
 
