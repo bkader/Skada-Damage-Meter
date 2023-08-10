@@ -2805,7 +2805,7 @@ do
 
 	local bit_band = bit.band
 	local GetInstanceInfo = GetInstanceInfo
-	local GetBattlefieldArenaFaction = GetBattlefieldArenaFaction
+	local GetBattlefieldArenaFaction = GetBattlefieldArenaFaction or Skada.EmptyFunc
 	local BITMASK_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER or 0x00000100
 
 	local function check_boss_fight(set, t, src_is_interesting, dst_is_interesting)
