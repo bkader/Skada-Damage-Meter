@@ -12,6 +12,7 @@ _**FOR PRIVATE SERVERS**_:
 * _[Wrath of the Lich King](https://github.com/bkader/Skada-WoTLK)_
 * _[Cataclysm](https://github.com/bkader/Skada-Cata)_
 * _[Mists of Pandaria](https://github.com/bkader/Skada-MoP)_
+* _[Legion](https://github.com/bkader/Skada-Legion)_
 
 > ***Is this a backported version?***
 > **No**! This is total **rewrite** of the original addon, it all started from version `r301` for `3.3.5`and built up to the current state.

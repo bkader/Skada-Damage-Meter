@@ -19,7 +19,7 @@
 ## Author: Kader (|cff808080bkader#5341|r)
 ## IconTexture: Interface\ICONS\spell_lightning_lightningbolt01
 ## Version: 1.8.85
-## X-Date: 2023-09-02 @ 22:10 |cff808080UTC|r
+## X-Date: 2023-09-23 @ 21:07 |cff808080UTC|r
 ## X-Credits: Zarnivoop
 ## X-Curse-Project-ID: 623633
 ## X-Category: Combat
