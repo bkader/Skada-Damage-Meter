@@ -377,6 +377,7 @@ if not L then return end
 -- L["Theme"] = ""
 -- L["Themes"] = ""
 -- L["Manage Themes"] = ""
+-- L["All Windows"] = ""
 -- L["Apply Theme"] = ""
 -- L["Theme applied!"] = ""
 -- L["Name of your new theme."] = ""
