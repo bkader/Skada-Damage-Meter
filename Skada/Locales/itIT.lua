@@ -567,8 +567,9 @@ L["Damage: Raid DPS"] = "Danno: DPS Incursione"
 -- L["Damage Done By School"] = ""
 -- L["%s Damage"] = ""
 -- killing blows module
--- L["%s's killing blows"] = ""
--- L["Killing blows on %s"] = ""
+-- L["Only PvP Kills"] = ""
+-- L["When enabled, only kills against enemy players count."] = ""
+-- L["Announce killing blows after combat ends. Only works for boss fights."] = ""
 -- damage taken module
 L["Damage Taken"] = "Danno Subito"
 -- L["Damage taken by %s"] = ""
