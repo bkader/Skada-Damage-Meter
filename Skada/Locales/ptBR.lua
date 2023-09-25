@@ -96,6 +96,8 @@ if not L then return end
 -- L["Delete Window"] = ""
 -- L["Choose the window to be deleted."] = ""
 -- L["Are you sure you want to delete this window?"] = ""
+-- L["Delete All Windows"] = ""
+-- L["Are you sure you want to delete all windows?"] = ""
 -- L["Rename Window"] = ""
 -- L["Enter the name for the window."] = ""
 -- L["Test Mode"] = ""
