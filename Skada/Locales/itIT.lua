@@ -566,6 +566,9 @@ L["Damage: Raid DPS"] = "Danno: DPS Incursione"
 -- L["Enable this if you want the damage absorbed to be included in the damage done."] = ""
 -- L["Damage Done By School"] = ""
 -- L["%s Damage"] = ""
+-- killing blows module
+-- L["%s's killing blows"] = ""
+-- L["Killing blows on %s"] = ""
 -- damage taken module
 L["Damage Taken"] = "Danno Subito"
 -- L["Damage taken by %s"] = ""
