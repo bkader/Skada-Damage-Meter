@@ -407,8 +407,10 @@ if not L then return end
 -- L["Keep Segment"] = ""
 -- L["Toggle Windows"] = ""
 -- L["Show/Hide Windows"] = ""
--- L["Start New Segment"] = ""
--- L["Start New Phase"] = ""
+-- L["New Segment"] = ""
+-- L["Starts a new segment."] = ""
+-- L["New Phase"] = ""
+-- L["Starts a new phase."] = ""
 -- L["Select All"] = ""
 -- L["Deselect All"] = ""
 -- window buttons
