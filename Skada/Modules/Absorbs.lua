@@ -4,6 +4,7 @@ local Private = Skada.Private
 -- cache frequently used globals
 local pairs, tostring, format, uformat = pairs, tostring, string.format, Private.uformat
 local new, del = Private.newTable, Private.delTable
+local PercentToRGB = Private.PercentToRGB
 local tooltip_school = Skada.tooltip_school
 local hits_perc = "%s (\124cffffffff%s\124r)"
 local slash_fmt = "%s/%s"
@@ -131,7 +132,8 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		local activetime = actor:GetTime(set, true)
 		local aps, damage = actor:GetAPS(set)
 
-		tooltip:AddDoubleLine(L["Activity"], Skada:FormatPercent(activetime, totaltime), nil, nil, nil, 1, 1, 1)
+		local activepercent = activetime / totaltime * 100
+		tooltip:AddDoubleLine(format(L["%s's activity"], label), Skada:FormatPercent(activepercent), nil, nil, nil, PercentToRGB(activepercent))
 		tooltip:AddDoubleLine(L["Segment Time"], Skada:FormatTime(totaltime), 1, 1, 1)
 		tooltip:AddDoubleLine(L["Active Time"], Skada:FormatTime(activetime), 1, 1, 1)
 		tooltip:AddDoubleLine(L["Absorbs"], Skada:FormatNumber(damage), 1, 1, 1)
@@ -150,6 +152,11 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 
 		tooltip:AddLine(uformat("%s - %s", win.actorname, label))
 		tooltip_school(tooltip, id)
+
+		local cast = actor.GetSpellCast and actor:GetSpellCast(id)
+		if cast then
+			tooltip:AddDoubleLine(L["Casts"], cast, nil, nil, nil, 1, 1, 1)
+		end
 
 		if not spell.count or spell.count == 0 then return end
 
@@ -330,7 +337,7 @@ Skada:RegisterModule("Absorbs", function(L, P, G)
 		self.metadata = {
 			showspots = true,
 			filterclass = true,
-			post_tooltip = absorb_tooltip,
+			tooltip = absorb_tooltip,
 			click1 = mode_spell,
 			click2 = mode_target,
 			columns = {Absorbs = true, APS = false, Percent = true, sAPS = false, sPercent = true},
@@ -399,7 +406,8 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		local activetime = actor:GetTime(set, true)
 		local hps, amount = actor:GetAHPS(set)
 
-		tooltip:AddDoubleLine(L["Activity"], Skada:FormatPercent(activetime, totaltime), nil, nil, nil, 1, 1, 1)
+		local activepercent = activetime / totaltime * 100
+		tooltip:AddDoubleLine(format(L["%s's activity"], label), Skada:FormatPercent(activepercent), nil, nil, nil, PercentToRGB(activepercent))
 		tooltip:AddDoubleLine(L["Segment Time"], Skada:FormatTime(set:GetTime()), 1, 1, 1)
 		tooltip:AddDoubleLine(L["Active Time"], Skada:FormatTime(activetime), 1, 1, 1)
 		tooltip:AddDoubleLine(L["Absorbs and Healing"], Skada:FormatNumber(amount), 1, 1, 1)
@@ -420,6 +428,11 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 
 		tooltip:AddLine(uformat("%s - %s", win.actorname, label))
 		tooltip_school(tooltip, id)
+
+		local cast = actor.GetSpellCast and actor:GetSpellCast(id)
+		if cast then
+			tooltip:AddDoubleLine(L["Casts"], cast, nil, nil, nil, 1, 1, 1)
+		end
 
 		if not spell.count or spell.count == 0 then return end
 
@@ -673,9 +686,9 @@ Skada:RegisterModule("Absorbs and Healing", function(L, P)
 		self.metadata = {
 			showspots = true,
 			filterclass = true,
+			tooltip = hps_tooltip,
 			click1 = mode_spell,
 			click2 = mode_target,
-			post_tooltip = hps_tooltip,
 			columns = {Healing = true, HPS = true, Percent = true, sHPS = false, sPercent = true},
 			icon = [[Interface\ICONS\spell_holy_healingfocus]]
 		}
@@ -813,12 +826,16 @@ Skada:RegisterModule("Healing Done By Spell", function(L, _, _, C)
 
 		tooltip:AddLine(uformat("%s - %s", label, win.spellname))
 
+		local cast = actor.GetSpellCast and actor:GetSpellCast(win.spellid)
+		if cast then
+			tooltip:AddDoubleLine(L["Casts"], cast, nil, nil, nil, 1, 1, 1)
+		end
+
 		if spell.count then
-			tooltip:AddDoubleLine(L["Count"], spell.count, 1, 1, 1)
+			tooltip:AddDoubleLine(L["Hits"], spell.count, 1, 1, 1)
 
 			if spell.c_num then
 				tooltip:AddDoubleLine(L["Critical"], Skada:FormatPercent(spell.c_num, spell.count), 1, 1, 1)
-				tooltip:AddLine(" ")
 			end
 
 			if spell.min and spell.max then
