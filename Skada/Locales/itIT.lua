@@ -640,7 +640,7 @@ L["Activity"] = "Attività"
 -- L["%s parried %s (%s)"] = ""
 -- Potions module lines --
 -- L["Potions"] = ""
--- L["%s's used potions"] = ""
+-- L["%s's potions"] = ""
 -- L["Pre-potion"] = ""
 -- L["pre-potion: %s"] = ""
 -- L["Prints pre-potion after the end of the combat."] = ""
