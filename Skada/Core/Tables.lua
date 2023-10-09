@@ -631,7 +631,7 @@ do
 		-- Icecrown Citadel
 		custom_units[36855] = { -- Lady Deathwhisper
 			{text = L["%s - Phase 1"], start = 1, power = 0},
-			{text = L["%s - Phase 2"], start = 1}
+			{text = L["%s - Phase 2"], start = 0, power = 0}
 		}
 		custom_units[36678] = {text = L["%s - Phase 3"], start = 0.35} -- Professor Putricide
 		custom_units[36853] = {text = L["%s - Phase 2"], start = 0.35} -- Sindragosa
