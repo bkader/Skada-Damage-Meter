@@ -554,7 +554,19 @@ do
 	-- option #2:	[creature name] = "Group Name"
 	--
 
-	local grouped_units = {}
+	local grouped_units = {
+		-- EXPERIMENTAL: instance bosses and trash grouped units.
+		-- IMPORTANT: only recorded to the total segment.
+		BOSS = true,
+		TRASH = true,
+
+		-- Example: The Lich King - Important targets
+		-- [36597] = L["Important targets"], -- The Lich King
+		-- [36609] = L["Important targets"], -- Val'kyr Shadowguard
+		-- [36633] = L["Important targets"], -- Ice Sphere
+		-- [36701] = L["Important targets"], -- Raging Spirit
+		-- [39190] = L["Important targets"], -- Wicked Spirit
+	}
 
 	------------------------------------------------------
 	-- custom units (fake)
