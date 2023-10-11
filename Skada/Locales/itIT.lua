@@ -327,8 +327,8 @@ L["opt_feed_desc"] = "Scegli quali dati mostrare nella vista del DataBroker. Ric
 -- L["Time Measure"] = ""
 -- L["Activity Time"] = ""
 -- L["Effective Time"] = ""
--- L["opt_timemesure_desc"] = [=[|cFFFFFF00Activity|r: the timer of each raid member is put on hold if their activity is ceased and back again to count when resumed, common way of measuring DPS and HPS.
--- |cFFFFFF00Effective|r: used on rankings, this method uses the elapsed combat time to measure the DPS and HPS of all raid members.]=]
+-- L["opt_timemesure_desc"] = [=[|cffffff00Activity|r: the timer of each raid member is put on hold if their activity is ceased and back again to count when resumed, common way of measuring DPS and HPS.
+-- |cffffff00Effective|r: used on rankings, this method uses the elapsed combat time to measure the DPS and HPS of all raid members.]=]
 -- L["Number set duplicates"] = ""
 -- L["Append a count to set names with duplicate mob names."] = ""
 -- L["Set Format"] = ""
@@ -417,7 +417,8 @@ L["Delete Segment"] = "Cancella Segmento"
 -- L["Configure"] = ""
 -- L["Open Config"] = ""
 -- L["btn_config_desc"] = "Opens the configuration window."
--- L["btn_reset_desc"] = "Resets all fight data except those marked as kept."
+-- L["btn_reset_desc"] = [[Resets all fight data except those marked as kept.
+-- |cff00ff00Shift-LMB|r: Delete segment.]]
 -- L["Segment"] = ""
 -- L["btn_segment_desc"] = [[Jump to a specific segment.
 -- |cff00ff00Shift-LMB|r for |cffffbb00next|r segment.
