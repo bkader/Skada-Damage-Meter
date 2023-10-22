@@ -2423,7 +2423,7 @@ function Skada:OnEnable()
 	self:SetupStorage()
 
 	-- deprecated table structure.
-	if self.sets.version then
+	if self.sets.version or self.sets.sets then
 		self.sets.sets, self.sets.version = nil, nil
 		self:Debug("Fixed deprecated table structure!")
 	end
