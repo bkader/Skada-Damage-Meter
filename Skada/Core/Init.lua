@@ -1645,6 +1645,7 @@ do
 	end
 
 	-- returns unit's full name
+	local _, _, _, WoWBuild = GetBuildInfo()
 	local function UnitFullName(unit, ownerUnit, fmt)
 		if ownerUnit and fmt then
 			local name, realm = UnitName(ownerUnit)
@@ -1654,6 +1655,20 @@ do
 		local name, realm = UnitName(unit)
 		return not ownerUnit and realm and realm ~= "" and format("%s-%s", name, realm) or name
 	end
+
+	if WoWBuild >= 100200 then
+		local realm_name = gsub(GetRealmName(), "%s", "");
+		UnitFullName = function(unit, ownerUnit, fmt)
+			if ownerUnit and fmt then
+				local name, realm = UnitName(ownerUnit)
+				return format("%s <%s>", UnitName(unit), format("%s-%s", name, realm and realm ~= "" and realm or realm_name))
+			end
+
+			local name, realm = UnitName(unit)
+			return ownerUnit and name or format("%s-%s", name, realm and realm ~= "" and realm or realm_name)
+		end
+	end
+
 	Private.UnitFullName = UnitFullName
 
 	-- adds a combatant
