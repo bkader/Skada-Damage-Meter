@@ -44,6 +44,8 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 	local allowed_diffs = {
 		-- ["5n"] = false, -- 5man Normal
 		-- ["5h"] = false, -- 5man Heroic
+		-- ["5m"] = false, -- Mythic 5man dungeon
+		-- ["5c"] = false, -- Dungeon, Mythic+
 		-- ["mc"] = false, -- Mythic Dungeons
 		-- ["tw"] = false, -- Time Walker
 		-- ["wb"] = false, -- World Boss
@@ -51,6 +53,8 @@ Skada:RegisterModule("Enemy Damage Taken", function(L, P, _, C)
 		["10h"] = true, -- 10man Heroic
 		["25n"] = true, -- 25man Normal
 		["25h"] = true, -- 25man Heroic
+		["lfr"] = true,  -- Flexible LFR
+		["25lfr"] = true, -- Legacy 25man LFR
 	}
 
 	local function format_valuetext(d, total, dtps, metadata, subview, dont_sort)
