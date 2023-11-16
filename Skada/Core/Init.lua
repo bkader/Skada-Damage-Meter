@@ -54,6 +54,7 @@ ns.cropTable = {0.06, 0.94, 0.06, 0.94}
 
 do
 	local _, _, _, WowBuild = GetBuildInfo()
+	ns.WowBuild = WowBuild
 
 	local function IsTimewalk()
 		return (WowBuild < 40000)
@@ -1532,6 +1533,11 @@ do
 	local BITMASK_NPC = Private.BITMASK_NPC
 	local BITMASK_PLAYER = Private.BITMASK_PLAYER
 
+	ns.userGUID = UnitGUID("player")
+	_, ns.userClass = UnitClass("player")
+	ns.userName = UnitName("player")
+	ns.userRealm = gsub(GetRealmName(), "%s", "")
+
 	-- checks if the given guid/flags are those of a creature.
 	function Private.IsCreature(guid, flags)
 		if tonumber(guid) then
@@ -1645,7 +1651,6 @@ do
 	end
 
 	-- returns unit's full name
-	local _, _, _, WoWBuild = GetBuildInfo()
 	local function UnitFullName(unit, ownerUnit, fmt)
 		if ownerUnit and fmt then
 			local name, realm = UnitName(ownerUnit)
@@ -1656,16 +1661,17 @@ do
 		return not ownerUnit and realm and realm ~= "" and format("%s-%s", name, realm) or name
 	end
 
-	if WoWBuild >= 100200 then
-		local realm_name = gsub(GetRealmName(), "%s", "");
+	if ns.WowBuild >= 100200 then
+		local G_UnitFullName = _G.UnitFullName
+		local realm_name = ns.userRealm
 		UnitFullName = function(unit, ownerUnit, fmt)
 			if ownerUnit and fmt then
-				local name, realm = UnitName(ownerUnit)
-				return format("%s <%s>", UnitName(unit), format("%s-%s", name, realm and realm ~= "" and realm or realm_name))
+				local name, realm = G_UnitFullName(ownerUnit)
+				return format("%s <%s>", UnitName(unit), format("%s-%s", name, realm or realm_name))
 			end
 
-			local name, realm = UnitName(unit)
-			return ownerUnit and name or format("%s-%s", name, realm and realm ~= "" and realm or realm_name)
+			local name, realm = G_UnitFullName(unit)
+			return ownerUnit and name or format("%s-%s", name, realm or realm_name)
 		end
 	end
 
@@ -1688,10 +1694,6 @@ do
 		guidToClass[guid] = class
 		guidToName[guid] = UnitFullName(unit)
 	end
-
-	ns.userGUID = UnitGUID('player')
-	_, ns.userClass = UnitClass('player')
-	ns.userName = UnitFullName("player")
 end
 
 -------------------------------------------------------------------------------
