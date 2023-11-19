@@ -448,6 +448,11 @@ do
 				local _, class = UnitClass(unit)
 				if not class or not specsTable[class] then return end
 
+				-- speedup roles using classes.
+				if class == "HUNTER" or class == "MAGE" or class == "ROGUE" or class == "WARLOCK" then
+					rawset(GetUnitRole, guid, "DAMAGER")
+				end
+
 				local talentGroup = LGT:GetActiveTalentGroup(unit)
 				local maxPoints, index = 0, 0
 
@@ -459,8 +464,10 @@ do
 							if class == "DRUID" and i >= 2 then
 								if i == 3 then
 									index = 4
+									rawset(GetUnitRole, guid, "HEALER") -- cache role
 								elseif i == 2 then
 									index = GetFeralSubSpec(unit, talentGroup)
+									rawset(GetUnitRole, guid, index == 2 and "DAMAGER" or "TANK") -- cache role
 								end
 							else
 								index = i
@@ -487,26 +494,22 @@ do
 				local unit = guid and GetUnitIdFromGUID(guid, true)
 				if not unit then return end
 
-				local role = nil
-
 				-- For LFG using "UnitGroupRolesAssigned" is enough.
-				local isTank, isHealer, isDamager = UnitGroupRolesAssigned(unit)
-				if isTank then
-					role = "TANK"
-				elseif isHealer then
-					role = "HEALER"
-				elseif isDamager then
-					role = "DAMAGER"
-				else
-					local _, class = UnitClass(unit)
-					-- speedup things using classes.
-					if class == "HUNTER" or class == "MAGE" or class == "ROGUE" or class == "WARLOCK" then
-						role = "DAMAGER"
-					else
-						role = LGTRoleTable[LGT:GetUnitRole(unit)] or "NONE"
-					end
+				local role = UnitGroupRolesAssigned(unit)
+				if role and role ~= "NONE" then
+					rawset(self, guid, role)
+					return role
 				end
 
+				-- speedup things using classes.
+				local _, class = UnitClass(unit)
+				if class == "HUNTER" or class == "MAGE" or class == "ROGUE" or class == "WARLOCK" then
+					role = "DAMAGER"
+					rawset(self, guid, role)
+					return role
+				end
+
+				role = LGTRoleTable[LGT:GetUnitRole(unit)] or "NONE"
 				rawset(self, guid, role)
 				return role
 			end,

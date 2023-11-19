@@ -1349,8 +1349,8 @@ do
 			-- is it me? move on..
 			if actorid == self.userGUID then
 				actor.class = self.userClass
-				actor.role = GetUnitRole(self.userGUID)
 				actor.spec = GetUnitSpec(self.userGUID)
+				actor.role = GetUnitRole(self.userGUID)
 			end
 
 			-- actorflags:true => fake actor
@@ -1366,8 +1366,8 @@ do
 				if guidToName[actor.class] then
 					actor.class = "PET"
 				else
-					actor.role = GetUnitRole(actorid)
 					actor.spec = GetUnitSpec(actorid)
+					actor.role = GetUnitRole(actorid)
 				end
 			end
 
@@ -1428,14 +1428,14 @@ do
 		-- add more details to the actor...
 		if guidToClass[actor.id] then
 			if self.validclass[actor.class] then
-				-- missing role?
-				if actor.role == nil or actor.role == "NONE" then
-					actor.role = GetUnitRole(actor.id)
-					actor.__mod = true
-				end
 				-- missing spec?
 				if actor.spec == nil then
 					actor.spec = GetUnitSpec(actor.id)
+					actor.__mod = true
+				end
+				-- missing role?
+				if actor.role == nil or actor.role == "NONE" then
+					actor.role = GetUnitRole(actor.id)
 					actor.__mod = true
 				end
 			end
