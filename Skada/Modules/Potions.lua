@@ -353,49 +353,50 @@ Skada:RegisterModule("Potions", function(L, P, G, C, _, O)
 		potion_ids[67489] = "41166" -- Runic Healing Injector
 		potion_ids[67490] = "42545" -- Runic Mana Injector
 
-		if Private.IsWotLK() then return end
+		-- add potions for other expansions
+		if not Private.IsWotLK() then
+			--[[ Cataclysm ]]--
+			potion_ids[78992] = "57193" -- Mighty Rejuvenation Potion
+			potion_ids[78993] = "57194" -- Potion of Concentration
+			potion_ids[79475] = "58090" -- Earthen Potion
+			potion_ids[79476] = "58091" -- Volcanic Potion
+			potion_ids[79633] = "58145" -- Potion of the Tol'vir
+			potion_ids[79634] = "58146" -- Golemblood Potion
 
-		--[[ Cataclysm ]]--
-		potion_ids[78992] = "57193" -- Mighty Rejuvenation Potion
-		potion_ids[78993] = "57194" -- Potion of Concentration
-		potion_ids[79475] = "58090" -- Earthen Potion
-		potion_ids[79476] = "58091" -- Volcanic Potion
-		potion_ids[79633] = "58145" -- Potion of the Tol'vir
-		potion_ids[79634] = "58146" -- Golemblood Potion
+			--[[ Mists of Pandaria ]]--
+			potion_ids[105697] = "76089" -- Virmen's Bite
+			potion_ids[105698] = "76090" -- Potion of the Mountains
+			potion_ids[105701] = "76092" -- Potion of Focus
+			potion_ids[105702] = "76093" -- Potion of the Jade Serpent
+			potion_ids[105704] = "76094" -- Alchemist's Rejuvenation
+			potion_ids[105706] = "76095" -- Potion of Mogu Power
+			potion_ids[105707] = "76096" -- Darkwater Potion
+			potion_ids[105708] = "76097" -- Master Healing Potion
+			potion_ids[105709] = "76098" -- Master Mana Potion
+			potion_ids[139493] = "93742" -- Healing Potion
 
-		--[[ Mists of Pandaria ]]--
-		potion_ids[105697] = "76089" -- Virmen's Bite
-		potion_ids[105698] = "76090" -- Potion of the Mountains
-		potion_ids[105701] = "76092" -- Potion of Focus
-		potion_ids[105702] = "76093" -- Potion of the Jade Serpent
-		potion_ids[105704] = "76094" -- Alchemist's Rejuvenation
-		potion_ids[105706] = "76095" -- Potion of Mogu Power
-		potion_ids[105707] = "76096" -- Darkwater Potion
-		potion_ids[105708] = "76097" -- Master Healing Potion
-		potion_ids[105709] = "76098" -- Master Mana Potion
-		potion_ids[139493] = "93742" -- Healing Potion
-
-		--[[ Warlods of Draenor ]]--
-		-- potion_ids[105704] = "113585" -- Iron Horde Rejuvenation Potion
-		potion_ids[117415] = "118913" -- Smuggled Tonic
-		potion_ids[156423] = "122453" -- Commander's Draenic Agility Potion
-		potion_ids[156426] = "122454" -- Commander's Draenic Intellect Potion
-		potion_ids[156428] = "122455" -- Commander's Draenic Strength Potion
-		potion_ids[156432] = "118262" -- Brilliant Dreampetal
-		potion_ids[156445] = "109226" -- Draenic Rejuvenation Potion
-		potion_ids[170403] = "115498" -- Ashran Healing Tonic
-		potion_ids[170530] = "115531" -- Swirling Ashran Potion
-		potion_ids[172160] = "116925" -- Vintage Free Action Potion
-		potion_ids[175790] = "116266" -- Draenic Swiftness Potion
-		potion_ids[175821] = "118704" -- Pure Rage Potion
-		potion_ids[175833] = "116268" -- Draenic Invisibility Potion
-		potion_ids[176107] = "118910" -- Brawler's Draenic Agility Potion
-		-- potion_ids[176107] = "118913" -- Brawler's Bottomless Draenic Agility Potion
-		potion_ids[176108] = "118911" -- Brawler's Draenic Intellect Potion
-		-- potion_ids[176108] = "118914" -- Brawler's Bottomless Draenic Intellect Potion
-		potion_ids[176109] = "118912" -- Brawler's Draenic Strength Potion
-		-- potion_ids[176109] = "118915" -- Brawler's Bottomless Draenic Strength Potion
-		potion_ids[176114] = "118916" -- Brawler's Healing Tonic
+			--[[ Warlods of Draenor ]]--
+			-- potion_ids[105704] = "113585" -- Iron Horde Rejuvenation Potion
+			potion_ids[117415] = "118913" -- Smuggled Tonic
+			potion_ids[156423] = "122453" -- Commander's Draenic Agility Potion
+			potion_ids[156426] = "122454" -- Commander's Draenic Intellect Potion
+			potion_ids[156428] = "122455" -- Commander's Draenic Strength Potion
+			potion_ids[156432] = "118262" -- Brilliant Dreampetal
+			potion_ids[156445] = "109226" -- Draenic Rejuvenation Potion
+			potion_ids[170403] = "115498" -- Ashran Healing Tonic
+			potion_ids[170530] = "115531" -- Swirling Ashran Potion
+			potion_ids[172160] = "116925" -- Vintage Free Action Potion
+			potion_ids[175790] = "116266" -- Draenic Swiftness Potion
+			potion_ids[175821] = "118704" -- Pure Rage Potion
+			potion_ids[175833] = "116268" -- Draenic Invisibility Potion
+			potion_ids[176107] = "118910" -- Brawler's Draenic Agility Potion
+			-- potion_ids[176107] = "118913" -- Brawler's Bottomless Draenic Agility Potion
+			potion_ids[176108] = "118911" -- Brawler's Draenic Intellect Potion
+			-- potion_ids[176108] = "118914" -- Brawler's Bottomless Draenic Intellect Potion
+			potion_ids[176109] = "118912" -- Brawler's Draenic Strength Potion
+			-- potion_ids[176109] = "118915" -- Brawler's Bottomless Draenic Strength Potion
+			potion_ids[176114] = "118916" -- Brawler's Healing Tonic
+		end
 
 		-- don't edit below unless you know what you're doing.
 		if P.prepotion == nil then
