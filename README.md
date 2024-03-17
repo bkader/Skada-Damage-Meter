@@ -1,4 +1,4 @@
-# Skada Damage Meter (_Revisited - v1.8.85_)
+# Skada Damage Meter (_Revisited - v1.8.86_)
 
 ![Discord](https://img.shields.io/discord/795698054371868743?label=discord)
 ![GitHub last commit](https://img.shields.io/github/last-commit/bkader/Skada-Damage-Meter)
@@ -12,6 +12,7 @@ _**FOR PRIVATE SERVERS**_:
 * _[Wrath of the Lich King](https://github.com/bkader/Skada-WoTLK)_
 * _[Cataclysm](https://github.com/bkader/Skada-Cata)_
 * _[Mists of Pandaria](https://github.com/bkader/Skada-MoP)_
+* _[Warlords of Draenor](https://github.com/bkader/Skada-WoD)_
 * _[Legion](https://github.com/bkader/Skada-Legion)_
 
 > ***Is this a backported version?***
