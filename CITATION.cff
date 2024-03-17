@@ -4,7 +4,7 @@ authors:
   - given-names: "Kader"
     family-names: "Bouyakoub"
     orcid: "https://orcid.org/0000-0002-1184-8061"
-title: "Skada (Revisited)"
+title: "Skada Damage Meter (Revisited)"
 version: 1.8.82
 date-released: 2020-10-22
-url: "https://github.com/bkader/Skada"
+url: "https://github.com/bkader/Skada-Damage-Meter"

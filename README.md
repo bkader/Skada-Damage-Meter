@@ -14,6 +14,7 @@ _**FOR PRIVATE SERVERS**_:
 * _[Mists of Pandaria](https://github.com/bkader/Skada-MoP)_
 * _[Warlords of Draenor](https://github.com/bkader/Skada-WoD)_
 * _[Legion](https://github.com/bkader/Skada-Legion)_
+* _[Battle for Azeroth](https://github.com/bkader/Skada-BfA)_
 
 > ***Is this a backported version?***
 > **No**! This is total **rewrite** of the original addon, it all started from version `r301` for `3.3.5`and built up to the current state.

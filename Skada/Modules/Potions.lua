@@ -396,6 +396,70 @@ Skada:RegisterModule("Potions", function(L, P, G, C, _, O)
 			potion_ids[176109] = "118912" -- Brawler's Draenic Strength Potion
 			-- potion_ids[176109] = "118915" -- Brawler's Bottomless Draenic Strength Potion
 			potion_ids[176114] = "118916" -- Brawler's Healing Tonic
+
+			--[[ Legion ]]--
+			potion_ids[188016] = "136569" -- Aged/Ancient Health Potion
+			potion_ids[188017] = "127835" -- Ancient Mana Potion
+			potion_ids[188018] = "127836" -- Ancient Rejuvenation Potion
+			potion_ids[188027] = "127843" -- Potion of Deadly Grace
+			potion_ids[188028] = "127844" -- Potion of the Old War
+			potion_ids[188029] = "127845" -- Unbending Potion
+			potion_ids[188030] = "127846" -- Leytorrent Potion
+			potion_ids[193456] = "129192" -- Inquisitor's Menacing Eye
+			potion_ids[216802] = "138727" -- Potion of Defiance
+			potion_ids[216810] = "138729" -- Potion of Heightened Senses
+			potion_ids[223573] = "140347" -- Spirit Berries
+			potion_ids[223595] = "140351" -- Sunfruit
+			potion_ids[229206] = "142117" -- Potion of Prolonged Power
+			potion_ids[231784] = "143542" -- Crown Co. "Kure-Everything" Tonic
+			potion_ids[242551] = "147707" -- Repurposed Fel Focuser
+			potion_ids[251645] = "152615" -- Astral Healing Potion
+
+			--[[ Battle for Azeroth ]]--
+			potion_ids[250878] = "152497" -- Lightfoot Potion
+			potion_ids[250956] = "152503" -- Potion of Concealment
+			potion_ids[251143] = "152550" -- Sea Mist Potion
+			potion_ids[251231] = "152557" -- Steelskin Potion
+			potion_ids[251316] = "152560" -- Potion of Bursting Blood
+			potion_ids[252753] = "152561" -- Potion of Replenishment
+			potion_ids[269853] = "152559" -- Potion of Rising Death
+			potion_ids[279151] = "163222" -- Battle Potion of Intellect
+			potion_ids[279152] = "163223" -- Battle Potion of Agility
+			potion_ids[279153] = "163224" -- Battle Potion of Strength
+			potion_ids[279154] = "163225" -- Battle Potion of Stamina
+			potion_ids[289982] = "166751" -- Draught of Ten Lands
+			potion_ids[293795] = "156634" -- Silas' Vial of Continuous Curing
+			potion_ids[298152] = "168498" -- Superior Battle Potion of Intellect
+			potion_ids[298153] = "168499" -- Superior Battle Potion of Stamina
+			potion_ids[298154] = "168500" -- Superior Battle Potion of Strength
+			potion_ids[298155] = "168501" -- Superior Steelskin Potion
+			potion_ids[298157] = "168502" -- Potion of Reconstitution
+			potion_ids[298225] = "168529" -- Potion of Empowered Proximity
+			potion_ids[298317] = "168506" -- Potion of Focused Resolve
+			potion_ids[300714] = "169299" -- Potion of Unbridled Fury
+			potion_ids[300741] = "169300" -- Potion of Wild Mending
+			potion_ids[301308] = "169451" -- Abyssal Healing Potion
+
+			--[[ Shadowlands ]]--
+			potion_ids[307159] = "171270" -- Potion of Spectral Agility
+			potion_ids[307160] = "171271" -- Potion of Hardened Shadows
+			potion_ids[307161] = "171272" -- Potion of Spiritual Clarity
+			potion_ids[307162] = "171273" -- Potion of Spectral Intellect
+			potion_ids[307163] = "171274" -- Potion of Spectral Stamina
+			potion_ids[307164] = "171275" -- Potion of Spectral Strength
+			potion_ids[307192] = "171267" -- Spiritual Healing Potion
+			potion_ids[307193] = "171268" -- Spiritual Mana Potion
+			potion_ids[307194] = "171269" -- Spiritual Rejuvenation Potion
+			potion_ids[307195] = "171266" -- Potion of the Hidden Spirit
+			potion_ids[307196] = "171264" -- Potion of Shadow Sight
+			potion_ids[307199] = "171263" -- Potion of Soul Purity
+			potion_ids[307494] = "171352" -- Potion of Empowered Exorcisms
+			potion_ids[307495] = "171349" -- Potion of Phantom Fire
+			potion_ids[307496] = "171350" -- Potion of Divine Awakening
+			potion_ids[307497] = "171351" -- Potion of Deathly Fixation
+			potion_ids[307501] = "171370" -- Potion of Specter Swiftness
+			potion_ids[322302] = "176811" -- Potion of Sacrificial Anima
+			potion_ids[323436] = "177278" -- Phial of Serenity
 		end
 
 		-- don't edit below unless you know what you're doing.

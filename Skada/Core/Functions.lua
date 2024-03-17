@@ -2108,6 +2108,7 @@ do
 
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 	function Skada:COMBAT_LOG_EVENT_UNFILTERED()
+		-- disabled or test mode?
 		if self.disabled or self.testMode then return end
 		return self:ParseCombatLog(CombatLogGetCurrentEventInfo())
 	end
@@ -2124,9 +2125,6 @@ do
 
 	-- combat log handler
 	function Skada:ParseCombatLog(timestamp, event, ...)
-		-- disabled or test mode?
-		if self.disabled or self.testMode then return end
-
 		local args = Handlers[event](ARGS, timestamp, event, ...)
 
 		if event == "SPELL_EXTRA_ATTACKS" then
