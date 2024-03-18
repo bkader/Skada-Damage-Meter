@@ -127,7 +127,7 @@ Skada:RegisterDisplay("Data Text", "mod_broker_desc", function(L, P)
 
 		-- Optional internal frame
 		if not frame then
-			frame = CreateFrame("Frame", format("%sBrokerWindow%s", folder, p.name), UIParent, "BackdropTemplate")
+			frame = CreateFrame("Frame", format("%sBrokerWindow%s", folder, p.name), UIParent, BackdropTemplateMixin and "BackdropTemplate")
 			frame:SetHeight(p.height or 30)
 			frame:SetWidth(p.width or 200)
 			frame:SetPoint("CENTER", 0, 0)

@@ -181,6 +181,8 @@ L["Animate bar changes smoothly rather than immediately."] = "Anima le modifiche
 -- title bar
 L["Title Bar"] = "Barra Titolo"
 L["Enables the title bar."] = "Abilita la barra del titolo."
+L["Swap Position"] = "Scambio posizione"
+L["When enabled, the title bar will be moved to the opposite side of its current position."] = "Quando abilitato, la barra del titolo verrà spostata sul lato opposto rispetto alla sua posizione attuale."
 L["Include set"] = "Includi Set"
 L["Include set name in title bar"] = "Includi il nome del set nella barra del titolo"
 L["Encounter Timer"] = "Timer Incontri"

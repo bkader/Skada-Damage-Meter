@@ -735,7 +735,7 @@ end
 
 function Skada:ApplyBorder(frame, texture, color, thickness, padtop, padbottom, padleft, padright)
 	if not frame.borderFrame then
-		frame.borderFrame = CreateFrame("Frame", "$parentBorder", frame, "BackdropTemplate")
+		frame.borderFrame = CreateFrame("Frame", "$parentBorder", frame, BackdropTemplateMixin and "BackdropTemplate")
 		frame.borderFrame:SetFrameLevel(frame:GetFrameLevel() - 1)
 	end
 
@@ -766,7 +766,7 @@ do
 	local collectgarbage = collectgarbage
 
 	local function create_progress_window()
-		local frame = CreateFrame("Frame", "SkadaProgressWindow", UIParent, "BackdropTemplate")
+		local frame = CreateFrame("Frame", "SkadaProgressWindow", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		frame:SetFrameStrata("TOOLTIP")
 
 		local elem = frame:CreateTexture(nil, "BORDER")

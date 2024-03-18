@@ -141,7 +141,7 @@ Skada:RegisterDisplay("Inline Bar Display", "mod_inline_desc", function(L)
 		local frame = window.frame
 
 		if not frame then
-			frame = CreateFrame("Frame", format("%sInlineWindow%s", folder, p.name), UIParent, "BackdropTemplate")
+			frame = CreateFrame("Frame", format("%sInlineWindow%s", folder, p.name), UIParent, BackdropTemplateMixin and "BackdropTemplate")
 			frame:SetFrameLevel(1)
 
 			if p.height == 15 then
@@ -251,7 +251,7 @@ Skada:RegisterDisplay("Inline Bar Display", "mod_inline_desc", function(L)
 		bar.value = 0
 		bar.win = win
 
-		bar.bg = CreateFrame("Frame", format("$parentBackground%d", bar.uuid), win.frame, "BackdropTemplate")
+		bar.bg = CreateFrame("Frame", format("$parentBackground%d", bar.uuid), win.frame, BackdropTemplateMixin and "BackdropTemplate")
 		bar.bg:SetFrameLevel(win.frame:GetFrameLevel() + 6)
 		bar.bg.bar = bar
 

@@ -15,6 +15,7 @@ _**FOR PRIVATE SERVERS**_:
 * _[Warlords of Draenor](https://github.com/bkader/Skada-WoD)_
 * _[Legion](https://github.com/bkader/Skada-Legion)_
 * _[Battle for Azeroth](https://github.com/bkader/Skada-BfA)_
+* _[Shadowlands](https://github.com/bkader/Skada-Shadowlands)_
 
 > ***Is this a backported version?***
 > **No**! This is total **rewrite** of the original addon, it all started from version `r301` for `3.3.5`and built up to the current state.

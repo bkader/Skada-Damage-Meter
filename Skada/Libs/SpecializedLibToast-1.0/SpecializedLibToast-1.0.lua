@@ -335,7 +335,7 @@ local function _acquireToast()
 	local toast = tremove(toast_heap)
 
 	if not toast then
-		toast = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+		toast = CreateFrame("Button", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		toast:SetFrameStrata("DIALOG")
 		toast:Hide()
 

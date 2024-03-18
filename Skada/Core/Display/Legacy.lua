@@ -179,7 +179,7 @@ Skada:RegisterDisplay("Legacy Bar Display", "mod_bar_desc", function(L, P)
 					lib.defaultFont = myfont
 				end
 
-				list.button = CreateFrame("Button", nil, list, "BackdropTemplate")
+				list.button = CreateFrame("Button", nil, list, BackdropTemplateMixin and "BackdropTemplate")
 				list.button:SetBackdrop(frame_defaults)
 				list.button:SetText(name)
 				list.button:SetNormalFontObject(myfont)
@@ -1630,7 +1630,7 @@ Skada:RegisterDisplay("Legacy Bar Display", "mod_bar_desc", function(L, P)
 			-- Window
 			if p.enablebackground then
 				if g.bgframe == nil then
-					g.bgframe = CreateFrame("Frame", "$parentBG", g, "BackdropTemplate")
+					g.bgframe = CreateFrame("Frame", "$parentBG", g, BackdropTemplateMixin and "BackdropTemplate")
 					g.bgframe:SetFrameStrata("BACKGROUND")
 					g.bgframe:EnableMouse()
 					g.bgframe:EnableMouseWheel()

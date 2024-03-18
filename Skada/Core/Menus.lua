@@ -782,7 +782,7 @@ do
 
 	local function build_large_menu()
 		local menu_name = format("%sMenuModeLarge", folder)
-		local menu = CreateFrame("Button", menu_name, UIParent, "BackdropTemplate")
+		local menu = CreateFrame("Button", menu_name, UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		menu:SetFrameStrata("TOOLTIP")
 		menu:SetClampedToScreen(true)
 		menu:SetBackdrop({
