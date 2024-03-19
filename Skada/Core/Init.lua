@@ -1453,6 +1453,19 @@ do
 		customIcons[54968] = [[Interface\ICONS\inv_glyph_majorpaladin]] --> Glyph of Holy Light
 		customIcons[58362] = [[Interface\ICONS\inv_glyph_majorwarrior]] --> Glyph of Heroic Strike
 		customIcons[67545] = [[Interface\ICONS\spell_fire_flamebolt]] --> Empowered Fire
+	else
+		-- other resources
+		customIcons[9999001] = {L["Combo Points"], [[Interface\ICONS\inv_mace_2h_pvp410_c_01]]} --> Combo Points
+		customIcons[9999002] = {L["Runes"], [[Interface\ICONS\spell_deathknight_frozenruneweapon]]} --> Runes
+		customIcons[9999003] = {L["Soul Shards"], [[Interface\ICONS\inv_misc_gem_amethyst_02]]} --> Soul Shards
+		customIcons[9999004] = {L["Astral Power"], [[Interface\ICONS\ability_druid_eclipseorange]]} --> Astral Power
+		customIcons[9999005] = {L["Holy Power"], [[Interface\ICONS\achievement_bg_winsoa]]} --> Holy Power
+		customIcons[9999006] = {L["Maelstrom"], [[Interface\ICONS\spell_fire_masterofelements]]} --> Maelstrom
+		customIcons[9999007] = {L["Chi"], [[Interface\ICONS\ability_monk_healthsphere]]} --> Chi
+		customIcons[9999008] = {L["Insanity"], [[Interface\ICONS\spell_priest_shadoworbs]]} --> Insanity
+		customIcons[9999009] = {L["Arcane Charges"], [[Interface\ICONS\spell_arcane_arcane01]]} --> Arcane Charges
+		customIcons[9999010] = {L["Fury"], [[Interface\ICONS\ability_demonhunter_eyebeam]]} --> Fury
+		customIcons[9999011] = {L["Pain"], [[Interface\ICONS\ability_demonhunter_demonspikes]]} --> Pain
 	end
 
 	local strfind = string.find
