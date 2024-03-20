@@ -132,7 +132,7 @@ local cc_spells = {
 	[51514] = 0x08, -- Hex
 	[51722] = 0x01, -- Dismantle
 	[52719] = 0x01, -- Concussion Blow
-	[96294] = 0x10, -- Chains of Ice
+	[96294] = 0x10 -- Chains of Ice
 }
 
 -- extended list of crowd control spells
@@ -145,42 +145,84 @@ local extra_cc_spells = setmetatable({
 	[46968] = 0x01, -- Shockwave
 	[58357] = 0x01, -- Heroic Throw silence
 	[107566] = 0x01, -- Staggering Shout
+	[132168] = 0x01, -- Shockwave
+	[132169] = 0x01, -- Storm Bolt
 	-- Death Knight
 	[47476] = 0x20, -- Strangulate
 	[47481] = 0x01, -- Gnaw
+	[47528] = 0x10, -- Mind Freeze
 	[49560] = 0x01, -- Death Grip
 	[79092] = 0x10, -- Hungering Cold
+	[91807] = 0x01, -- Shambling Rush
+	[108194] = 0x01, -- Asphyxiate
+	[207167] = 0x10, -- Blinding Sleet
+	[221562] = 0x01, -- Asphyxiate
+	[334693] = 0x10, -- Absolute Zero
 	-- Paladin
 	[853] = 0x02, -- Hammer of Justice
 	[2812] = 0x02, -- Holy Wrath
 	[10326] = 0x02, -- Turn Evil
 	[31935] = 0x02, -- Avengers Shield
+	[96231] = 0x01, -- Rebuke
 	[105421] = 0x02, -- Blinding Light
+	[217824] = 0x02, -- Shield of Virtue
 	-- Monk
+	[107079] = 0x01, -- Quaking Palm
+	[115078] = 0x01, -- Paralysis
+	[116705] = 0x01, -- Spear Hand Strike
 	[116706] = 0x01, -- Disable
+	[119381] = 0x01, -- Leg Sweep
+	[198909] = 0x08, -- Song of Chi-Ji
 	-- Priest
 	[605] = 0x20, -- Dominate Mind (Mind Control)
 	[8122] = 0x20, -- Psychic Scream
 	[15487] = 0x20, -- Silence
 	[64044] = 0x20, -- Psychic Horror
+	[200196] = 0x02, -- Holy Word: Chastise
+	[200200] = 0x02, -- Holy Word: Chastise
+	[205364] = 0x20, -- Dominate Mind
+	[226943] = 0x20, -- Mind Bomb
 	-- Shaman
 	[3600] = 0x08, -- Earthbind (Earthbind Totem)
 	[8034] = 0x10, -- Frostbrand Weapon
 	[8056] = 0x10, -- Frost Shock
+	[57994] = 0x08,  -- Wind Shear
 	[64695] = 0x08, -- Earthgrab
+	[118905] = 0x08, -- Static Charge
+	[197214] = 0x05, -- Sundering
+	[210873] = 0x08, -- Hex (Compy)
+	[211004] = 0x08, -- Hex (Spider)
+	[211010] = 0x08, -- Hex (Snake)
+	[211015] = 0x08, -- Hex (Cockroach)
+	[269352] = 0x08, -- Hex (Skeletal Hatchling)
+	[277778] = 0x08, -- Hex (Zandalari Tendonripper)
+	[277784] = 0x08, -- Hex (Wicker Mongrel)
+	[309328] = 0x08, -- Hex (Living Honey)
 	-- Druid
-	[339] = 0x08, -- Entangling Roots
+	[99] = 0x01, -- Incapacitating Roar
+	[5211] = 0x01, -- Mighty Bash
 	[16979] = 0x01, -- Feral Charge - Bear
 	[19975] = 0x08, -- Entangling Roots (Nature's Grasp)
 	[22570] = 0x01, -- Maim
 	[45334] = 0x01, -- Feral Charge Effect
+	[50259] = 0x01, -- Dazed
+	[61391] = 0x08, -- Typhoon
 	[66070] = 0x08, -- Entangling Roots (Force of Nature)
+	[93985] = 0x01, -- Skull Bash
+	[102359] = 0x08, -- Mass Entanglement
+	[127797] = 0x08, -- Ursol's Vortex
+	[163505] = 0x01, -- Rake
+	[203123] = 0x01, -- Maim
+	[209753] = 0x08, -- Cyclone
+	[236748] = 0x01, -- Intimidating Roar
 	-- Rogue
 	[408] = 0x01, -- Kidney Shot
 	[1330] = 0x01, -- Garrote - Silence
+	[1766] = 0x01, -- Kick
 	[1776] = 0x01, -- Gouge
 	[1833] = 0x01, -- Cheap Shot
 	[2094] = 0x01, -- Blind
+	[427773] = 0x01, -- Blind
 	-- Mage
 	[122] = 0x10, -- Frost Nova
 	[31661] = 0x04, -- Dragon's Breath
@@ -191,15 +233,20 @@ local extra_cc_spells = setmetatable({
 	[61721] = 0x40, -- Polymorph Rabbit
 	[61780] = 0x40, -- Polymorph Turkey
 	[82691] = 0x10, -- Ring of Frost
+	[82691] = 0x10, -- Ring of Frost
 	[111340] = 0x10, -- Ice Ward
+	[157981] = 0x04, -- Blast Wave
+	[157997] = 0x10, -- Ice Nova
 	-- Warlock
 	[5484] = 0x20, -- Howl of Terror
 	[6789] = 0x20, -- Death Coil
+	[19647] = 0x20, -- Spell Lock
 	[22703] = 0x04, -- Infernal Awakening
 	[24259] = 0x20, -- Spell Lock
 	[30283] = 0x20, -- Shadowfury
 	[115268] = 0x20, -- Mesmerize
 	[118699] = 0x20, -- Fear
+	[212619] = 0x20, -- Call Felhunter
 	-- Hunter
 	[1513] = 0x08, -- Scare Beast
 	[4167] = 0x01, -- Web (Spider)
@@ -211,14 +258,32 @@ local extra_cc_spells = setmetatable({
 	[26090] = 0x08, -- Pummel (Gorilla)
 	[50541] = 0x01, -- Clench (Scorpid)
 	[64803] = 0x01, -- Entrapment
+	[117405] = 0x01, -- Binding Shot
+	[117526] = 0x40, -- Binding Shot
 	[136634] = 0x08, -- Narrow Escape
+	[147362] = 0x01, -- Counter Shot
+	[162480] = 0x01, -- Steel Trap
+	[187707] = 0x01, -- Muzzle
+	[190927] = 0x01, -- Harpoon
+	-- Demon Hunter
+	[179057] = 0x7c, -- Chaos Nova
+	[183752] = 0x7c, -- Disrupt
+	[200166] = 0x7c, -- Metamorphosis
+	[207685] = 0x01, -- Sigil of Misery
+	[211881] = 0x7c, -- Fel Eruption
+	[217832] = 0x20, -- Imprison
+	-- Evoker
+	[360806] = 0x08, -- Sleep Walk
+	[372245] = 0x04, -- Terror of the Skies
+	-- Covenant / Venthyr
+	[331866] = 0x20, -- Agent of Chaos
 	-- Racials
 	[20549] = 0x01, -- War Stomp (Tauren)
 	[28730] = 0x40, -- Arcane Torrent (Bloodelf)
 	[47779] = 0x40, -- Arcane Torrent (Bloodelf)
 	[50613] = 0x40, -- Arcane Torrent (Bloodelf)
 	-- Engineering
-	[67890] = 0x04, -- Cobalt Frag Bomb
+	[67890] = 0x04 -- Cobalt Frag Bomb
 }, {__index = cc_spells})
 
 -- deathlog tracked buffs.

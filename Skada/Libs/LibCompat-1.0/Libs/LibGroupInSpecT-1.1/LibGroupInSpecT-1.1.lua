@@ -75,7 +75,7 @@ local WOW_PROJECT_ID = _G.WOW_PROJECT_ID
 local WOW_PROJECT_MAINLINE = _G.WOW_PROJECT_MAINLINE
 if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then return end
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", 100
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", 101
 
 if not LibStub then
 	error(MAJOR .. " requires LibStub")
@@ -242,7 +242,11 @@ local global_spec_id_roles_detailed = {
 	-- Warrior
 	[71] = "melee", -- Arms
 	[72] = "melee", -- Fury
-	[73] = "tank" -- Protection
+	[73] = "tank", -- Protection
+	-- Evoker
+	[1467] = "ranged", -- Devastation
+	[1468] = "healer", -- Preservation
+	[1473] = "ranged" -- Augmentation
 }
 
 local class_fixed_roles = {
