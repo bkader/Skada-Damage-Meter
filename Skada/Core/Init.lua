@@ -56,21 +56,61 @@ do
 	local _, _, _, WowBuild = GetBuildInfo()
 	ns.WowBuild = WowBuild
 
-	local function IsTimewalk()
-		return (WowBuild < 40000)
+	local function IsClassic()
+		return (WowBuild < 20000)
+	end
+
+	local function IsTBC()
+		return (WowBuild >= 20000 and WowBuild < 30000)
 	end
 
 	local function IsWotLK()
 		return (WowBuild >= 30000 and WowBuild < 40000)
 	end
 
-	local function IsDragonflight()
-		return (WowBuild >= 100000)
+	local function IsCata()
+		return (WowBuild >= 40000 and WowBuild < 50000)
 	end
 
-	Private.IsTimewalk = IsTimewalk
+	local function IsMoP()
+		return (WowBuild >= 50000 and WowBuild < 60000)
+	end
+
+	local function IsWoD()
+		return (WowBuild >= 60000 and WowBuild < 70000)
+	end
+
+	local function IsLegion()
+		return (WowBuild >= 70000 and WowBuild < 80000)
+	end
+
+	local function IsBfA()
+		return (WowBuild >= 80000 and WowBuild < 90000)
+	end
+
+	local function IsShadowlands()
+		return (WowBuild >= 90000 and WowBuild < 100000)
+	end
+
+	local function IsDragonflight()
+		return (WowBuild >= 100000 and WowBuild < 110000)
+	end
+
+	local function IsTimewalk()
+		return (WowBuild < 40000)
+	end
+
+	Private.IsClassic = IsClassic
+	Private.IsTBC = IsTBC
 	Private.IsWotLK = IsWotLK
+	Private.IsCata = IsCata
+	Private.IsMoP = IsMoP
+	Private.IsWoD = IsWoD
+	Private.IsLegion = IsLegion
+	Private.IsBfA = IsBfA
+	Private.IsShadowlands = IsShadowlands
 	Private.IsDragonflight = IsDragonflight
+	Private.IsTimewalk = IsTimewalk
 end
 
 -------------------------------------------------------------------------------
@@ -514,16 +554,23 @@ function Private.RegisterClasses()
 		[577] = {128/512, 192/512, 448/512, 512/512}, --> Demon Hunter: Havoc
 		[581] = {192/512, 256/512, 448/512, 512/512}, --> Demon Hunter: Vengeance
 		[1467] = {256/512, 320/512, 448/512, 512/512}, --> Evoker: Devastation
-		[1468] = {320/512, 384/512, 448/512, 512/512} --> Evoker: Preservation
+		[1468] = {320/512, 384/512, 448/512, 512/512}, --> Evoker: Preservation
+		[1473] = {384/512, 448/512, 448/512, 512/512} --> Evoker: Augmentation
 	}, speccoords_mt)
 
 	-- change few icons for classic
 	if Private.IsWotLK() then
-		ns.speccoords[259] = {320/512, 384/512, 128/512, 192/512} --> Rogue: Assassination
-		ns.speccoords[260] = {384/512, 448/512, 128/512, 192/512} --> Rogue: Combat
-	else
-		ns.speccoords[259] = {384/512, 448/512, 192/512, 256/512} --> Rogue: Assassination
-		ns.speccoords[260] = {448/512, 512/512, 192/512, 256/512} --> Rogue: Combat
+		-- Rogue: Assassination
+		ns.speccoords[259][1] = 320/512
+		ns.speccoords[259][2] = 384/512
+		ns.speccoords[259][3] = 128/512
+		ns.speccoords[259][4] = 192/512
+
+		-- Rogue: Combat
+		ns.speccoords[260][1] = 384/512
+		ns.speccoords[260][2] = 448/512
+		ns.speccoords[260][3] = 128/512
+		ns.speccoords[260][4] = 192/512
 	end
 
 	--------------------------
@@ -2054,12 +2101,14 @@ do
 				d.class = actor.class or "ENEMY"
 				d.role = actor.role
 				d.spec = actor.spec
+				d.talent = actor.talent
 				return d
 			end
 
 			d.class = actor.class or "UNKNOWN"
 			d.role = actor.role
 			d.spec = actor.spec
+			d.talent = actor.talent
 
 			if ns.validclass[d.class] then
 				d.text = ns:FormatName(d.label, actor.id)

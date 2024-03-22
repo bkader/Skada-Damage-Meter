@@ -3204,6 +3204,7 @@ globals = {
 	"BNet_SendReport",
 	"BNet_SetToastDuration",
 	"BNet_UpdateToastEvent",
+	"BackdropTemplateMixin",
 	"BackpackButton_OnClick",
 	"BackpackButton_OnModifiedClick",
 	"BackpackButton_UpdateChecked",
