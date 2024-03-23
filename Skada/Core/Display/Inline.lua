@@ -26,11 +26,11 @@ Skada:RegisterDisplay("Inline Bar Display", "mod_inline_desc", function(L)
 	if not FONT_FLAGS then
 		FONT_FLAGS = {
 			[""] = L["None"],
-			["OUTLINE"] = L["Outline"],
-			["THICK"] = L["Thick"],
-			["THICKOUTLINE"] = L["Thick outline"],
 			["MONOCHROME"] = L["Monochrome"],
-			["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+			["OUTLINE"] = L["Outline"],
+			["THICKOUTLINE"] = L["Thick Outline"],
+			["OUTLINEMONOCHROME"] = L["Outline & Monochrome"],
+			["THICKOUTLINEMONOCHROME"] = L["Thick Outline & Monochrome"]
 		}
 		Skada.fontFlags = FONT_FLAGS
 	end
@@ -175,7 +175,7 @@ Skada:RegisterDisplay("Inline Bar Display", "mod_inline_desc", function(L)
 		local titlebg = CreateFrame("Frame", "$parentTitleBackground", frame)
 		titlebg.win = window
 
-		local title = frame:CreateFontString("frameTitle", 6)
+		local title = frame:CreateFontString("frameTitle", "OVERLAY")
 		title:SetTextColor(self:GetFontColor(p))
 		title:SetFont(self:GetFont(p))
 		title:SetText(window.metadata.title or folder)
@@ -481,9 +481,9 @@ Skada:RegisterDisplay("Inline Bar Display", "mod_inline_desc", function(L)
 		if p.isusingelvuiskin and ElvUI then
 			f:SetHeight(p.height)
 			f.fstitle:SetTextColor(255, 255, 255, 1)
-			f.fstitle:SetFont(ElvUI[1]["media"].normFont, p.barfontsize, nil)
+			f.fstitle:SetFont(ElvUI[1]["media"].normFont, p.barfontsize, "")
 			for k, bar in pairs(mybars) do
-				bar.label:SetFont(ElvUI[1]["media"].normFont, p.barfontsize, nil)
+				bar.label:SetFont(ElvUI[1]["media"].normFont, p.barfontsize, "")
 				bar.label:SetTextColor(255, 255, 255, 1)
 			end
 

@@ -1065,7 +1065,7 @@ Skada:RegisterDisplay("Legacy Bar Display", "mod_bar_desc", function(L, P)
 		end
 
 		function barPrototype:UpdateColor()
-			if not self.colors then return end
+			if not self.colors or not self.colors[1] then return end
 			self.texture:SetVertexColor(self.colors[1], self.colors[2], self.colors[3], self.colors[4] or 1)
 		end
 
@@ -1574,7 +1574,7 @@ Skada:RegisterDisplay("Legacy Bar Display", "mod_bar_desc", function(L, P)
 			g:SetHeight(p.barheight)
 			g:SetWidth(p.barwidth)
 			g:SetTexture(Skada:MediaFetch("statusbar", p.bartexture))
-			g:SetFont(Skada:MediaFetch("font", p.barfont), p.barfontsize)
+			g:SetFont(Skada:MediaFetch("font", p.barfont), p.barfontsize, "")
 			g:SetSpacing(p.barspacing)
 			g:SetColor(p.barcolor.r, p.barcolor.g, p.barcolor.b, p.barcolor.a)
 			g:SetMaxBars(p.barmax)
@@ -1584,7 +1584,7 @@ Skada:RegisterDisplay("Legacy Bar Display", "mod_bar_desc", function(L, P)
 			-- Header
 			local fo = g.TitleFont or CreateFont(format("TitleFont%s", win.db.name))
 			g.TitleFont = fo
-			fo:SetFont(Skada:MediaFetch("font", p.title.font), p.title.fontsize)
+			fo:SetFont(Skada:MediaFetch("font", p.title.font), p.title.fontsize, "")
 			g.button:SetNormalFontObject(fo)
 			local inset = p.title.borderinsets
 			titlebackdrop.bgFile = Skada:MediaFetch("statusbar", p.title.texture)
